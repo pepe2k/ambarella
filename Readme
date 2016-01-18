@@ -1,0 +1,17 @@
+ambarella from S2 sdk4.0
+we make the it and get the "out" directory after we patch to the SDK.
+Complie Command:
+$ cd s2_linux_sdk/ambarella 
+$ source build/env/Linaro-multilib-gcc4.8.env
+$ cd boards/s2ipcam
+$ make sync_build_mkcfg
+$ make s2_ipcam_8gb_s288_config
+*****************************
+make menuconfig                 —————amba
+or
+make defconfig_public_linux     —————firstly compile with the defconfig file.
+or	      
+make menuconfig_public_linux    ————— kernel
+***************************** 
+$ make -j(n)                    ————— n : the number of the CPUs.
+
