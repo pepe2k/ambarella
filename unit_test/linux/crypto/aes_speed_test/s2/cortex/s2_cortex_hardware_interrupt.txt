@@ -1,0 +1,37 @@
+# modprobe tcrypt mode=500 sec=1
+
+testing speed of async ecb(aes) encryption
+test 0 (128 bit key, 16 byte blocks): 53536 operations in 1 seconds (856576 bytes)
+test 1 (128 bit key, 64 byte blocks): 24693 operations in 1 seconds (1580352 bytes)
+test 2 (128 bit key, 256 byte blocks): 8541 operations in 1 seconds (2186496 bytes)
+test 3 (128 bit key, 1024 byte blocks): 2405 operations in 1 seconds (2462720 bytes)
+test 4 (128 bit key, 8192 byte blocks): 312 operations in 1 seconds (2555904 bytes)
+test 5 (192 bit key, 16 byte blocks): 52373 operations in 1 seconds (837968 bytes)
+test 6 (192 bit key, 64 byte blocks): 23188 operations in 1 seconds (1484032 bytes)
+test 7 (192 bit key, 256 byte blocks): 8085 operations in 1 seconds (2069760 bytes)
+test 8 (192 bit key, 1024 byte blocks): 2269 operations in 1 seconds (2323456 bytes)
+test 9 (192 bit key, 8192 byte blocks): 294 operations in 1 seconds (2408448 bytes)
+test 10 (256 bit key, 16 byte blocks): 50049 operations in 1 seconds (800784 bytes)
+test 11 (256 bit key, 64 byte blocks): 22515 operations in 1 seconds (1440960 bytes)
+test 12 (256 bit key, 256 byte blocks): 7990 operations in 1 seconds (2045440 bytes)
+test 13 (256 bit key, 1024 byte blocks): 2250 operations in 1 seconds (2304000 bytes)
+test 14 (256 bit key, 8192 byte blocks): 293 operations in 1 seconds (2400256 bytes)
+
+testing speed of async ecb(aes) decryption
+test 0 (128 bit key, 16 byte blocks): 54466 operations in 1 seconds (871456 bytes)
+test 1 (128 bit key, 64 byte blocks): 25215 operations in 1 seconds (1613760 bytes)
+test 2 (128 bit key, 256 byte blocks): 8851 operations in 1 seconds (2265856 bytes)
+test 3 (128 bit key, 1024 byte blocks): 2486 operations in 1 seconds (2545664 bytes)
+test 4 (128 bit key, 8192 byte blocks): 320 operations in 1 seconds (2621440 bytes)
+test 5 (192 bit key, 16 byte blocks): 50062 operations in 1 seconds (800992 bytes)
+test 6 (192 bit key, 64 byte blocks): 23287 operations in 1 seconds (1490368 bytes)
+test 7 (192 bit key, 256 byte blocks): 8050 operations in 1 seconds (2060800 bytes)
+test 8 (192 bit key, 1024 byte blocks): 2246 operations in 1 seconds (2299904 bytes)
+test 9 (192 bit key, 8192 byte blocks): 290 operations in 1 seconds (2375680 bytes)
+test 10 (256 bit key, 16 byte blocks): 47569 operations in 1 seconds (761104 bytes)
+test 11 (256 bit key, 64 byte blocks): 22587 operations in 1 seconds (1445568 bytes)
+test 12 (256 bit key, 256 byte blocks): 7904 operations in 1 seconds (2023424 bytes)
+test 13 (256 bit key, 1024 byte blocks): 2210 operations in 1 seconds (2263040 bytes)
+test 14 (256 bit key, 8192 byte blocks): 288 operations in 1 seconds (2359296 bytes)
+
+

@@ -1,0 +1,176 @@
+A7 System Validation Package
+Version: 7195
+Author: rudi rughoonundon (rudir@ambarella.com)
+Date: April 2009
+
+Description
+-----------
+
+docs/hal/html/index.html   - hal api html documentation
+docs/hal/pdf/a7hal.pdf    - hal api pdf documentation
+docs/bstconfig/README      - bstconfig documentation (used to customize boot strap, spi eeprom image and dram tuner)
+
+bin/lnx64/bstconfig             - boot strap configuration application for 64bits Linux
+bin/lnx/bstconfig               - boot strap configuration application for 32bits Linux
+bin/msw/bstconfig.exe           - boot strap configuration application for Microsoft Windows
+bin/lnx/hif                     - host interface command file generator for Linux
+bin/msw/hif.exe                 - host interface command file generator for Microsoft Windows
+bin/lnx/chameleon_script        - chameleon command file generator for Linux
+bin/msw/chameleon_script.exe    - chameleon command file generator for Microsoft Windows
+bin/lnx/debugger                - usb based debugger for Linux
+bin/msw/debugger.exe            - usb based debugger for Microsoft Windows
+
+lib/libambhalmini.a         - hal mini static library implementing a very limited version of hal
+lib/msw/draminit.dll        - dram initialization through usb dll file for Microsoft Windows
+lib/msw/draminit.def        - dram initialization through usb dll def file for Microsoft Windows
+lib/msw/libdraminit.a       - dram initialization through usb dll import lib file for Microsoft Windows
+
+image/ambhal.bin                   - hal binary image
+image/amboot_bst_ddr2_ddr3.bin     - ddr2/ddr3 boot strap image
+image/amboot_bst_lpddr.bin         - mddr boot strap image
+image/amboot_bst_lpddr2.bin        - mddr2 boot strap image
+image/spieeprom.bin                - spi eeprom image
+image/debugger.bin                 - nand flash image for debugger application
+
+include/ambhal.h        - hal api header file
+include/ambhalmini.h    - hal mini api header file
+
+chameleon/*.mac                    - chameleon macros to initialize dram
+chameleon/*.def                    - chameleon register definition files
+chameleon/a5flashprogrammer.mac    - chameleon macro to burn a 2K flash image using an a5 bub
+chameleon/a2sflashprogrammer.mac   - chameleon macro to burn a 2K flash image using an a2s bub
+chameleon/a5mflashprogrammer.mac   - chameleon macro to burn a 2K flash image using an a5m bub
+
+libusb/driver/msw         - Microsoft Windows drivers for libusb (both 32 bit and 64 bit drivers are provided)
+libusb/lib/msw/libusb.a   - statically linked library for libusb (for use with gcc/mingw)
+libusb/include/usb.h      - header file for libusb
+
+System Validation Flow
+----------------------
+
+The SV flow is used to generate the boot mechanism on different platforms. The flow provides images/scripts for the following platforms:
+1. nand flash (image/amboot_bst_*.bin)
+2. spi (image/spieeprom.bin)
+3. chameleon (chameleon/*.mac)
+4. host interface (.ash script)
+5. usb (lib/msw/draminit.dll)
+
+We provide a number of applications to help with sv debug.
+1. A NAND Flash based dram tuner application to fine tune dram settings for individual systems.
+2. A NAND Flash based USB application to debug a system (alternative to Chameleon).
+
+Usage
+-----
+
+The typical usage model of the flow is as follows:
+
+1. generate a parameter file using the bstconfig gui application
+1a. suppose the parameter file is called lpddr_337_1028x16.ini
+
+2. configure the bst image using the bstconfig batch application and the parameter file generated in step 1.
+2a. bstconfig -batch -parameters lpddr_337_1028x16.ini -input image/amboot_bst_lpddr.bin -output amboot_bst_lpddr_337_1028x16.bin
+
+3. configure the spi eeprom image using the bstconfig batch application and using the parameter file generated in step 1.
+3a. bstconfig -batch -spieeprom -parameters lpddr_337_1028x16.ini -input image/spieeprom.bin -output spieeprom_lpddr_337_1028x16.bin
+
+4. generate a chameleon macro from the spi eeprom image generated in step 3.
+4a. chameleon_script -f spieeprom_lpddr_337_1028x16.bin -o lpddr_337_1028x16.mac
+4b. you will also need the register definition file a7.def in the current directory for the chameleon macro to work properly
+
+5. generate an ambsh script to drive the host interface from the spi eeprom image generated in step 3.
+5a. hif -f spieeprom_lpddr_337_1028x16.bin -o lpddr_337_1028x16.ash
+
+6. for usb the init_dram_controller function takes the file spieeprom_lpddr_337_1028x16.bin as an argument to issue the necessary usb commands
+ 
+NAND Flash
+----------
+
+We provide a set of nand flash boot images for each type of sdram device:
+1. ddr2 & ddr3 (image/amboot_bst_ddr2_ddr3.bin)
+2. lpddr (image/amboot_bst_lpddr.bin)
+3. lpddr2 (image/amboot_bst_lpddr2.bin)
+
+These images must be configured using bstconfig before they can be used on a platform. The bstconfig application is used to customize the original bst images with platform specific dram settings, nand flash settings, etc.
+
+Please refer to the bstconfig documentation for more information on this topic (docs/bstconfig/README).
+
+SPI EEPROM Image
+----------------
+
+We provide an image that must be burned in the spi eeprom to allow booting from the spi interface.
+
+The provided image must be configured using the bstconfig application to customize the dram settings for a specific platform. The bstconfig option -spieeprom implements this feature.
+
+Please refer to the bstconfig documentation for more information on this topic (docs/bstconfig/README).
+
+Chameleon Macro
+---------------
+
+We provide an initial set of Chameleon macros for system bringup.
+
+Additional macros may be generated using the chameleon_script application. We provide the application for the Linux platform (bin/lnx/chameleon_script) and for the Microsoft Windows platform (bin/msw/chameleon_script.exe).
+
+The chameleon_script application takes an spieeprom.bin image as input and outputs a chameleon macro based on the content of the spi eeprom image.
+
+Please refer to the SPI EEPROM Image documentation to learn how to customize the image.
+
+The usage for the chameleon application is as follows:
+
+  chameleon_script -f <input_image> -o <output_filename>
+
+The <input_image> is an spi eeprom image that has been configured using bstconfig.
+
+The <output_filename> is any valid file name for the given platform. Chameleon macros usually have an extension of .mac.
+
+Also note that the chameleon macro requires the register definition file chameleon/a7.def.
+
+Host Interface ambsh Shell Script
+---------------------------------
+
+Ambsh shell scripts are generated using the hif application. We provide the application for the Linux platform (bin/lnx/hif) and for the Microsoft Windows platform (bin/msw/hif.exe).
+
+The hif application takes an spieeprom.bin image as input and outputs a host interface ambsh shell script based on the content of the spi eeprom image.
+
+Please refer to the SPI EEPROM Image documentation to learn how to customize the image.
+
+The usage for the hif application is as follows:
+
+  hif -f <input_image> -o <output_filename>
+
+The <input_image> is an spi eeprom image that has been configured using bstconfig.
+
+The <output_filename> is any valid file name for the given platform. Amb shell scripts usually have an extension of .ash.
+
+USB
+---
+
+We provide a Microsoft Windows dynamic link library with the initialization sequence for the dram controller using the libusb driver (lib/msw/draminit.dll). This library may be linked dynamically or statically using the provided c header file (include/draminit.h), DEF file (lib/msw/draminit.def) and import lib file (lib/msw/libdraminit.a).
+
+The dll exports a single function: init_dram_controller. The function is documented in include/draminit.h.
+
+The input file that is passed to the function init_dram_controller () is an spi eeprom image after it has been configured by bstconfig.
+
+DRAM Tuner
+----------
+
+More on this soon ...
+
+Debugger
+--------
+
+This is a Microsoft Windows application to debug a system using the USB interface. It is an alternative to Chameleon.
+
+The application is comprised of a set of USB drivers (libusb/drivers/msw), a Microsoft Windows native application (bin/msw/debugger.exe) and a nand flash image that implements a USB based arm monitor (image/debugger.bin).
+
+The following steps are required to run the debugger:
+1. burn the nand flash image under image/debugger.bin into the nand flash on the bringup board
+1a. you can use the chameleon based flash programmer provided under chameleon/scripts to do this
+1b. note that the nand flash image file must be renamed to arm.bin for the chameleon script to work properly
+1c. reboot the bringup board after the flash image has been burned
+1d. hook up a usb cable between the bringup board and the pc
+2. when prompted by windows install the Microsoft Windows driver for libusb from libusb/driver/msw
+2a. you can also do this manually by going under Control Panel->System->Hardware->Device Manager
+3. start up the bin/msw/debugger.exe application
+3a. type h for a list of commands
+
+

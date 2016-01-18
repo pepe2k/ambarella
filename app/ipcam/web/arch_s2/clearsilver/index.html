@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+<meta charset=utf-8" />
+<link href="css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui-1.10.1.custom.js"></script>
+<title>AMBARELLA IPCAM LOGIN</title>
+<style type="text/css">
+<!--
+#logo{
+width:250px;
+height:146px;
+display: block;
+margin:0 auto;
+overflow:hidden;
+z-index: 100;
+background-repeat: no-repeat;
+background-position: right;
+background:url(css/images/logo_large.gif) no-repeat 0 0;
+background-image:-webkit-image-set(url(css/images/logo_large.gif) 1x);
+background-image:-moz-image-set(url(css/images/logo_large.gif) 1x);
+background-image:-ms-image-set(url(css/images/logo_large.gif) 1x);
+background-image:-o-image-set(url(css/images/logo_large.gif) 1x);
+line-height:100em
+}
+#table{
+width: 800px;
+height: 311px;
+margin: 0;
+padding: 0;
+}
+#upside {
+height: 147px;
+}
+#downside {
+width: 100%;
+height:100%;
+}
+#view,#setting {
+height: 40px;
+width: 140px;
+text-align:center;
+}
+#username,#password {
+width: 200px;
+float:left;
+}
+.summit {
+margin-top:30px;
+}
+.textinput {
+height: 30px;
+}
+-->
+</style>
+<style type="text/css">
+<!--
+.input{
+margin-top:90px;
+margin-left:-80px;
+}
+.style1 {
+	color: #FFF;
+	font-family: Verdana, Arial, sans-serif;
+	font-size:18px;
+}
+.style3 {
+	text-align:center;
+	color: #000;
+	font-size: 10px;
+	font-family: Verdana, Arial, sans-serif;
+	font-weight:bold;
+}
+-->
+</style>
+<script>
+	$(function() {
+		$( "#view" ).button();
+		$( "#setting" ).button();
+		$("#view").click(function() {
+			$.ajax({
+				url: '/cgi-bin/router.cgi?page=verif&action=update',
+				datatype: 'xml',
+				type: 'put',
+				success: function(xml) {
+					var res = $(xml).find('res').attr("ul");
+					if(res == "0") {
+						window.location.href = "/cgi-bin/router.cgi?page=live&action=query&stream=1";
+						return false;
+					}
+				},
+			});
+		});
+		$("#setting").click(function() {
+			$.ajax({
+				url: '/cgi-bin/router.cgi?page=verif&action=update',
+				datatype: 'xml',
+				type: 'put',
+				success: function(xml) {
+					var res = $(xml).find('res').attr("ul");
+					if(res == "0") {
+						window.location.href = "/cgi-bin/router.cgi?page=enc&action=query&stream=1";
+						return false;
+					}
+				},
+			});
+		});
+	});
+</script>
+</head>
+
+<body>
+<div align="center">
+	<div id="table">
+		<div id="upside" class="ui-state-default ui-corner-all">
+			<div id="logo"></div>
+		</div>
+		<div id="downside" class="ui-state-active ui-corner-all">
+		<div class="input">
+			<table width="38%" border="0">
+				<tr>
+					<td width="20%">
+					<div align="left" class="style1">
+						<div align="right">Username:</div>
+					</div>
+					</td>
+					<td width="80%">
+					<div align="left">
+					<input type="text" class="textinput ui-corner-all" id="username"  maxlength=10  />
+					</div>
+					</td>
+				</tr>
+				<tr>
+				<td><div align="right" class="style1">Password:</div></td>
+				<td>
+				<div align="left">
+					<input type="text" class="textinput ui-corner-all" id="password"  maxlength=10  />
+				</div>
+				</td>
+				</tr>
+				<tr>
+				<td>&nbsp;</td>
+					<td> </td>
+				</tr>
+		</table>
+		</div>
+		<div class="summit">
+		<button id="view">View</button>
+		<button id="setting">Setting</button>
+		</div>
+	</div>
+			<p class="style3"> ALL RIGHT RESERVED, AMBARELLA, Aug 1st,2010  2:58 PM</p>
+	</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" " http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=" http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>Ambarella Encode Setting Page</title>
+	<link href="../css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+	<link href="../css/amba.css" rel="stylesheet">
+	<link href="../css/introjs.css" rel="stylesheet">
+	<!--[if lte IE 8]>
+	<link href="../js/introjs-ie.css" rel="stylesheet">
+	<!-- <![endif]-->
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/jquery-ui-1.10.1.custom.js"></script>
+	<script>
+	$(function() {
+		$( "#apply" ).button();
+		$( "#cancel" ).button();
+		$( "#alert" ).hide();
+		$( "#enc_mode" ).buttonset();
+		$( "#tabs" ).tabs({active:<?cs var:streamid ?>} );
+
+		$( "#encodetype" ).buttonset();
+		$( "#fps" ).buttonset();
+		$( "#dptztype" ).buttonset();
+		$( "#resolution" ).buttonset();
+		$( "#fliprotate" ).buttonset();
+		$( "#h264_n" ).spinner({
+			max: 255,
+			min: 1
+		});
+		$( "#idr_interval" ).spinner({
+			max: 100,
+			min: 1
+		});
+		$( "#profile" ).buttonset();
+		$( "#mjpeg_quality" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#accordion" ).accordion({active:<?cs if:encodetype=="2" ?><?cs var:"1"?><?cs else?><?cs var:"0"?><?cs /if ?>});
+		$("#ui-id-1").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=enc&action=query&stream=1";
+		});
+		$("#ui-id-2").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=enc&action=query&stream=2";
+		});
+		$("#ui-id-3").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=enc&action=query&stream=3";
+		});
+		$("#ui-id-4").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=enc&action=query&stream=4";
+		});
+		$( "#success" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$( "#fail" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$("ul#menu>li:has(ul)").hover(function(){
+			$(this).children('a').addClass('red').end().find('ul').fadeIn(400);},
+			function(){
+			$(this).children('a').removeClass('red').end().find('ul').fadeOut(400);
+		});
+		getData("enc");
+		$("#apply").click(function() {
+			setEnc();
+		});
+		$("#cancel").click(function() {
+			setData("enc");
+		});
+		$(document).keypress(function(e){
+			keyCode = e.keyCode || e.which;
+			if(keyCode == 63){
+				introJs().start();
+			}
+		});
+	});
+	</script>
+	<style>
+
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	#enccommand {
+		padding-bottom: 50px;
+		text-align:center;
+		position: absolute;
+		top: 950px;
+		left:45%;
+	}
+	</style>
+</head>
+<body>
+<div id="nav-wrapper"class="ui-state-default" style="padding-left: 0px;padding-right: 0px;">
+	<div class="wrapper">
+	<div id="nav-logo"><a href="#">Ambarella</a>
+	</div>
+	<div id="nav-menu">
+		<ul id="menu">
+		<li><a>Camera</a>
+			<ul>
+			<li><a class="ui-state-active ui-corner-all">Encode</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=pm&action=query" class="ui-state-default ui-corner-all">PrivacyMask</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=osd&action=query&stream=1" class="ui-state-default ui-corner-all">OSD</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=dwp&action=query" class="ui-state-default ui-corner-all">Dewarp</a></li>
+			</ul>
+		</li>
+		<li><a href="/cgi-bin/router.cgi?page=live&action=query&stream=1">Liveview</a></li>
+		<li><a href="/cgi-bin/router.cgi?page=iq&action=query">Image</a></li>
+		</ul>
+	</div>
+	</div>
+</div>
+<div class="wrapper">
+<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Stream1</a></li>
+		<li><a href="#tabs-2">Stream2</a></li>
+		<li><a href="#tabs-3">Stream3</a></li>
+		<li><a href="#tabs-4">Stream4</a></li>
+	</ul>
+	<div id="tabs-1">For stream 1.
+	</div>
+	<div id="tabs-2">For stream 2.
+	</div>
+	<div id="tabs-3">For stream 3.
+	</div>
+	<div id="tabs-4">For stream 4.
+	</div>
+	<!-- Button -->
+	<div style="padding: 1em 1.4em;">
+		<h2 class="demoHeaders">Type:</h2>
+		<form style="margin-top: 1em;">
+			<div id="encodetype" data-step="1" data-intro="Stream Encode Type">
+				<input type="radio" id="encodetype1" name="radio" <?cs if:encodetype=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="encodetype1">OFF</label>
+				<input type="radio" id="encodetype2" name="radio" <?cs if:encodetype=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="encodetype2">H.264</label>
+				<input type="radio" id="encodetype3" name="radio" <?cs if:encodetype=="2" ?><?cs var:"checked"?><?cs /if ?> value="2"><label for="encodetype3">MJPEG</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Encode FPS:</h2>
+		<form style="margin-top: 1em;">
+			<div id="fps" data-step="2" data-intro="Stream Encode frame per second">
+				<input type="radio" id="fps1" name="radio" <?cs if:fps=="60" ?><?cs var:"checked"?><?cs /if ?> value="60"><label for="fps1">60</label>
+				<input type="radio" id="fps2" name="radio" <?cs if:fps=="30" ?><?cs var:"checked"?><?cs /if ?> value="30"><label for="fps2">30</label>
+				<input type="radio" id="fps3" name="radio" <?cs if:fps=="25" ?><?cs var:"checked"?><?cs /if ?> value="25"><label for="fps3">25</label>
+				<input type="radio" id="fps4" name="radio" <?cs if:fps=="20" ?><?cs var:"checked"?><?cs /if ?> value="20"><label for="fps4">20</label>
+				<input type="radio" id="fps5" name="radio" <?cs if:fps=="15" ?><?cs var:"checked"?><?cs /if ?> value="15"><label for="fps5">15</label>
+				<input type="radio" id="fps6" name="radio" <?cs if:fps=="10" ?><?cs var:"checked"?><?cs /if ?> value="10"><label for="fps6">10</label>
+				<input type="radio" id="fps7" name="radio" <?cs if:fps=="6" ?><?cs var:"checked"?><?cs /if ?> value="6"><label for="fps7">6</label>
+				<input type="radio" id="fps8" name="radio" <?cs if:fps=="5" ?><?cs var:"checked"?><?cs /if ?> value="5"><label for="fps8">5</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Resolution:</h2>
+		<form style="margin-top: 1em;">
+			<div id="resolution" data-step="3" data-intro="Stream Resolution">
+				<?cs if:resolution=="134219776" ?><?cs var:'<input type="radio" id="resolution1" name="radio" checked value="134219776"><label for="resolution1">2048x2048</label>'?><?cs /if ?>
+				<?cs if:resolution=="67109888" ?><?cs var:'<input type="radio" id="resolution1" name="radio" checked value="67109888"><label for="resolution1">1024x1024</label>'?><?cs /if ?>
+				<?cs if:resolution=="134218752" ?><?cs var:'<input type="radio" id="resolution1" name="radio" checked value="134218752"><label for="resolution1">2048x1024</label>'?><?cs /if ?>
+				<?cs if:resolution=="209716000" ?><?cs var:'<input type="radio" id="resolution1" name="radio" checked value="209716000"><label for="resolution1">3200x800</label>'?><?cs /if ?>
+				<?cs if:resolution=="47186400" ?><?cs var:'<input type="radio" id="resolution1" name="radio" checked value="47186400"><label for="resolution1">720x480</label>'?><?cs /if ?>
+				<?cs if:resolution=="20971760" ?><?cs var:'<input type="radio" id="resolution1" name="radio" checked value="20971760"><label for="resolution1">320x240</label>'?><?cs /if ?>
+			</div>
+		</form>
+		<!-- Spinner -->
+
+		<!-- Accordion -->
+		<h2 class="demoHeaders">Stream Settings:</h2>
+		<div id="accordion" style="margin-top: 1em;">
+			<h3>H.264</h3>
+			<div>Here is for H.264 settings.
+			<h2 class="demoHeaders">N:</h2>
+			<input id="h264_n" type="spinner" value="<?cs var:h264_n ?>" data-step="6" data-intro="H.264 N">
+			<h2 class="demoHeaders">IDR Interval:</h2>
+			<input id="idr_interval" type="spinner" value="<?cs var:idr_interval ?>" data-step="7" data-intro="IDR interval">
+			<h2 class="demoHeaders">Profile:</h2>
+			<form style="margin-top: 1em;">
+				<div id="profile" data-step="8" data-intro="H264 stream profile">
+					<input type="radio" id="profile1" name="radio" <?cs if:profile=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="profile1">Baseline</label>
+					<input type="radio" id="profile2" name="radio" <?cs if:profile=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="profile2">Main</label>
+					<input type="radio" id="profile3" name="radio" <?cs if:profile=="2" ?><?cs var:"checked"?><?cs /if ?> value="2"><label for="profile3">High</label>
+				</div>
+			</form>
+			<h2 class="demoHeaders">Average Bitrate:</h2>
+			<input type="text" class="textinput" id="cbr_avg_bps" value="<?cs var:cbr_avg_bps ?>" maxlength=10  data-step="9" data-intro="CBR average bitrate"/>
+			<br></br>
+			</div>
+			<h3>MJPEG</h3>
+			<div>Here is for MJPEG settings.
+			<h2 class="demoHeaders">Quality:</h2>
+		<input id="mjpeg_quality" type="spinner" value="<?cs var:mjpeg_quality ?>">
+			</div>
+		</div>
+		</div>
+</div>
+<div id="success" title="Dialog Title" >
+	<p>Setting params successfully!</p>
+</div>
+<div id="fail" title="Dialog Title" >
+	<p>Setting params failed...</p>
+</div>
+<div id="alert" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Nothing changed.</p>
+</div>
+<div id="processing" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Note:</strong> Setting params...</p>
+</div>
+<div id="enccommand">
+<button id="apply">Apply</button>
+<button id="cancel">Cancel</button>
+</div>
+</div>
+<script src="../js/amba.js"></script>
+<script src="../js/intro.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+; A7SBUB startup macro for the Signum Chameleon Debugger Interfacea
+;refresh_mode_disable ; Disable display of windows
+pause 10
+;DRAM INITIALIZATION done
+
+
+; Flash Programmer
+; Author: Rudi Rughoonundon
+
+; enable dma
+sd 0x6000A050 = 0x0
+
+; gpio39 is setup to be in hardware mode as this is needed for nand write protect pin
+
+GPIO1_AFSEL = 0x00000080
+
+; check the status of the wp pin of nand flash device
+NAND_FLASH_COMMAND = 0xc
+$$nand_flash_status = NAND_FLASH_STATUS
+echo $$nand_flash_status
+
+; load up dma descriptor
+
+sd 0xc30a0000 = 0xC30A0200
+sd 0xc30a0004 = 0x60000000
+sd 0xc30a0008 = 0xC30A0020
+sd 0xc30a000c = 0xC30A001C
+sd 0xc30a0010 = 2048
+sd 0xc30a0014 = 0x01760003
+sd 0xc30a0018 = 0x0
+sd 0xc30a001c = 0x0
+
+; load up image file
+load bin arm.bin 0xc30a0200
+
+; setup dma controller
+DMADescriptorChannel0Address = 0xc30a0000
+DMAChannel0Enable = 0xc0000000
+
+; program the flash controller
+
+; NAND_FLASH_TIMING_INTERVAL_0 = 0x01010105
+; NAND_FLASH_TIMING_INTERVAL_1 = 0x03030303
+; NAND_FLASH_TIMING_INTERVAL_2 = 0x09051605
+; NAND_FLASH_TIMING_INTERVAL_3 = 0x07041608
+; NAND_FLASH_TIMING_INTERVAL_4 = 0x10031601
+; NAND_FLASH_TIMING_INTERVAL_5 = 0x00100703
+
+NAND_FLASH_INTERRUPT = 0x0
+NAND_FLASH_COMMAND = 0x0
+; NAND_FLASH_CONTROL = 0x01000120 ; for page size 512
+NAND_FLASH_CONTROL = 0x03400170 ; for page size 2k
+
+; erase page 0 of flash
+
+NAND_FLASH_INTERRUPT = 0x0
+NAND_FLASH_COMMAND = 0x00000009
+
+while (NAND_FLASH_INTERRUPT & 0x1) != 0x1
+  pause 1
+endwhile
+
+; reset nand flash
+
+NAND_FLASH_INTERRUPT = 0x0
+FLASH_IO_CONTROL = 0x00000
+FLASH_IO_DMA_STATUS = 0x0
+FLASH_IO_DMA_ADDRESS = 0x0
+FLASH_IO_DMA_CONTROL = 0xc6800800
+
+while (NAND_FLASH_INTERRUPT & 0x1) != 0x1
+  pause 1
+endwhile
+
+

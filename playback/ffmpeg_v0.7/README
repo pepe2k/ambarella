@@ -1,0 +1,17 @@
+FFmpeg README
+-------------
+
+1) Documentation
+----------------
+
+* Read the documentation in the doc/ directory.
+
+2) Licensing
+------------
+
+* See the LICENSE file.
+
+3) Version
+------------
+git://git.videolan.org/ffmpeg.git
+Commit:8772156be0725fd20d948a855616fe155fafdc09

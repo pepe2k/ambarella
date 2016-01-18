@@ -1,0 +1,2 @@
+EXPORTS
+    init_dram_controller @1

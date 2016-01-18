@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" " http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=" http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>Ambarella Live View Page</title>
+	<link href="../css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+	<link href="../css/amba.css" rel="stylesheet">
+	<link href="../css/introjs.css" rel="stylesheet">
+	<!--[if lte IE 8]>
+	<link href="../js/introjs-ie.css" rel="stylesheet">
+	<!-- <![endif]-->
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/jquery-ui-1.10.1.custom.js"></script>
+	<script src="../js/amba.js"></script>
+	<script src="../js/intro.js"></script>
+	<script>
+	$(function() {
+		$("ul#menu>li:has(ul)").hover(function(){
+			$(this).children('a').addClass('red').end().find('ul').fadeIn(400);},
+			function(){
+			$(this).children('a').removeClass('red').end().find('ul').fadeOut(400);
+		});
+		function getVLC(name)
+		{
+			if (window.document[name])
+			{
+				return window.document[name];
+			}
+			if (navigator.appName.indexOf("Microsoft Internet")==-1)
+			{
+				if (document.embeds && document.embeds[name])
+					return document.embeds[name];
+			}
+			else // if (navigator.appName.indexOf("Microsoft Internet")!=-1)
+			{
+				return $( "#'''+name+ '''" );
+			}
+		}
+		<?cs if:camtype=="0" ?><?cs var:'
+		$("#reset").click(function() {
+			LivestreamRst(0, 0);
+		});
+		$("#zoomin").click(function() {
+			LivestreamZin(0, 0);
+		});
+		$("#zoomout").click(function() {
+			LivestreamZout(0, 0);
+		});
+		'?><?cs /if ?>
+		$("#moveleft").click(function() {
+			LivestreamTrans(20, 0);
+		});
+		$("#moveright").click(function() {
+			LivestreamTrans(-20, 0);
+		});
+		$("#moveup").click(function() {
+			LivestreamTrans(0, 20);
+		});
+		$("#movedown").click(function() {
+			LivestreamTrans(0, -20);
+		});
+		$("#play").click(function() {
+			var vlc = getVLC("vlc");
+			if( vlc ) {
+				if( vlc.playlist.items.count > 0 )
+				{
+					vlc.playlist.play();
+				}
+			}
+		});
+		$("#stop").click(function() {
+			var vlc = getVLC("vlc");
+			if( vlc ) {
+				vlc.playlist.stop();
+			}
+		});
+		<?cs if:camtype=="1" ?><?cs var:'
+		$("#reset").click(function() {
+			$( "#slider" ).slider( "value", 0 );
+			$( "#slider-vertical" ).slider( "value", 0 );
+			$( "#offset_x" ).val(0);
+			$( "#offset_y" ).val(0);
+			FishStreamRst();
+		});
+		$("#zoomin").click(function() {
+			FishStreamZin($("#slider" ).slider( "value" ), -$( "#slider-vertical" ).slider( "value" ));
+		});
+		$("#zoomout").click(function() {
+			FishStreamZout($("#slider" ).slider( "value" ), -$( "#slider-vertical" ).slider( "value" ));
+		});
+		var count = 1;
+		function toggle() {
+			if(count%2){
+				$("#slider_tag").css("opacity","0");
+				$("#slider_vertical_tag").css("opacity","0");
+				$("#offset_x").css("opacity","0");
+				$("#offset_y").css("opacity","0");
+				$("#xlabel").css("opacity","0");
+				$("#ylabel").css("opacity","0");
+				count = 0;
+			} else {
+				$("#slider_tag").css("opacity","1.0");
+				$("#slider_vertical_tag").css("opacity","1.0");
+				$("#offset_x").css("opacity","1.0");
+				$("#offset_y").css("opacity","1.0");
+				$("#xlabel").css("opacity","1.0");
+				$("#ylabel").css("opacity","1.0");
+				count = 1;
+			}
+		}
+		$("#hide").click(
+			function(){
+				toggle();
+			}
+		);
+		$( "#slider" ).slider( {
+			range: "min",
+			min: -90,
+			max: 90,
+			value: 0,
+			change: function( event, ui ) {
+			FishStreamTrans(ui.value, -$( "#slider-vertical" ).slider( "value" ));
+			},
+			slide: function( event, ui ) {
+			$( "#offset_x" ).val(ui.value );
+			}
+		});
+		$( "#slider-vertical" ).slider({
+			orientation: "vertical",
+			range: "min",
+			min: -90,
+			max: 90,
+			value: 0,
+			change: function( event, ui ) {
+			FishStreamTrans($( "#slider" ).slider( "value" ), -ui.value);
+			},
+			slide: function( event, ui ) {
+			$( "#offset_y" ).val(ui.value );
+			}
+		});
+		$( "#offset_x" ).val( $( "#slider" ).slider( "value" ) );
+		$( "#offset_y" ).val( $( "#slider-vertical" ).slider( "value" ) );
+		'?><?cs /if ?>
+		var strs = new Array();
+		strs = window.location.href.split("://");
+		var targetURL = 'rtsp://'+strs[1]+'/stream' + (<?cs var:streamid ?>+1);
+		var vlc = getVLC("vlc");
+		if( vlc )
+		{
+			var itemId = vlc.playlist.add(targetURL);
+			if( itemId != -1 )
+			{
+				// play MRL
+				vlc.playlist.playItem(itemId);
+			}
+			else
+			{
+				alert("cannot play at the moment !");
+			}
+		}
+		//judgeVlc();
+		$(document).keypress(function(e){
+			keyCode = e.keyCode || e.which;
+			if(keyCode == 63){
+				introJs().start();
+			}
+		});
+	});
+	</script>
+	<style>
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	.command {
+	margin:0 auto;
+	<?cs if:camtype=="0" ?><?cs var:'width:270px;'?><?cs /if ?>
+	<?cs if:camtype=="1" ?><?cs if:dptz_zpt=="1" ?><?cs var:'width:180px;'?><?cs /if ?><?cs /if ?>
+	<?cs if:camtype=="1" ?><?cs if:dptz_zpt=="0" ?><?cs var:'width:60px;'?><?cs /if ?><?cs /if ?>
+	}
+	#icons {
+		margin: 0 auto;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	.clear {
+	clear: both;
+	}
+	#content {margin:0 auto;}
+	#display { width:100%; height:<?cs if:camtype=="1" ?><?cs if:dptz_zpt=="1" ?><?cs var:'780px'?><?cs else?><?cs var:'640px'?><?cs /if ?><?cs else?><?cs var:'640px'?><?cs /if ?>;margin:70px 0px 0px 0px;text-align:center;padding:0px;}
+	</style>
+</head>
+<body>
+<div id="nav-wrapper"class="ui-state-default" style="padding-left: 0px;padding-right: 0px;">
+    <div class="wrapper">
+	<div id="nav-logo"><a href="#">Ambarella</a>
+	</div>
+	<div id="nav-menu">
+		<ul id="menu">
+		<li style="width:90px"><a href="/cgi-bin/router.cgi?page=live&action=query&stream=1">LiveStream</a>
+			<ul>
+			<li><a <?cs if:streamid=='0'?><?cs var:''?><?cs else?><?cs var:'href="/cgi-bin/router.cgi?page=live&action=query&stream=1"'?><?cs /if?>  class="<?cs if:streamid=='0'?><?cs var:'ui-state-active'?><?cs else?><?cs var:'ui-state-default'?><?cs /if?> ui-corner-all">Main</a></li>
+			<li><a <?cs if:streamid=='1'?><?cs var:''?><?cs else?><?cs var:'href="/cgi-bin/router.cgi?page=live&action=query&stream=2"'?><?cs /if?> class="<?cs if:streamid=='1'?><?cs var:'ui-state-active'?><?cs else?><?cs var:'ui-state-default'?><?cs /if?> ui-corner-all">Second</a></li>
+			<li><a <?cs if:streamid=='2'?><?cs var:''?><?cs else?><?cs var:'href="/cgi-bin/router.cgi?page=live&action=query&stream=3"'?><?cs /if?> class="<?cs if:streamid=='2'?><?cs var:'ui-state-active'?><?cs else?><?cs var:'ui-state-default'?><?cs /if?> ui-corner-all">Third</a></li>
+			<li><a <?cs if:streamid=='3'?><?cs var:''?><?cs else?><?cs var:'href="/cgi-bin/router.cgi?page=live&action=query&stream=4"'?><?cs /if?> class="<?cs if:streamid=='3'?><?cs var:'ui-state-active'?><?cs else?><?cs var:'ui-state-default'?><?cs /if?> ui-corner-all">Fourth</a></li>
+			<iframe frameborder="0" scrolling="no" allowTransparency="true" style="position:absolute;top:0px; right:0px; width:90px; height:204px;border-radius: 5px;border:0;z-index:-1;">
+            </iframe>
+			</ul>
+		</li>
+		<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1">Settings</a></li>
+		</ul>
+	</div>
+	</div>
+</div>
+<div class="wrapper">
+<div id="content">
+<div id="display">
+<?cs if:camtype=="1" ?>
+<?cs if:dptz_zpt=="1" ?><?cs var:'
+<div id="controlpanel" style="width:962px;margin:0px auto;color:#00a2e8;">
+	<label id="xlabel" for="offset_x">Pan Angle:</label>
+	<input type="text" id="offset_x" style="border: 0;width:25px;color: #f6931f;font-weight: bold;" data-step="8" data-intro="Pan angle marking"/>
+	<label id="ylabel" for="offset_y">Tilt Angle:</label>
+	<input type="text" id="offset_y" style="border: 0;width:25px;color: #f6931f;font-weight: bold;" data-step="10" data-intro="Tilt angle marking"/>
+	<div id="slider_tag" style="width:842px;height:20px;margin:20px auto;"><div style="float:left">-90</div><div id="slider" style="width:800px;float:left" title="Pan" data-step="7" data-intro="Control pan angle"></div><div style="float:left">90</div></div>
+	</div>
+<div style="width:962px;margin:0px auto;color:#00a2e8;">
+<div id="slider_vertical_tag" style="float:left;width:80px;"><div>90</div><div id="slider-vertical" style="margin:0 auto;height:600px;" title="Tilt" data-step="9" data-intro="Control tilt angle"></div><div>-90</div></div>
+'?><?cs /if ?><?cs /if ?>
+<div id="video" style="width=<?cs var:width ?>;height=<?cs var:height ?>; margin:20px auto;<?cs if:camtype=="1" ?><?cs if:dptz_zpt=="1" ?><?cs var:'float:left'?><?cs /if ?><?cs /if ?>">
+<!--
+Insert VideoLAN.VLCPlugin.2
+-->
+<OBJECT classid="clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921"
+        width="<?cs var:width ?>"
+        height="<?cs var:height ?>"
+        id="vlc"
+        events="True">
+<param name="MRL" value="" />
+<param name="ShowDisplay" value="True" />
+<param name="AutoLoop" value="False" />
+<param name="AutoPlay" value="False" />
+<param name="Volume" value="50" />
+<param name="toolbar" value="true" />
+<param name="StartTime" value="0" />
+<EMBED pluginspage="http://www.videolan.org"
+       type="application/x-vlc-plugin"
+       version="VideoLAN.VLCPlugin.2"
+       width="<?cs var:width ?>"
+       height="<?cs var:height ?>"
+       toolbar="true"
+       text="Waiting for video"
+       name="vlc">
+</EMBED>
+</OBJECT>
+
+</div>
+<?cs if:camtype=="1" ?><?cs if:dptz_zpt=="1" ?><?cs var:'<div style="width:80px;float:left"></div>'?><?cs /if ?><?cs /if ?>
+</div>
+<div class="clear"></div>
+<div class="command">
+<ul id="icons" class="ui-widget ui-helper-clearfix">
+<?cs if:camtype=="0" ?><?cs var:'
+<li class="ui-state-default ui-corner-all" id="reset" title="Reset" data-step="3" data-intro="Reset DPTZ setting"><span class="ui-icon ui-icon-bullet"></span></li>
+<li class="ui-state-default ui-corner-all" id="zoomin" title="Zoom in" data-step="4" data-intro="Zoom in the view"><span class="ui-icon ui-icon-zoomin"></span></li>
+<li class="ui-state-default ui-corner-all" id="zoomout" title="Zoom out" data-step="5" data-intro="Zoom out the view"><span class="ui-icon ui-icon-zoomout"></span></li>
+<li class="ui-state-default ui-corner-all" id="moveleft" title="Move left" data-step="6" data-intro="Move left the view"><span class="ui-icon ui-icon-circle-triangle-w"></span></li>
+<li class="ui-state-default ui-corner-all" id="moveright" title="Move right" data-step="7" data-intro="Move right the view"><span class="ui-icon ui-icon-circle-triangle-e"></span></li>
+<li class="ui-state-default ui-corner-all" id="moveup" title="Move up" data-step="8" data-intro="Move up the view"><span class="ui-icon ui-icon-circle-triangle-n"></span></li>
+<li class="ui-state-default ui-corner-all" id="movedown" title="Move down" data-step="9" data-intro="Move down the view"><span class="ui-icon ui-icon-circle-triangle-s"></span></li>
+'?><?cs /if ?>
+<?cs if:camtype=="1" ?>
+<?cs if:dptz_zpt=="1" ?><?cs var:'
+<li class="ui-state-default ui-corner-all" id="reset" title="Reset" data-step="3" data-intro="Reset DPTZ setting"><span class="ui-icon ui-icon-bullet"></span></li>
+<li class="ui-state-default ui-corner-all" id="zoomin" title="Zoom in" data-step="4" data-intro="Zoom in the view"><span class="ui-icon ui-icon-zoomin"></span></li>
+<li class="ui-state-default ui-corner-all" id="zoomout" title="Zoom out" data-step="5" data-intro="Zoom out the view"><span class="ui-icon ui-icon-zoomout"></span></li>
+'?><?cs /if ?><?cs /if ?>
+<li class="ui-state-default ui-corner-all" id="play" title="Play" data-step="1" data-intro="Play the stream"><span class="ui-icon ui-icon-play"></span></li>
+<li class="ui-state-default ui-corner-all" id="stop" title="Pause" data-step="2" data-intro="Stop playing"><span class="ui-icon ui-icon-pause"></span></li>
+<?cs if:camtype=="1" ?><?cs if:dptz_zpt=="1" ?><?cs var:'
+<li class="ui-state-default ui-corner-all" id="hide" title="Toggle Panel" data-step="6" data-intro="Toggle the control bar"><span class="ui-icon ui-icon-close"></span></li>
+'?><?cs /if ?><?cs /if ?>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

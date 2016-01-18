@@ -1,0 +1,474 @@
+##
+## camera/AmbaConfig
+##
+## History:
+##    2012/02/28 - [Yupeng Chang] Create
+##
+## Copyright (C) 2004-2012, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+config BUILD_AMBARELLA_CAMERA
+	bool "Build Ambarella Camera"
+	select CONFIG_AMBARELLA_PULSEAUDIO_SUPPORT
+	select CONFIG_AMBARELLA_LIBCURL_SUPPORT
+	select CONFIG_AMBARELLA_LIBOPUS_SUPPORT
+	select CONFIG_AMBARELLA_NETWORKMANAGER_SUPPORT
+	default n
+	help
+		Build Ambarella Camera.
+
+menu "Ambarella Camera Configuration"
+depends on BUILD_AMBARELLA_CAMERA
+
+menu "Ambarella Camera File Path"
+config BUILD_AMBARELLA_CAMERA_LIB_DIR
+	string "Library install dir"
+	default "/usr/lib"
+	help
+		Install camera's library to the defined directory
+
+config BUILD_AMBARELLA_CAMERA_DEMUXER_DIR
+	string "Demuxer plugin install dir"
+	default "/usr/lib/camera/demuxer"
+	help
+		Install camera's demuxer library to the defined directory
+
+config BUILD_AMBARELLA_CAMERA_BIN_DIR
+	string "Executable install dir"
+	default "/usr/local/bin"
+	help
+		Install camera's applications to the defined directory
+
+config BUILD_AMBARELLA_CAMERA_CONF_DIR
+	string "Configuration install dir"
+	default "/etc/camera"
+	help
+		Install camera's configuration files to the defined directory
+endmenu
+
+config BUILD_AMBARELLA_CAMERA_ENABLE_RT
+	bool "Config filters as real time thread"
+	default n
+	help
+		Config filters as real time thread
+
+config BUILD_AMBARELLA_CAMERA_ENABLE_RTSP_RT
+	bool "Config RTSP filters as real time thread"
+	default y
+	help
+		Config RTSP filters as real time thread
+
+config BUILD_AMBARELLA_CAMERA_AUDIO_MONO
+	bool "Config audio mono output"
+	default y
+	help
+		Config audio mono output
+
+config BUILD_AMBARELLA_CAMERA_MODULES
+	bool "Build Camera Function Module"
+	default y
+	help
+		Build Camera Function Module
+
+menu "Ambarella Camera Module"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES
+
+config BUILD_AMBARELLA_CAMERA_MODULES_AUDIOALERT
+	bool "Build Audio Alert module"
+	default n
+	help
+		Build Audio Alert module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_AUDIOANALY
+	bool "Build Audio Analysis module"
+	default n
+	help
+		Build Audio Analysis module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	bool "Build Configure module"
+	select CONFIG_AMBARELLA_INIPARSER_SUPPORT
+	default y
+	help
+		Build Configure module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_DEWARP
+	bool "Build Dewarp module"
+	depends on CONFIG_ARCH_S2
+	select BUILD_AMBARELLA_DEWARP_PACKAGE
+	default n
+	help
+		Build Dewarp (Fisheye Correction) module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_DATATRANSFER
+	bool "Build Data Transfer module"
+	default y
+	help
+		Build Data Transfer module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_EVENT
+	bool "Build Event module"
+	select BUILD_AMBARELLA_SMARTCAM_PACKAGE
+	select BUILD_AMBARELLA_CAMERA_MODULES_AUDIOALERT
+	select BUILD_AMBARELLA_CAMERA_MODULES_AUDIOANALY
+	default n
+	help
+		Build Event module
+
+menu "Ambarella Camera Event module configurations"
+depends on BUILD_AMBARELLA_CAMERA_MODULES_EVENT
+
+config BUILD_AMBARELLA_CAMERA_EVENT_PLUGIN_DIR
+	string "Camera event module plugin install dir"
+	default "/usr/lib/camera/event"
+	help
+		Install event module's plugins to the defined directory
+
+config BUILD_AMBARELLA_CAMERA_MOTION_DETECT_MSE
+  bool "Build camera motion detection MSE algorithms"
+  default y
+  help
+    Build Camera Event Motion Detection MSE algorithm
+
+config BUILD_AMBARELLA_CAMERA_MOTION_DETECT_MOG2
+  bool "Build camera motion detection MOG2 algorithms"
+  default n
+	select BUILD_AMBARELLA_SMARTCAM_PACKAGE_MDET
+  select BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+  help
+    Build Camera Event Motion Detection MOG2 algorithm
+
+endmenu
+
+config BUILD_AMBARELLA_CAMERA_MODULES_NETWORK
+	bool "Build Network module"
+	default n
+	help
+		Build Network module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_OVERLAY
+	bool "Build Overlay module"
+	select BUILD_AMBARELLA_TEXTINSERT_PACKAGE
+	select CONFIG_AMBARELLA_FREETYPE_FONT_SUPPORT
+	default n
+	help
+		Build Overlay module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_PMDPTZ
+	bool "Build DPTZ & Privacy Mask module"
+	depends on (CONFIG_ARCH_A5S || (CONFIG_ARCH_S2 && BUILD_AMBARELLA_MAINPREPROC_PACKAGE))
+	default n
+	help
+		Build DPTZ & Privacy Mask module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_QRCODE
+	bool "Build QR Code module"
+	default n
+	help
+		Build QR Code module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_STREAMING
+	bool "Build Streaming module"
+	default y
+	help
+		Build Streaming module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	bool "Build Utilities module"
+	default y
+	help
+		Build Utilities module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_VDEVICE
+	bool "Build Video Device module"
+	default y
+	help
+		Build Video Device module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_ADEVICE
+	bool "Build Audio Device module"
+	default y
+	help
+		Build Audio Device module
+
+menu "Ambarella Video Device Module"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_VDEVICE
+
+config BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+	bool "Build Simple Encode Device module"
+	default y
+	help
+		Build Simple Encode Device module (reset/start/stop encoding)
+
+config BUILD_AMBARELLA_CAMERA_MODULES_SIMPLEPHOTO
+	bool "Build Simple Photo Device module"
+	depends on CONFIG_ARCH_A5S
+	default n
+	help
+		Build Simple Photo Device module (still capture)
+
+config BUILD_AMBARELLA_CAMERA_MODULES_ENCDEV
+	bool "Build Encode Device module"
+	select BUILD_AMBARELLA_CAMERA_MODULES_PMDPTZ
+	default n
+	help
+		Build Encode Device module (start/stop encoding, on-the-fly settings)
+
+config BUILD_AMBARELLA_CAMERA_MODULES_WARPDEV
+	bool "Build Warp Device module"
+	depends on CONFIG_ARCH_S2
+	default n
+	help
+		Build Warp Device module
+
+endmenu
+
+config BUILD_AMBARELLA_CAMERA_MODULES_WATCHDOG
+	bool "Build Watchdog module"
+	default n
+	help
+		Build Watchdog module
+
+config BUILD_AMBARELLA_CAMERA_MODULES_WSDISCOVERY
+	bool "Build WS Discovery module"
+	default n
+	help
+		Build WS Discovery  module
+
+endmenu
+
+config BUILD_AMBARELLA_CAMERA_MW
+	bool "Build Camera Middleware"
+	default n
+	help
+		Build Camera middleware
+
+menu "Ambarella Camera Middleware"
+	depends on BUILD_AMBARELLA_CAMERA_MW
+
+config BUILD_AMBARELLA_CAMERA_MW_WEBCAM
+	bool "Build Web camera"
+	select BUILD_AMBARELLA_CAMERA_MODULES_VDEVICE
+	select BUILD_AMBARELLA_CAMERA_MODULES_ENCDEV
+	select BUILD_AMBARELLA_CAMERA_MODULES_OVERLAY
+	select BUILD_AMBARELLA_CAMERA_MODULES_PMDPTZ
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Webcam (encoding/overlay/privacy mask/dptz)
+
+config BUILD_AMBARELLA_CAMERA_MW_FISHCAM
+	bool "Build Fisheye camera"
+	depends on CONFIG_ARCH_S2
+	select BUILD_AMBARELLA_CAMERA_MODULES_VDEVICE
+	select BUILD_AMBARELLA_CAMERA_MODULES_WARPDEV
+	select BUILD_AMBARELLA_CAMERA_MODULES_OVERLAY
+	select BUILD_AMBARELLA_CAMERA_MODULES_DEWARP
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Fisheye camera (encoding/overlay/dewarp)
+
+endmenu
+
+config BUILD_AMBARELLA_CAMERA_APP
+	bool "Install Applications"
+	default n
+	help
+		Install Applications
+
+menu "Ambarella Camera Application"
+	depends on BUILD_AMBARELLA_CAMERA_APP
+
+config BUILD_AMBARELLA_CAMERA_APP_QRCODEREADER
+	bool "Build QR code reader"
+	select CONFIG_AMBARELLA_ZBAR_SUPPORT
+	select BUILD_AMBARELLA_CAMERA_MODULES_QRCODE
+	default n
+	help
+		Build QR Code Reader
+
+config BUILD_AMBARELLA_CAMERA_APP_DAEMON
+	bool "Build App Daemon"
+	default n
+	help
+		Build App daemon
+
+config BUILD_AMBARELLA_CAMERA_APP_CLOUDCAM
+	bool "Build Cloudcam"
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+	select BUILD_AMBARELLA_CAMERA_MODULES_WATCHDOG
+	select BUILD_AMBARELLA_CAMERA_MODULES_AUDIOALERT
+	select BUILD_AMBARELLA_CAMERA_MODULES_AUDIOANALY
+	select BUILD_AMBARELLA_CAMERA_MODULES_STREAMING
+	select BUILD_AMBARELLA_CAMERA_MODULES_QRCODE
+	select BUILD_AMBARELLA_CAMERA_MODULES_NETWORK
+	default n
+	help
+		Build Cloudcam
+
+config BUILD_AMBARELLA_CAMERA_APP_CLOUDCAM_AUTORUN
+	bool "Build Cloudcam Autorun"
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+	select BUILD_AMBARELLA_CAMERA_MODULES_WATCHDOG
+	select BUILD_AMBARELLA_CAMERA_MODULES_AUDIOALERT
+	select BUILD_AMBARELLA_CAMERA_MODULES_AUDIOANALY
+	select BUILD_AMBARELLA_CAMERA_MODULES_STREAMING
+	select BUILD_AMBARELLA_CAMERA_MODULES_QRCODE
+	select BUILD_AMBARELLA_CAMERA_MODULES_NETWORK
+	default n
+	help
+		Build Cloudcam Autorun
+
+config BUILD_AMBARELLA_CAMERA_APP_WEBENC_SERVER
+	bool "Build Web Encode Server"
+	depends on (CONFIG_ARCH_A5S || (CONFIG_ARCH_S2 && BUILD_AMBARELLA_MAINPREPROC_PACKAGE))
+	select BUILD_AMBARELLA_CAMERA_MW
+	select BUILD_AMBARELLA_CAMERA_MW_WEBCAM
+	select BUILD_AMBARELLA_CAMERA_MW_FISHCAM
+	default n
+	help
+		Build Build Web Encode Server
+
+endmenu
+
+config BUILD_AMBARELLA_CAMERA_TESTS
+	bool "Install Test Programs"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES
+	default n
+	help
+		Install Test Programs
+
+menu "Ambarella Camera Tests"
+	depends on BUILD_AMBARELLA_CAMERA_TESTS
+
+config BUILD_AMBARELLA_CAMERA_TEST_SIMPLECAM
+	bool "Build Simple Encode Device Test Programs"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default y
+	help
+		Build Simple Encode Device Test Programs
+
+config BUILD_AMBARELLA_CAMERA_TEST_SIMPLEPHOTO
+	bool "Build Simple Photo Device Test Programs"
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_SIMPLEPHOTO
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default y
+	help
+		Build Simple Photo Device Test Programs
+
+config BUILD_AMBARELLA_CAMERA_TEST_ENCDEV
+	bool "Build Encode Device tests"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_ENCDEV
+	select BUILD_AMBARELLA_CAMERA_MODULES_PMDPTZ
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Encode Device Test Programs
+
+config BUILD_AMBARELLA_CAMERA_TEST_STREAMING
+	bool "Build Streaming Test Programs"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_STREAMING
+	select BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+	select BUILD_AMBARELLA_CAMERA_MODULES_NETWORK
+	select BUILD_AMBARELLA_CAMERA_MODULES_WATCHDOG
+	select BUILD_AMBARELLA_CAMERA_MODULES_WSDISCOVERY
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default y
+	help
+		Build Streaming Test Programs
+
+config BUILD_AMBARELLA_CAMERA_TEST_EVENT
+	bool "Build Event Test Programs"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_EVENT
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Event Test Programs
+
+config BUILD_AMBARELLA_CAMERA_TEST_NETWORK
+	bool "Build Network Test Programs"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_NETWORK
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Network Test Programs
+
+config BUILD_AMBARELLA_CAMERA_TEST_ADEVICE
+	bool "Build Audio Device Test Program"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_ADEVICE
+	default n
+	help
+		Build Utilities Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_DATATRANSFER
+	bool "Build Data Transfer Test Program"
+	default n
+	help
+		Build Data Transfer Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_CLOUD_UPLOADER
+	bool "Build Cloud Uploader Test Program"
+	default n
+	help
+		Build Cloud Uploader Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_UTILS
+	bool "Build Utilities Test Program"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Utilities Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_CONFIGURE
+	bool "Build Configuration Test Program"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Configuration Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_QRCODEREADER
+	bool "Build Qrcode Test Program"
+	depends on BUILD_AMBARELLA_CAMERA_MODULES_QRCODE
+	select BUILD_AMBARELLA_CAMERA_MODULES_SIMPLECAM
+	select BUILD_AMBARELLA_CAMERA_MODULES_CONFIGURE
+	select BUILD_AMBARELLA_CAMERA_MODULES_UTILS
+	default n
+	help
+		Build Configuration Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_WEBCAM
+	bool "Build Webcam Test Program"
+	depends on BUILD_AMBARELLA_CAMERA_MW_WEBCAM
+	default n
+	help
+		Build WebCam Test Program
+
+config BUILD_AMBARELLA_CAMERA_TEST_FISHCAM
+	bool "Build Fisheyecam Test Program"
+	depends on CONFIG_ARCH_S2
+	depends on BUILD_AMBARELLA_CAMERA_MW_FISHCAM
+	default n
+	help
+		Build Fisheyecam Test Program
+
+endmenu
+endmenu
+

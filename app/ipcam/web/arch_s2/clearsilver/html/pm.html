@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" " http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=" http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>Ambarella Privacy Mask Page</title>
+	<link href="../css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+	<link href="../css/amba.css" rel="stylesheet">
+	<link href="../css/jquery.Jcrop.css" rel="stylesheet" type="text/css"/>
+	<link href="../css/introjs.css" rel="stylesheet">
+	<!--[if lte IE 8]>
+	<link href="../js/introjs-ie.css" rel="stylesheet">
+	<!-- <![endif]-->
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/jquery-ui-1.10.1.custom.js"></script>
+	<script src="../js/amba.js"></script>
+	<script src="../js/jquery.Jcrop.js"></script>
+	<script src="../js/intro.js"></script>
+	<script>
+	var id=<?cs var:pm_id ?>;
+	var selectid=0;
+	$(function() {
+		$( "#pmtabs1" ).tabs();
+		$( "#pmtabs2" ).tabs();
+		$( "#include" ).button();
+		$( "#exclude" ).button();
+		$( "#remove" ).button();
+		$( "#alert" ).hide();
+		$( "#pm_color" ).buttonset();
+		$( "#pm_left" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#pm_top" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#pm_w" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#pm_h" ).spinner({
+			max: 100,
+			min: 0
+		});
+		if(id > 0) {
+			$("#exclude").button({ disabled: false });
+			$("#remove").button({ disabled: false });
+		}
+		$( "#success" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$( "#fail" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$( "#invalid" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$("ul#menu>li:has(ul)").hover(function(){ 
+			$(this).children('a').addClass('red').end().find('ul').fadeIn(400);},
+			function(){
+			$(this).children('a').removeClass('red').end().find('ul').fadeOut(400);
+		});
+		var jcrop_api;
+
+        $('#target').Jcrop({
+        onChange:   showCoords,
+        onSelect:   showCoords,
+        onRelease:  clearCoords
+        },function(){
+        jcrop_api = this;
+        });
+
+        $('#coords').on('change','input',function(e){
+        var x1 = $('#pm_left').val()*300/100,
+		x2 = $('#pm_top').val()*300/100,
+		y1 = ($('#pm_left').val() + $('#pm_w').val())*300/100,
+		y2 = ($('#pm_top').val() + $('#pm_h').val())*300/100;
+		jcrop_api.setSelect([x1,y1,x2,y2]);
+		});
+		if($("#pmlist").find("input").length==0) {
+			$("#exclude").button({ disabled: true });
+			$("#remove").button({ disabled: true });
+		}
+        $("#include").click(function() {
+			if($('#pm_w').val() && $('#pm_h').val()) {
+			if(setPM(id,0)) {
+			id+=1;
+			if(id > 0) {
+				$("#exclude").button({ disabled: false });
+				$("#remove").button({ disabled: false });
+			}
+			$("#listbtn").before('<div class="listitemitem" id="list'+id+'"><input type="radio" id="pm'+id+
+			'" name="radio"/><label class="listitem" for="pm'+id+'">ID:'+id+
+			' Left:'+$('#pm_left').val()+'% Top:'+$('#pm_top').val()+'% Width:'+$('#pm_w').val()+'% Height:'+$('#pm_h').val()+'%</label></br></div>');
+			$('#pm_count').val(id);
+			}
+			}
+		});
+		$("#exclude").click(function() {
+		    selectid = $(".listitemitem").find("input:checked").attr("id");
+			if(selectid==undefined) {
+			  $( "#invalid" ).dialog( "open" );
+			  return;
+			}
+			selectid=selectid.substr(2);
+			if(selectid < 1) {
+			   $( "#invalid" ).dialog( "open" );
+			}else {
+			if(setPM(selectid-1,1)) {
+			id-=1;
+			$("#list"+selectid).remove();
+			if(id==0) {
+				$("#exclude").button({ disabled: true });
+				$("#remove").button({ disabled: true });
+			}
+			$('#pm_count').val(id);
+			selectid=0;
+			}
+			}
+		});
+		$("#remove").click(function() {
+			if(setPM(0,3)){
+			id=0;
+			$(".listitemitem").remove();
+			$("#exclude").button({ disabled: true });
+			$("#remove").button({ disabled: true });
+			$('#pm_count').val(0);
+			selectid=0;
+			}
+		});
+		$(document).keypress(function(e){
+			keyCode = e.keyCode || e.which;
+			if(keyCode == 63){
+				introJs().start();
+			}
+		});
+	});
+	function showCoords(c)
+  {
+    $('#pm_left').val(Math.round(c.x*100/300));
+	$('#pm_top').val(Math.round(c.y*100/300));
+	$('#pm_w').val(Math.round(c.w*100/300));
+	$('#pm_h').val(Math.round(c.h*100/300));
+  };
+
+  function clearCoords()
+  {
+    $('#coords input').val('');
+  };
+	</script>
+	<style>
+	
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#pmlist{color:#00a2e8;font-weight: bold;}
+    .inline-labels {margin:20px auto;width:750px;color:#00a2e8;font-weight: bold;}
+	.inline-labels input{width:50px;color: #f6931f;border-color: white;border: 2px inset;}
+    #include {margin-left:10px;}
+    .listitem {width:400px;}
+	</style>
+</head>
+<body>
+<div id="nav-wrapper"class="ui-state-default" style="padding-left: 0px;padding-right: 0px;">
+	<div class="wrapper">
+	<div id="nav-logo"><a href="#">Ambarella</a>
+	</div>
+	<div id="nav-menu">
+		<ul id="menu">
+		<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1">Camera</a>
+			<ul>
+			<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1" class="ui-state-default ui-corner-all">Encode</a></li>
+			<li><a class="ui-state-active ui-corner-all">PrivacyMask</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=osd&action=query&stream=1" class="ui-state-default ui-corner-all">OSD</a></li>
+			<?cs if:camtype=="1" ?><?cs var:'<li><a href="/cgi-bin/router.cgi?page=dwp&action=query" class="ui-state-default ui-corner-all">Dewarp</a></li>'?><?cs /if ?>
+			</ul>
+		</li>
+		<li><a href="/cgi-bin/router.cgi?page=live&action=query&stream=1">Liveview</a></li>
+		<li><a href="/cgi-bin/router.cgi?page=iq&action=query">Image</a></li>
+		</ul>
+	</div>
+	</div>
+</div>
+<div class="wrapper">
+<div id="pmtabs1" class="tabs1">
+	<ul>
+		<li><a href="#tabs-1">Fill</a></li>
+	</ul>
+	<div id="tabs-1">Please crop the region you want to add privy mask.
+    <div style="width:300px;height:300px;margin:0 auto;">
+    <div id="target" style="width:300px;height:300px;background:#6eac2c url(css/images/ui-bg_gloss-wave_50_6eac2c_500x100.png) 150% 150% repeat-x;color: #eaf5f7;">
+    </div>
+    </div>
+    <div id="coords">
+    <div class="inline-labels">
+    <label>Left(%):<input type="text" size="4" id="pm_left" name="pm_left" value="0" data-step="2" data-intro="PM Rectangle lateral offset from the upper left conner"/></label>
+    <label>Top(%):<input type="text" size="4" id="pm_top" name="pm_top" value="0" data-step="3" data-intro="PM Rectangle vertical offset from the upper left conner"/></label>
+    <label>Width(%):<input type="text" size="4" id="pm_w" name="pm_w" value="0" data-step="4" data-intro="PM Rectangle width"/></label>
+    <label>Height(%):<input type="text" size="4" id="pm_h" name="pm_h" value="0" data-step="5" data-intro="PM Rectangle height"/></label>
+    <button id="include">Add</button>
+    </div>
+    </div
+	</div>
+    <div class="ui-widget-content  ui-corner-all">
+    <div id="pmlist" style="width:420px;margin:0 auto">
+	<p>Apply region total: <input type="text" size="4" id="pm_count" value="<?cs var:pm_id ?>" disabled/></p>
+    <div id="listbtn"style="width:210px;margin:15px auto;">
+    <button id="exclude">Remove</button>
+    <button id="remove">Remove all</button>
+    </div>
+    </div>
+    </div>
+</div>
+
+<div id="success" title="Dialog Title" >
+	<p>Setting params successfully!</p>
+</div>
+<div id="fail" title="Dialog Title" >
+	<p>Setting params failed...</p>
+</div>
+<div id="invalid" title="Dialog Title" >
+	<p>Please select a region.</p>
+</div>
+<div id="alert" class="ui-state-error ui-corner-all">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Nothing changed.</p>
+</div>
+
+</div>
+</div>
+</body>
+</html>

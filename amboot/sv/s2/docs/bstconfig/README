@@ -1,0 +1,78 @@
+Ambarella Bootstrap Image Configuration
+(C) 2009 Ambarella Corp.
+
+Introduction
+------------
+
+The bstconfig gui application is used to generate parameters file that specify a given sdram configuration.
+
+The bstconfig batch mode (-batch) application is used to generate various image files from a parameters file.
+
+bstconfig may be used to modify the bst nand flash image, spi eeprom image and the initial settings used by the dramtuner application.
+
+Initialization files
+--------------------
+The state of the bstconfig gui application is saved when the application exits and it is restored for the next run.
+
+The Linux (lnx) application will store the window state in the files:
+/home/$USER/.bstconfig/bstconfig.ini (window size and position)
+/home/$USER/.bstconfig/parameters.ini (all fields)
+
+The Microsoft Windows (msw) application will store the window state in the files:
+C:\Documents and Settings\$USER\Application Data\bstconfig\bstconfig.ini (window size and position)
+C:\Documents and Settings\$USER\Application Data\bstconfig\parameters.ini (all fields)
+
+bstconfig gui
+-------------
+
+The fields of the bstconfig gui must be filled out from an sdram specification that matches the type of memory on the a5m platform. Similarly the nand flash parameters must be specified according to the device on the platform and the customer requirements.
+
+Note that all sdram timing parameters are specified in picoseconds in the gui. Most sdram specifications specify these values in nanoseconds and microseconds.
+
+The bstconfig gui will sanity check all the specified values before generating a parameters file. An error is displayed if a parameter is invalid.
+
+The bstconfig gui accepts the following optional command line argument:
+  -parameters <filename>    The fields of the gui will be preloaded
+                            with the specified parameters file.
+
+The buttons do the following:
+Undo    Restore all the changes since the gui was started
+Save    Save a parameters file
+Close   Close application
+About   Display version information and copyright notice
+
+bstconfig batch mode
+--------------------
+
+The bsconfig batch application requires *all* the following command line arguments:
+  -batch                     Batch mode
+  -parameters <filename>     Parameters file name
+  -input      <filename>     Input image file name
+  -output     <filename>     Output image file name
+
+The application will return an exit status of 0 if it is successful. The application will return a non 0 exit status in case of a problem. The bstconfig application can therefore be used in a Makefile to generate images.
+
+The bst input image is sanity checked to make sure that the dram type specified in the parameters file matches the dram type of the image. The version of the bst image and the chipname are also verified to ensure that an image is not being modified by the wrong version of the bstconfig application. To disable version and chipname checking use the following option
+   -force      
+
+The spi eeprom image and the dram tuner image are not sanity checked.
+
+The parameters file is sanity checked before a bst image is generated.
+
+spi eeprom and dramtuner
+------------------------
+
+The bstconfig batch application may also be used to generate the spi eeprom image or the dramtuner application with the relevant dram parameters.
+
+The following command line arguments must be used to enable this feature:
+  -spieeprom      Generate SPI eeprom image
+  -dramtuner      Generate dramtuner nand flash image
+
+Either option should be used but not both at the same time. If neither option is specified the bstconfig application generates a new bst image.
+
+Authors
+-------
+
+Pradeep Nalabalapu (nalaba@ambarella.com)
+Rudi Rughoonundon (rudir@ambarella.com)
+

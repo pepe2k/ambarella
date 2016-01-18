@@ -1,0 +1,17 @@
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=Load DSP Ucode
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=systemd-modules-load.service systemd-tmpfiles-setup-dev.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/local/bin/load_ucode /lib/firmware

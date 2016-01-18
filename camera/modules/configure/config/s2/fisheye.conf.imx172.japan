@@ -1,0 +1,18 @@
+################################################################################
+##          This is the configuration file for Fisheye          ##
+################################################################################
+[FISHEYE]
+Mount                                          = 0
+Projection                                     = 1
+MaxFov                                         = 180
+MaxCircle                                      = 2648
+
+[LAYOUT]
+UnwarpWidth                                    = 2048
+UnwarpHeight                                   = 2048
+WarpWidth                                      = 0
+WarpHeight                                     = 0
+UnwarpWindowWidth                              = 2648
+UnwarpWindowHeight                             = 2648
+UnwarpWindowOffsetX                            = 676
+UnwarpWindowOffsetY                            = 176

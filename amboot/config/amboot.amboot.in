@@ -1,0 +1,1274 @@
+##
+## amboot/amboot.amboot.in
+##
+## History:
+##    2007/08/22 - [Charles Chiou] created file (branch off)
+##
+## Copyright (C) 2004-2007, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+menu "AMBoot (boot loader)"
+depends on BUILD_AMBARELLA_FIRMWARE
+
+config ENABLE_FIRMWARE_IN_SD
+	bool
+	default n
+
+config BUILD_AMBPROM
+	bool "Build the AMBProm Prompt"
+	default n
+	depends on (CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || 	\
+		    CONFIG_ARCH_A2Q || CONFIG_ARCH_A6  ||	\
+		    CONFIG_ARCH_A5S || CONFIG_ARCH_A5L ||	\
+		    CONFIG_ARCH_A7  || CONFIG_ARCH_I1  ||	\
+		    CONFIG_ARCH_A7L || CONFIG_ARCH_S2)
+
+	help
+		Build the AMBPROM Prompt for booting up the firmware as
+		well as other command-line utilities.
+
+config ENABLE_EEPROM
+	bool "Enable eeprom driver"
+	default n
+	depends on BUILD_AMBPROM
+	select ENABLE_FIRMWARE_IN_SD
+	help
+	  Enable the eeprom driver if it is present on the target board.
+
+choice
+	prompt "EEPROM Model"
+	default CONFIG_EEPROM_AT25640A
+	depends on ENABLE_EEPROM
+
+config CONFIG_EEPROM_AT25640A
+	bool "AT25640A"
+
+config CONFIG_EEPROM_AT25256A
+	bool "AT25256A"
+
+config CONFIG_EEPROM_M95128
+	bool "M95128"
+
+config CONFIG_EEPROM_M95640
+	bool "M95640"
+
+config CONFIG_EEPROM_MX25L4005C
+	bool "MX25L4005C"
+
+config CONFIG_EEPROM_MC25LC1024
+        bool "MC25LC1024"
+
+config CONFIG_EEPROM_MX25L512E
+        bool "MX25L512E"
+
+config CONFIG_EEPROM_MX25L1006E
+        bool "MX25L1006E"
+
+config CONFIG_EEPROM_S25FL256S
+        bool "S25FL256S"
+
+endchoice
+
+choice
+	prompt "Firmware Slot"
+	default CONFIG_FIRMWARE_SLOT_SD
+	depends on ENABLE_FIRMWARE_IN_SD
+
+config CONFIG_FIRMWARE_SLOT_SD
+	bool "SD"
+
+config CONFIG_FIRMWARE_SLOT_SDIO
+	bool "SDIO"
+
+config CONFIG_FIRMWARE_SLOT_SD2
+	bool "SD2"
+
+endchoice
+
+choice
+	prompt "Card Type"
+	default CONFIG_CARD_TYPE_SD
+	depends on ENABLE_FIRMWARE_IN_SD
+
+config CONFIG_CARD_TYPE_SD
+	bool "SD Card"
+
+config CONFIG_CARD_TYPE_MMC
+	bool "MMC Card"
+
+config CONFIG_CARD_TYPE_SDHC
+	bool "SDHC Card"
+
+config CONFIG_CARD_TYPE_MOVINAND
+	bool "MOVINAND"
+
+endchoice
+
+config ENABLE_EMMC_BOOT
+	bool "Enable EMMC Boot"
+	default n
+	depends on CONFIG_ARCH_S2
+
+	help
+		Enable boot from emmc nand
+
+choice
+	prompt "Bus Width"
+	default CONFIG_EMMC_BOOT_4BIT
+	depends on ENABLE_EMMC_BOOT
+
+config CONFIG_EMMC_BOOT_1BIT
+	bool "1 bit"
+
+config CONFIG_EMMC_BOOT_4BIT
+	bool "4 bits"
+
+config CONFIG_EMMC_BOOT_8BIT
+	bool "8 bits"
+
+endchoice
+
+choice
+	prompt "Boot Partition"
+	default CONFIG_EMMC_BOOTPART_BP1
+	depends on ENABLE_EMMC_BOOT
+
+config CONFIG_EMMC_BOOTPART_BP1
+	bool "boot partition 1"
+
+config CONFIG_EMMC_BOOTPART_BP2
+	bool "boot partition 2"
+
+config CONFIG_EMMC_BOOTPART_USER
+	bool "user partition"
+
+endchoice
+
+choice
+	prompt "Access Partition"
+	default CONFIG_EMMC_ACCPART_USER
+	depends on ENABLE_EMMC_BOOT
+
+config CONFIG_EMMC_ACCPART_BP1
+	bool "boot partition 1"
+
+config CONFIG_EMMC_ACCPART_BP2
+	bool "boot partition 2"
+
+config CONFIG_EMMC_ACCPART_USER
+	bool "user partition"
+
+endchoice
+
+choice
+	prompt "HW Reset"
+	default CONFIG_EMMC_HW_RESET_TEMP_DISABLED
+	depends on ENABLE_EMMC_BOOT
+
+config CONFIG_EMMC_HW_RESET_TEMP_DISABLED
+	bool "Temporarily disable HW reset"
+
+config CONFIG_EMMC_HW_RESET_PERM_ENABLED
+	bool "Permanently enable HW reset"
+
+config CONFIG_EMMC_HW_RESET_PERM_DISABLED
+	bool "Permanently disable HW reset"
+
+endchoice
+
+config BUILD_AMBOOT
+	bool "Build the AMBoot Boot Loader"
+	default y
+	help
+		Build the AMBoot Boot Loader for booting up the firmware as
+		well as other command-line utilities.
+
+config AMBOOT_DEV_AUTO_BOOT
+	bool "Automatically boot up the system"
+	default y
+	help
+		Automatically load all the code stored in the partitions and
+		jump to the primary image loaded into the DRAM. Note: the value
+		selected under this option will be the default programmed
+		into flash, but could be later modified interactively at the
+		AMBoot command prompt.
+
+choice
+	prompt "Auto Boot Mode"
+	default AMBOOT_DEV_NORMAL_MODE
+	depends on AMBOOT_DEV_AUTO_BOOT
+
+config AMBOOT_DEV_NORMAL_MODE
+	bool "Normal boot up"
+	select CONFIG_AMBOOT_BAPI_SUPPORT
+
+config AMBOOT_DEV_USBDL_MODE
+	bool "Automatically enter USB download mode"
+	help
+		Automatically enter USB download mode when USB cable is
+		connected suring system boot-up process. Note: the value
+		selected under this option will be the default programmed
+		into flash, but could be later modified interactively at the
+		AMBoot command prompt.
+endchoice
+
+config AMBOOT_DEV_BOOT_CORTEX
+	bool "Boot Cortex"
+	depends on AMBOOT_DEV_NORMAL_MODE
+	depends on AMBARELLA_LINUX_LAYOUT
+	depends on (CONFIG_ARCH_I1 || CONFIG_ARCH_S2)
+	default n
+
+config AMBOOT_DEV_CMDLINE
+	string "Booting parameter (cmdline)"
+	default ""
+	help
+		Enter the booting parameter command line here. Note: the value
+		selected under this option will be the default programmed
+		into flash, but could be later modified interactively at the
+		AMBoot command prompt.
+
+config CONFIG_NON_STANDARD_REF_CLK
+	bool "Use non-standard reference clock (EXPERIMENTAL!)"
+	default n
+	depends on CONFIG_ARCH_A2
+	help
+		WARNING: This option is highly experimental! Normally the
+		Ambarella processor has a standard reference clock frequency
+		(e.g., 27MHz) which is used by the PLL to generate various
+		clock sources. The settings derived from the reference clock
+		is documented in the Programmers' Manual. However, a different
+		reference clock can be used to change this behavior. If that is
+		the case, then the PLL values must be set properly accoring to
+		the reference clock frequency instead of the implied values
+		in the programmers' manual.
+
+choice
+	prompt "Reference clock"
+	default CONFIG_REF_CLK_48MHZ
+	depends on CONFIG_NON_STANDARD_REF_CLK
+
+config CONFIG_REF_CLK_48MHZ
+	bool "48 MHz"
+endchoice
+
+choice
+	prompt "DRAM Type"
+	default DRAM_TYPE_DDR2
+	depends on (BUILD_AMBOOT &&			\
+		    (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L ||\
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L || CONFIG_ARCH_S2))
+	help
+		Select the DRAM type. You need to select
+		the correct DRAM type that corresponds the
+		DRAM on board.
+
+config DRAM_TYPE_DDR2
+	bool "DDR2"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L || \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L || CONFIG_ARCH_S2)
+
+config DRAM_TYPE_DDR3
+	bool "DDR3"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L || \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L || CONFIG_ARCH_S2)
+
+config DRAM_TYPE_LPDDR
+	bool "LPDDR"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L || \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L || CONFIG_ARCH_S2)
+
+config DRAM_TYPE_LPDDR2
+	bool "LPDDR2"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L || \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L || CONFIG_ARCH_S2)
+endchoice
+
+choice
+	prompt "Power-On-Config Core Frequency"
+	default PWC_CORE_216MHZ
+	depends on (BUILD_AMBOOT && (CONFIG_ARCH_A1  || CONFIG_ARCH_A2  || \
+		    		     CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+				     CONFIG_ARCH_A2Q || CONFIG_ARCH_A3	|| \
+		    		     CONFIG_ARCH_A5  || CONFIG_ARCH_A6) && (!CONFIG_ARCH_A5L))
+	help
+		Select the Power-On-Config core frequency. You need to select
+		the correct core frequency that correpond the the
+		power-on-config input pins.
+
+config PWC_CORE_108MHZ
+	bool "108.00 MHz"
+	depends on (CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		    CONFIG_ARCH_A2Q || \
+		    CONFIG_ARCH_A5  || CONFIG_ARCH_A6)
+
+config PWC_CORE_121MHZ
+	bool "121.50 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_CORE_135MHZ
+	bool "135.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || 	\
+		    CONFIG_ARCH_A2Q || \
+		    CONFIG_ARCH_A2S || CONFIG_ARCH_A2M)
+
+config PWC_CORE_148MHZ
+	bool "148.50 MHz"
+	depends on (CONFIG_ARCH_A2S || CONFIG_ARCH_A6)
+
+config PWC_CORE_162MHZ
+	bool "162.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2S)
+
+config PWC_CORE_182MHZ
+	bool "182.25 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2)
+
+config PWC_CORE_189MHZ
+	bool "189 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S)
+
+config PWC_CORE_202MHZ
+	bool "202.50 MHz"
+	depends on (CONFIG_ARCH_A6)
+
+config PWC_CORE_216MHZ
+	bool "216.00 MHz"
+	depends on (CONFIG_ARCH_A1  || CONFIG_ARCH_A2  || \
+		    CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		    CONFIG_ARCH_A2Q || \
+		    CONFIG_ARCH_A3  || CONFIG_ARCH_A6)
+
+config PWC_CORE_229MHZ
+	bool "229.50 MHz"
+	depends on (CONFIG_ARCH_A2)
+
+config PWC_CORE_243MHZ
+	bool "243.00 MHz"
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		    CONFIG_ARCH_A6 || CONFIG_ARCH_A3)
+
+config PWC_CORE_256MHZ
+	bool "256.00 MHz"
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A3)
+
+config PWC_CORE_270MHZ
+	bool "270.00 MHz"
+	depends on (CONFIG_ARCH_A2)
+
+config PWC_CORE_283MHZ
+	bool "283.00 MHz"
+	depends on (CONFIG_ARCH_A2)
+
+config PWC_CORE_AUTO
+	bool "auto"
+	depends on (CONFIG_ARCH_A3 || CONFIG_ARCH_A6)
+
+endchoice
+
+choice
+	prompt "Power-On-Config DRAM Frequency"
+	default PWC_DRAM_216MHZ
+	depends on (BUILD_AMBOOT && (CONFIG_ARCH_A3 || CONFIG_ARCH_A5 || \
+		    		     CONFIG_ARCH_A6 || CONFIG_ARCH_A5L))
+	help
+		Select the Power-On-Config core frequency. You need to select
+		the correct core frequency that correpond the the
+		power-on-config input pins.
+
+config PWC_DRAM_148MHZ
+	bool "148.50 MHz"
+	depends on (CONFIG_ARCH_A3)
+
+config PWC_DRAM_192MHZ
+	bool "192.00 MHz"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1 || \
+		    CONFIG_ARCH_A7L)
+
+config PWC_DRAM_216MHZ
+	bool "216.00 MHz"
+	depends on (CONFIG_ARCH_A3 || CONFIG_ARCH_A5 || CONFIG_ARCH_A6 || \
+		    CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L ||  \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L)
+
+config PWC_DRAM_240MHZ
+	bool "240.00 MHz"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1 || \
+		    CONFIG_ARCH_A7L)
+
+config PWC_DRAM_270MHZ
+	bool "270.00 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_DRAM_276MHZ
+	bool "276.00 MHz"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1 || \
+		    CONFIG_ArCH_A7L)
+
+config PWC_DRAM_288MHZ
+	bool "288.00 MHz"
+	depends on (CONFIG_ARCH_A5L)
+
+config PWC_DRAM_297MHZ
+	bool "297.00 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_DRAM_300MHZ
+	bool "300.00 MHz"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L || \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L)
+
+config PWC_DRAM_324MHZ
+	bool "324.00 MHz"
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A5L || \
+		    CONFIG_ARCH_I1 || CONFIG_ARCH_A7L)
+
+config PWC_DRAM_337MHZ
+	bool "337.50 MHz"
+	depends on (CONFIG_ARCH_A3 || CONFIG_ARCH_A5 || CONFIG_ARCH_A6 || \
+		    CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1 || \
+		    CONFIG_ARCH_A7L)
+
+config PWC_DRAM_432MHZ
+	bool "432.00 MHz"
+	depends on (CONFIG_ARCH_A6)
+
+config PWC_DRAM_USER_DEFINED
+	bool "User defined"
+	depends on (CONFIG_ARCH_A5L)
+
+endchoice
+
+choice
+	prompt "Power-On-Config IDSP Frequency"
+	default PWC_IDSP_216MHZ
+	depends on (BUILD_AMBOOT && (CONFIG_ARCH_A5 || CONFIG_ARCH_A6))
+	help
+		Select the fixed IDSP frequency
+
+config PWC_IDSP_67MHZ
+	bool "67.50 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_IDSP_81MHZ
+	bool "81.00 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_IDSP_108MHZ
+	bool "108.00 MHz"
+	depends on (CONFIG_ARCH_A5 || CONFIG_ARCH_A6)
+
+config PWC_IDSP_121MHZ
+	bool "121.50 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_IDSP_135MHZ
+	bool "135.00 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_IDSP_148MHZ
+	bool "148.50 MHz"
+	depends on (CONFIG_ARCH_A6)
+
+config PWC_IDSP_162MHZ
+	bool "162.00 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_IDSP_189MHZ
+	bool "189.00 MHz"
+	depends on (CONFIG_ARCH_A5)
+
+config PWC_IDSP_202MHZ
+	bool "202.50 MHz"
+	depends on (CONFIG_ARCH_A5 || CONFIG_ARCH_A6)
+
+config PWC_IDSP_216MHZ
+	bool "216.00 MHz"
+	depends on (CONFIG_ARCH_A5 || CONFIG_ARCH_A6)
+
+config PWC_IDSP_256MHZ
+	bool "256.50 MHz"
+	depends on (CONFIG_ARCH_A6)
+
+endchoice
+
+config CONFIG_FIX_CORE_FREQ
+	bool "Fix the chip core frequency"
+	default n
+	depends on (BUILD_AMBOOT &&	\
+		    (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || \
+		     CONFIG_ARCH_A2Q || CONFIG_ARCH_A2M || \
+		    (CONFIG_ARCH_A5L && PWC_DRAM_USER_DEFINED)))
+
+	help
+		The core clock of the chip is programmed by the system
+		config register read in at power-up time (usually by
+		configuration dip switch settings). Select this option will
+		force the boot loader to reprogram the core clock frequency
+		to a particular setting.
+
+choice
+	prompt "Core Frequency"
+	default FIX_CORE_216MHZ
+	depends on CONFIG_FIX_CORE_FREQ
+	help
+		Select the fixed core frequency
+
+config FIX_CORE_108MHZ
+	bool "108.00 MHz"
+	depends on (CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || 	\
+		    CONFIG_ARCH_A2Q)
+
+config FIX_CORE_135MHZ
+	bool "135.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || \
+		    CONFIG_ARCH_A2M || CONFIG_ARCH_A2Q)
+
+config FIX_CORE_148MHZ
+	bool "148.50 MHz"
+	depends on (CONFIG_ARCH_A2S || CONFIG_ARCH_A6)
+
+config FIX_CORE_162MHZ
+	bool "162.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2S)
+
+config FIX_CORE_176MHZ
+	bool "175.50 MHZ"
+	depends on (CONFIG_ARCH_A1)
+
+config FIX_CORE_180MHZ
+	bool "180.00 MHz"
+	depends on (CONFIG_ARCH_A5L)
+
+config FIX_CORE_182MHZ
+	bool "182.25 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2)
+
+config FIX_CORE_189MHZ
+	bool "189.00 MHZ"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S)
+
+config FIX_CORE_202MHZ
+	bool "202.50 MHz"
+	depends on (CONFIG_ARCH_A1)
+
+config FIX_CORE_216MHZ
+	bool "216.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || \
+		    CONFIG_ARCH_A2M || CONFIG_ARCH_A2Q)
+
+config FIX_CORE_229MHZ
+	bool "229.50 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2)
+
+config FIX_CORE_240MHZ
+	bool "240.00 MHz"
+	depends on (CONFIG_ARCH_A5L)
+
+config FIX_CORE_243MHZ
+	bool "243.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || \
+		    CONFIG_ARCH_A2M || CONFIG_ARCH_A2Q)
+
+config FIX_CORE_250MHZ
+	bool "249.75 MHz"
+	depends on (CONFIG_ARCH_A1)
+
+config FIX_CORE_256MHZ
+	bool "256.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2)
+
+config FIX_CORE_263MHZ
+	bool "263.00 MHz"
+	depends on (CONFIG_ARCH_A1)
+
+config FIX_CORE_270MHZ
+	bool "270.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2)
+
+config FIX_CORE_283MHZ
+	bool "283.00 MHz"
+	depends on (CONFIG_ARCH_A1 || CONFIG_ARCH_A2)
+
+config FIX_CORE_290MHZ
+	bool "290.00 MHz"
+	depends on (CONFIG_ARCH_A1)
+
+config FIX_CORE_MAXMHZ
+	bool "MAX MHz"
+	depends on (CONFIG_ARCH_A5L)
+
+endchoice
+
+choice
+	prompt "DRAM Frequency"
+	default FIX_DRAM_216MHZ
+	depends on CONFIG_FIX_CORE_FREQ && 	\
+		(CONFIG_ARCH_A3 || CONFIG_ARCH_A5 || CONFIG_ARCH_A6 || \
+		 CONFIG_ARCH_A5L)
+	help
+		Select the fixed DRAM frequency
+
+config FIX_DRAM_148MHZ
+	bool "148.50 MHz"
+	depends on (CONFIG_ARCH_A3)
+
+config FIX_DRAM_162MHZ
+	bool "162.00 MHz"
+	depends on (CONFIG_ARCH_A5L && FIX_CORE_180MHZ)
+
+config FIX_DRAM_180MHZ
+	bool "180.00 MHz"
+	depends on (CONFIG_ARCH_A5L && FIX_CORE_180MHZ)
+
+config FIX_DRAM_216MHZ
+	bool "216.00 MHz"
+	depends on (CONFIG_ARCH_A3 || CONFIG_ARCH_A5 || CONFIG_ARCH_A6)
+
+config FIX_DRAM_240MHZ
+	bool "240.00 MHz"
+	depends on (CONFIG_ARCH_A5L && FIX_CORE_240MHZ)
+
+config FIX_DRAM_270MHZ
+	bool "270.00 MHz"
+	depends on (CONFIG_ARCH_A5 || CONFIG_ARCH_A6 || \
+		    (CONFIG_ARCH_A5L && FIX_CORE_240MHZ))
+
+config FIX_DRAM_300MHZ
+	bool "300.00 MHz"
+	depends on (CONFIG_ARCH_A5L && FIX_CORE_240MHZ)
+
+config FIX_DRAM_337MHZ
+	bool "337.50 MHz"
+	depends on (CONFIG_ARCH_A3 || CONFIG_ARCH_A5 || CONFIG_ARCH_A6)
+
+config FIX_DRAM_MAXMHZ
+	bool "MAX MHz"
+	depends on (CONFIG_ARCH_A5L && FIX_CORE_MAXMHZ)
+
+endchoice
+
+config CONFIG_USE_ALTERNATIVE_CORE_PLL
+	bool "Use alternative core PLL settings (EXPERIMENTAL!)"
+	depends on CONFIG_ARCH_A2
+	help
+		WARNING: This option is highly experimental! Normally, the
+		Ambarella processor boots up withSYS_CONFIG settings and
+		a matching built-in core PLL value. There are alternative
+		values that may be plugged in (as a replacement). They may
+		be used for debugging purposes.
+
+config CONFIG_USE_CUSTOM_216MHZ_PLL
+	bool "Use alternative 216MHz PLL"
+	depends on CONFIG_USE_ALTERNATIVE_CORE_PLL
+	help
+		Select this if you want to use an alternative PLL value for
+		216MHz core frequency.
+
+config CUSTOM_216MHZ_PLL
+	hex "Custom 216MHZ value"
+	default 0x10029c0a
+	depends on CONFIG_USE_CUSTOM_216MHZ_PLL
+	help
+		Enter the custom 216MHz core PLL value here.
+
+choice
+	prompt "UART baud rate"
+	default AMBOOT_UART_115200
+	depends on BUILD_AMBOOT
+	help
+		Select the AMBoot UART baud rate
+
+config AMBOOT_UART_19200
+	bool "19200"
+
+config AMBOOT_UART_38400
+	bool "38400"
+
+config AMBOOT_UART_57600
+	bool "57600"
+
+config AMBOOT_UART_115200
+	bool "115200"
+
+endchoice
+
+config BUILD_DEVFW
+	bool "Build device firmware images"
+	depends on BUILD_AMBOOT
+	default y
+	help
+		Build a number of firmware images including the:
+		"devfw_*.elf" and "devfw_*.bin" payloads, and the
+		"memfwprog_*.elf" in-memory firmware programming utilities.
+
+menu "HAL"
+	depends on (BUILD_DEVFW && (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A7L || CONFIG_ARCH_I1 || CONFIG_ARCH_S2))
+
+config HAL
+	string "HAL"
+	default "$(SV_DIR)/image/ambhal.bin"
+	depends on (BUILD_DEVFW && (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A7L || CONFIG_ARCH_I1 || CONFIG_ARCH_S2))
+	help
+		Location of the HAL image.
+
+config HAL_VIF
+	string "HAL Version File"
+	default "$(AMBABUILD_TOPDIR)/amboot/vif/ambhal.info"
+	depends on (BUILD_DEVFW && (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_A7L || CONFIG_ARCH_I1 || CONFIG_ARCH_S2))
+	help
+		Location of the version description file that describes
+		the format of the HAL image.
+
+endmenu
+
+menu "Persistent BIOS App Partition"
+	depends on BUILD_DEVFW
+
+config PBA
+	string "PBA"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the PBA image.
+
+config PBA_VIF
+	string "PBA Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the PBA image.
+
+config PBA_IN_SD
+	bool "Try to put PBA into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Primary Partition"
+	depends on BUILD_DEVFW
+
+config KERNEL
+	string "Kernel image"
+	default "$(AMBABUILD_TOPDIR)/kernel/linux/arch/arm/boot/Image"
+	depends on BUILD_DEVFW
+	help
+		Location of the kernel image.
+
+config KERNEL_VIF
+	string "Kernel Version File"
+	default "$(AMBABUILD_TOPDIR)/amboot/vif/linux.info"
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the kernel image.
+
+config KERNEL_IN_SD
+	bool "Try to put KERNEL into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Secondary Partition"
+	depends on BUILD_DEVFW
+
+config SECONDARY
+	string "Secondary image"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the secondary image.
+
+config SECONDARY_VIF
+	string "Secondary Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the secondary image.
+
+config SECONDARY_IN_SD
+	bool "Try to put SECONDARY into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Backup Partition"
+	depends on BUILD_DEVFW
+
+config BACKUP
+	string "Backup image"
+	depends on BUILD_DEVFW
+	help
+		Location of the kernel image.
+
+config BACKUP_VIF
+	string "Backup Version File"
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the backup image.
+
+config BACKUP_IN_SD
+	bool "Try to put BACKUP into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Ramdisk Partition"
+	depends on BUILD_DEVFW
+
+config RAMDISK
+	string "Ramdisk image"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the ramdisk image.
+
+config RAMDISK_VIF
+	string "Ramdisk Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the ramdisk image.
+
+config RAMDISK_IN_SD
+	bool "Try to put RAMDISK into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "ROMFS Partition"
+	depends on BUILD_DEVFW
+
+config CREATE_ROMFS_FW
+	bool "Create ROMFS firmware from binaries"
+	default n
+	depends on (ENABLE_FLASH && BUILD_DEVFW)
+	help
+		Select this option if you want to create ROMFS firmeare
+		using the ROMFS generator.
+
+config ROMFS_CONFIG_FILE
+	string "ROMFS config file"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_ROMFS_FW)
+	help
+		Location of the ROMFS config file or shellscirpt
+		to generate the specified ROMFS config file.
+
+config ROMFS
+	string "ROMFS image"
+	default ""
+	depends on (BUILD_DEVFW && !CREATE_ROMFS_FW)
+	help
+		Location of the ROMFS image.
+
+config ROMFS_VIF
+	string "ROMFS Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the ROMFS image.
+
+config ROMFS_IN_SD
+	bool "Try to put ROMFS into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "DSP Partition"
+	depends on BUILD_DEVFW
+
+config CREATE_DSP_FW
+	bool "Create DSP firmware from binaries"
+	default n
+	depends on BUILD_DEVFW
+	help
+		Select this option if you want to create DSP firmeare from
+		the ucode binaries.
+
+choice
+	prompt "Compress DSP firmware"
+	default USE_COMPRESSED_DSP_FW
+	depends on (BUILD_DEVFW && CREATE_DSP_FW)
+	help
+		Select whether the DSP firmware should be compressed or
+		not when programmed into AMBoot.
+
+config USE_COMPRESSED_DSP_FW
+	bool "Compressed"
+
+config USE_NON_COMPRESSED_DSP_FW
+	bool "Not compressed"
+
+endchoice
+
+config DSP_CODE_IMG
+	string "DSP code image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW) && \
+		(CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		 CONFIG_ARCH_A2Q || CONFIG_ARCH_A5S || CONFIG_ARCH_A5L || CONFIG_ARCH_A7L)
+	help
+		Location of DSP code image.
+
+config DSP_MEMD_IMG
+	string "DSP memd image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW) && \
+		(CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		 CONFIG_ARCH_A2Q || CONFIG_ARCH_A5S || CONFIG_ARCH_A5L || CONFIG_ARCH_A7L)
+	help
+		Location of DSP memd image.
+
+config DSP_MAIN_IMG
+	string "DSP main image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW) && \
+		!(CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		  CONFIG_ARCH_A2Q || CONFIG_ARCH_A5S || CONFIG_ARCH_A5L || CONFIG_ARCH_A7L)
+	help
+		Location of DSP main image.
+
+config DSP_SUB0_IMG
+	string "DSP sub0 image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW) && \
+		!(CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		  CONFIG_ARCH_A2Q || CONFIG_ARCH_A5S || CONFIG_ARCH_A5L || CONFIG_ARCH_A7L)
+	help
+		Location of DSP sub0 image.
+
+config DSP_SUB1_IMG
+	string "DSP sub1 image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW) && \
+		!(CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		  CONFIG_ARCH_A2Q || CONFIG_ARCH_A5S || CONFIG_ARCH_A5L || CONFIG_ARCH_A7L)
+	help
+		Location of DSP sub1 image.
+
+config DSP_DATA_IMG
+	string "DSP data image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW)
+	help
+		Location of DSP data image.
+
+config DSP_AORC_IMG
+	string "AORC code image"
+	default ""
+	depends on (BUILD_DEVFW && CREATE_DSP_FW) && \
+		!(CONFIG_ARCH_A1 || CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || \
+		  CONFIG_ARCH_A2Q || CONFIG_ARCH_A5S || CONFIG_ARCH_A5L || CONFIG_ARCH_A7L)
+	help
+		Location of AORC code image.
+
+config DSP
+	string "DSP image"
+	default ""
+	depends on (BUILD_DEVFW && !CREATE_DSP_FW)
+	help
+		Location of the DSP image.
+
+config DSP_VIF
+	string "DSP Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the DSP image.
+
+config DSP_IN_SD
+	bool "Try to put DSP into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Linux Partition"
+	depends on BUILD_DEVFW
+
+config LNX
+	string "Linux FS image"
+	default ""
+	depends on BUILD_DEVFW
+
+config LNX_VIF
+	string "Linux FS Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the LNX image.
+		YAFFS: $(AMBABUILD_TOPDIR)/amboot/vif/yaffs2.info
+		JFFS2: $(AMBABUILD_TOPDIR)/amboot/vif/jffs2.info
+		UBIFS: $(AMBABUILD_TOPDIR)/amboot/vif/ubifs.info
+
+config LNX_IN_SD
+	bool "Try to put LNX into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Swap Partition"
+	depends on BUILD_DEVFW
+
+config SWP
+	string "SWP image"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the SWP image.
+
+config SWP_VIF
+	string "SWP Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the SWP image.
+
+config SWP_IN_SD
+	bool "Try to put SWP into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Android Data Partition"
+	depends on BUILD_DEVFW
+
+config ADD
+	string "ADD image"
+	default ""
+	depends on BUILD_DEVFW
+
+config ADD_VIF
+	string "ADD Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the ADD image.
+
+config ADD_IN_SD
+	bool "Try to put ADD into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+menu "Android Cache Partition"
+	depends on BUILD_DEVFW
+
+config ADC
+	string "ADC"
+	default ""
+	depends on BUILD_DEVFW
+
+config ADC_VIF
+	string "ADC Version File"
+	default ""
+	depends on BUILD_DEVFW
+	help
+		Location of the version description file that describes
+		the format of the ADC image.
+
+config ADC_IN_SD
+	bool "Try to put ADC into SD"
+	depends on ENABLE_SD
+	select ENABLE_FIRMWARE_IN_SD
+	default n
+
+endmenu
+
+config MINIMAL_FIRMWARE_COMBO
+	bool "Minimal Fimrware Combinations"
+	default y
+	depends on BUILD_DEVFW
+	help
+		Selecting this option should save a lot of disk space as there
+		are many partitions that can form a large combinatorial
+		possibilities. Each would occupy a lot of disk space. If this
+		option is enabled, then for C(n, k) on partition types, only
+		C(n, 1) and C(n, n) are enumerated. If this option is not
+		enabled, then all C(n, 1), C(n, 2), ..., C(n, n) are generated!
+
+config SHOW_AMBOOT_SPLASH
+	bool "Show Splash Logo"
+	default n
+	help
+		This option/feature is used by products that require a quick
+		initialization of a VOUT peripheral and display splash logo
+		to, for example, an LCD screen.
+
+choice
+  prompt "LCD Panel Type"
+  default CONFIG_LCD_PANEL_NONE
+  depends on SHOW_AMBOOT_SPLASH  
+  help
+    Select the LCD Panel Type.
+
+config CONFIG_LCD_PANEL_NONE
+  bool "No LCD Screen"
+
+config CONFIG_LCD_PANEL_TPO489
+  bool "TPO489_320x480"
+
+config CONFIG_LCD_PANEL_TD043
+  bool "TDO43_800x480"
+
+config CONFIG_LCD_PANEL_1P3828
+  bool "1P3828_480x800"
+
+config CONFIG_LCD_PANEL_2N2021
+  bool "2N2021_240x432"
+endchoice
+
+choice
+  prompt "HDMI Mode"
+  default CONFIG_HDMI_MODE_NONE
+  depends on SHOW_AMBOOT_SPLASH  
+  help
+    Select the HDMI Mode.
+
+config CONFIG_HDMI_MODE_NONE
+  bool "None"
+
+config CONFIG_HDMI_MODE_480P
+  bool "480P"
+
+config CONFIG_HDMI_MODE_576P
+  bool "576P"
+  
+endchoice
+
+choice
+  prompt "CVBS Mode"
+  default CONFIG_CVBS_MODE_NONE
+  depends on SHOW_AMBOOT_SPLASH  
+  help
+    Select the CVBS Mode.
+
+config CONFIG_CVBS_MODE_NONE
+  bool "None"
+
+config CONFIG_CVBS_MODE_480I
+  bool "480I"
+
+config CONFIG_CVBS_MODE_576I
+  bool "576I"
+  
+endchoice
+
+menu "AMBBOOT_SPLASH_FILES"
+depends on SHOW_AMBOOT_SPLASH
+config AMBOOT_SPLASH_FILE_1
+	string "Logo image file 1"
+	default ""
+	depends on SHOW_AMBOOT_SPLASH
+	help
+		Location of the splash logo file 1.
+
+config AMBOOT_SPLASH_FILE_2
+	string "Logo image file 2"
+	default ""
+	depends on SHOW_AMBOOT_SPLASH
+	help
+		Location of the splash logo file 2.
+
+config AMBOOT_SPLASH_FILE_3
+	string "Logo image file 3"
+	default ""
+	depends on SHOW_AMBOOT_SPLASH
+	help
+		Location of the splash logo file 3.
+
+config AMBOOT_SPLASH_FILE_4
+	string "Logo image file 4"
+	default ""
+	depends on SHOW_AMBOOT_SPLASH
+	help
+		Location of the splash logo file 4.
+
+config AMBOOT_SPLASH_FILE_5
+	string "Logo image file 5"
+	default ""
+	depends on SHOW_AMBOOT_SPLASH
+	help
+		Location of the splash logo file 5.
+
+endmenu
+
+config CONFIG_AMBOOT_BAPI_SUPPORT
+	bool "Boot with BAPI Support"
+	default y
+	depends on AMBARELLA_LINUX_LAYOUT
+
+config CONFIG_AMBOOT_BAPI_AUTO_SAVE
+	bool "Auto save BAPI info"
+	default n
+	depends on CONFIG_AMBOOT_BAPI_SUPPORT
+
+config CONFIG_AMBOOT_BAPI_ZERO_FB
+	bool "Zero FB memory"
+	default y
+	depends on CONFIG_AMBOOT_BAPI_SUPPORT
+
+config AMBOOT_DEFAULT_SN
+	string "Default SN"
+	default ""
+
+config AMBOOT_DEFAULT_LINUX_MACHINE_ID
+	int "Default MACHINE ID"
+	default 4121 if CONFIG_ARCH_S2
+	default 3601 if CONFIG_ARCH_A7
+	default 3180 if CONFIG_ARCH_I1
+	default 2873 if CONFIG_BSP_BOARD_DURIAN
+	default 2872 if CONFIG_ARCH_A5S
+	default 1223
+	help
+		Default: 1223
+		Coconut: 2872
+		Durian: 2873
+		Elephant: 3180
+		Filbert: 3601
+		Ginkgo: 4121
+
+config AMBOOT_BUILD_DIAG
+	bool "Build Diag command"
+	default y
+
+config AMBOOT_BUILD_SPI
+	bool "Build SPI Driver"
+	default y
+
+endmenu
+

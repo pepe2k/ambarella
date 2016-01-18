@@ -1,0 +1,44 @@
+##
+## kernel/private/drivers/fdet/AmbaConfig
+##
+## History:
+##    2012/06/28 - [Zhenwu Xue] Create
+##
+## Copyright (C) 2004-2012, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+config BUILD_GYRO
+depends on BUILD_AMBARELLA_PRIVATE_MODULES && CONFIG_ARCH_S2
+	bool "Build Ambarella private gyro modules"
+	default n
+	help
+		Build Ambarella private gyro modules for Linux.
+
+choice
+        prompt "Gyro Sensor Model"
+        depends on BUILD_GYRO
+        default CONFIG_GYRO_SENSOR_MPU6000_INTERRUPT
+        help
+                Select Gyro Sensor.
+
+config CONFIG_GYRO_SENSOR_MPU6000_POLLING
+        bool "MPU6000 Polling"
+        help
+                CPU Polling MPU6000
+
+config CONFIG_GYRO_SENSOR_MPU6000_INTERRUPT
+        bool "MPU6000 Interrupt"
+        help
+                MPU6000 interrupting CPU
+
+config CONFIG_GYRO_SENSOR_MPU6000_INTERRUPT_SPI_POLL
+        bool "MPU6000 Interrupt with SPI Polling"
+        help
+                MPU6000 interrupting CPU, and read SPI by Poll
+
+endchoice

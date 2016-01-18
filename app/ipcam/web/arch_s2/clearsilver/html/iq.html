@@ -1,0 +1,493 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" " http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=" http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>Ambarella Encode Setting Page</title>
+	<link href="../css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+	<link href="../css/amba.css" rel="stylesheet">
+	<link href="../css/introjs.css" rel="stylesheet">
+	<!--[if lte IE 8]>
+	<link href="../js/introjs-ie.css" rel="stylesheet">
+	<!-- <![endif]-->
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/jquery-ui-1.10.1.custom.js"></script>
+	<script>
+	$(function() {
+		var lastindex = 0;
+		$( "#apply" ).button();
+		$( "#cancel" ).button();
+		$( "#alert" ).hide();
+		$( "#tabs" ).tabs();
+		$( "#dnmode" ).buttonset();
+		$( "#filter" ).spinner({
+			max: 11,
+			min: 0
+		});
+		$( "#exposure" ).buttonset();
+		$( "#compensation" ).buttonset();
+		$( "#antiflicker" ).buttonset();
+		$( "#exptargetfac" ).spinner({
+			max: 400,
+			min: 25
+		});
+		$("#irismode").buttonset();
+		$( "#maxgain" ).buttonset();
+		$( "#saturation" ).spinner({
+			max: 255,
+			min: 0
+		});
+		$( "#brightness" ).spinner({
+			max: 255,
+			min: -255
+		});
+		$( "#contrast" ).spinner({
+			max: 128,
+			min: 0
+		});
+		$( "#sharpness" ).spinner({
+			max: 10,
+			min: 0
+		});
+		$( "#shuttermin" )
+      .button()
+      .next()
+        .button({
+          text: false,
+          icons: {
+            primary: "ui-icon-triangle-1-s"
+          }
+        })
+        .click(function() {
+          var menu = $( this ).parent().next().show();
+          $( document ).one( "click", function() {
+            menu.hide();
+          });
+          return false;
+        })
+        .parent()
+          .buttonset()
+          .next()
+            .hide()
+            .menu();
+		$( "#shuttermax" )
+      .button()
+      .next()
+        .button({
+          text: false,
+          icons: {
+            primary: "ui-icon-triangle-1-s"
+          }
+        })
+        .click(function() {
+          var menu = $( this ).parent().next().show();
+          $( document ).one( "click", function() {
+            menu.hide();
+          });
+          return false;
+        })
+        .parent()
+          .buttonset()
+          .next()
+            .hide()
+            .menu();
+		$( "#wb" )
+      .button()
+      .next()
+        .button({
+          text: false,
+          icons: {
+            primary: "ui-icon-triangle-1-s"
+          }
+        })
+        .click(function() {
+          var menu = $( this ).parent().next().show();
+          $( document ).one( "click", function() {
+            menu.hide();
+          });
+          return false;
+        })
+        .parent()
+          .buttonset()
+          .next()
+            .hide()
+            .menu();
+		$("#min ul li").click( function() {
+			 var index = $(this).index(),
+			 val = $(this).find('a').text(),
+			 i = 0;
+			$( "#shuttermin" ).button( "option", "label", val);
+			$( "#shuttermax" ).button( "option", "label", val);
+			if (index > lastindex) {
+				lastindex = index;
+				do {
+					$("#max ul li").eq(index).hide();
+					index--;
+				} while(index >= 0);
+			} else {
+				do {
+					$("#max ul li").eq(index).show();
+					index++;
+				} while(index < lastindex);
+			}
+        });
+		$("#max ul li").click( function() {
+            $( "#shuttermax" ).button( "option", "label", $(this).find('a').text() );
+        });
+		$("#wbc ul li").click( function() {
+			wbval = $(this).index();
+            $( "#wb" ).button( "option", "label", $(this).find('a').text() );
+        });
+		$( "#success" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$( "#fail" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$("ul#menu>li:has(ul)").hover(function(){
+			$(this).children('a').addClass('red').end().find('ul').fadeIn(400);},
+			function(){
+			$(this).children('a').removeClass('red').end().find('ul').fadeOut(400);
+		});
+		getData("iq");
+		$("#apply").click(function() {
+			setIQ();
+		});
+		$("#cancel").click(function() {
+			setData("iq");
+		});
+		$(document).keypress(function(e){
+			keyCode = e.keyCode || e.which;
+			if(keyCode == 63){
+				introJs().start();
+			}
+		});
+	});
+	</script>
+	<style>
+
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	#iqcommand {
+		padding-bottom: 50px;
+		text-align:center;
+		position: absolute;
+		top: 1000px;
+		left:45%;
+	}
+	h2 {
+	  font-size: 1.2em;
+	  margin-bottom: 8px;
+	}
+	h3{
+	display:inline-block;
+	font-size: .9em;
+	}
+	.inline {
+	display:inline-block;
+	}
+	input {
+	  width:80px;
+	}
+	#container{
+	  height:750px;
+	  overflow:hidden;
+	}
+	.row {
+	height:362px;
+	  overflow:hidden;
+	  margin-bottom:.2%;
+	  padding:.4%;
+	}
+	.secondrow {
+	  height:362px;
+	  overflow:hidden;
+	  margin-bottom:.8%;
+	  padding:.5%;
+	}
+	.section {
+	   border: 1px solid #a6c9e2;
+	   border-radius:1%;
+	   padding:.5%;
+	}
+	.row .section {
+	  height:350px;
+	}
+	.secondrow .section {
+	  height:350px;
+	}
+	.left {
+	  float:left;
+	  width:48%;
+	  display:inline;
+	  overflow:hidden;
+	}
+	.right {
+	  float:right;
+	  width:48%;
+	  display:inlie;
+	  overflow:hidden;
+	}
+	.radio {
+	  min-width:600px;
+	}
+	.splitdig {
+	 display:inline-block;
+	}
+	.splitdig ul {
+	width: 6em;
+	z-index:100;
+	position:absolute;
+	}
+	.splitdig li {
+	font-size: .9em;
+	}
+	.split ul {
+	width: 12em;
+	z-index:100;
+	position:absolute;
+	}
+	.split li {
+	font-size: .9em;
+	}
+	</style>
+</head>
+<body>
+<div id="nav-wrapper"class="ui-state-default" style="padding-left: 0px;padding-right: 0px;">
+	<div class="wrapper">
+	<div id="nav-logo"><a href="#">Ambarella</a>
+	</div>
+	<div id="nav-menu">
+		<ul id="menu">
+		<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1">Camera</a></li>
+		<li><a href="/cgi-bin/router.cgi?page=live&action=query&stream=1">Liveview</a></li>
+		<li><a>Image</a></li>
+		</ul>
+	</div>
+	</div>
+</div>
+<div class="wrapper">
+<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Quility</a></li>
+	</ul>
+	<div id="tabs-1" style="padding:1%">
+	<!-- Button -->
+	<div id="container">
+		<div class="row">
+		<div class="section left">
+		<h2 class="demoHeaders">Day night mode:</h2>
+		<form>
+			<div id="dnmode" class="radio" data-step="2" data-intro="Turn on or off Day night mode">
+				<input type="radio" id="dnmode1" name="radio" <?cs if:dnmode=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="dnmode1">Off</label>
+				<input type="radio" id="dnmode2" name="radio" <?cs if:dnmode=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="dnmode2">On</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">3D De-noise Filter(0~11):</h2>
+			<input id="filter" type="spinner" value="<?cs var:filter ?>" data-step="3" data-intro="3D De-noise Filter">
+		<h2 class="demoHeaders">Local Exposure Mode:</h2>
+		<form>
+			<div id="exposure" class="radio" data-step="3" data-intro="Local Exposure Mode">
+				<input type="radio" id="exposure1" name="radio" <?cs if:exposure=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="exposure1">Stop</label>
+				<input type="radio" id="exposure2" name="radio" <?cs if:exposure=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="exposure2">Auto</label>
+				<input type="radio" id="exposure3" name="radio" <?cs if:exposure=="70" ?><?cs var:"checked"?><?cs /if ?> value="70"><label for="exposure3">Weak</label>
+				<input type="radio" id="exposure4" name="radio" <?cs if:exposure=="150" ?><?cs var:"checked"?><?cs /if ?> value="150"><label for="exposure4">Medium</label>
+				<input type="radio" id="exposure5" name="radio" <?cs if:exposure=="250" ?><?cs var:"checked"?><?cs /if ?> value="250"><label for="exposure5">Strong</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Back-light Compensation:</h2>
+		<form>
+			<div id="compensation" class="radio" data-step="4" data-intro="Back-light Compensation">
+				<input type="radio" id="compensation1" name="radio" <?cs if:compensation=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="compensation1">Off</label>
+				<input type="radio" id="compensation2" name="radio" <?cs if:compensation=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="compensation2">On</label>
+			</div>
+		</form>
+		</div>
+		<div class="section right">
+		<h2 class="demoHeaders">Shutter Time Limit(seconds):</h2>
+		<h3 class="demoHeaders">Min:</h3>
+		<div class="splitdig" id="min">
+		  <div class="inline">
+			<button id="shuttermin" style="width:80px;"><?cs var:shuttermin ?></button>
+			<button id="select1">Select an action</button>
+		  </div>
+		  <ul>
+			<li><a>1/8000</a></li>
+			<li><a>1/1024</a></li>
+			<li><a>1/960</a></li>
+			<li><a>1/480</a></li>
+			<li><a>1/240</a></li>
+			<li><a>1/120</a></li>
+			<li><a>1/100</a></li>
+			<li><a>1/60</a></li>
+			<li><a>1/50</a></li>
+			<li><a>1/30</a></li>
+			<li><a>1/29.97</a></li>
+			<li><a>1/25</a></li>
+		  </ul>
+		</div>
+		<h3 class="demoHeaders">Max:</h3>
+		<div class="splitdig" id="max">
+		  <div class="inline">
+			<button id="shuttermax" style="width:80px;"><?cs var:shuttermax ?></button>
+			<button id="select2">Select an action</button>
+		  </div>
+		  <ul>
+			<li><a>1/8000</a></li>
+			<li><a>1/1024</a></li>
+			<li><a>1/960</a></li>
+			<li><a>1/480</a></li>
+			<li><a>1/240</a></li>
+			<li><a>1/120</a></li>
+			<li><a>1/100</a></li>
+			<li><a>1/60</a></li>
+			<li><a>1/50</a></li>
+			<li><a>1/30</a></li>
+			<li><a>1/29.97</a></li>
+			<li><a>1/25</a></li>
+			<li><a>1/15</a></li>
+			<li><a>1/10</a></li>
+		  </ul>
+		</div>
+		<h2 class="demoHeaders">Exposure Target Factor(25%~400%):</h2>
+			<input id="exptargetfac" type="spinner" value="<?cs var:exptargetfac ?>" data-step="6" data-intro="Exposure Target Factor">
+		<h2 class="demoHeaders">DC Iris Mode:</h2>
+		<form>
+			<div id="irismode" class="radio" data-step="7" data-intro="DC Iris Mode">
+				<input type="radio" id="irismode1" name="radio" <?cs if:irismode=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="irismode1">Off</label>
+				<input type="radio" id="irismode2" name="radio" <?cs if:irismode=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="irismode2">On</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Anti-flicker:</h2>
+		<form>
+			<div id="antiflicker" class="radio" data-step="5" data-intro="Anti-flicker mode">
+				<input type="radio" id="antiflicker1" name="radio" <?cs if:antiflicker=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="antiflicker1">Anti-flicker 50Hz</label>
+				<input type="radio" id="antiflicker2" name="radio" <?cs if:antiflicker=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="antiflicker2">Anti-flicker 60Hz</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Sensor Max Gain:</h2>
+		<form>
+			<div id="maxgain" class="radio" data-step="9" data-intro="Sensor max gain">
+				<input type="radio" id="maxgain1" name="radio" <?cs if:maxgain=="30" ?><?cs var:"checked"?><?cs /if ?> value="30"><label for="maxgain1">30db</label>
+				<input type="radio" id="maxgain2" name="radio" <?cs if:maxgain=="36" ?><?cs var:"checked"?><?cs /if ?> value="36"><label for="maxgain2">36db(default)</label>
+				<input type="radio" id="maxgain3" name="radio" <?cs if:maxgain=="42" ?><?cs var:"checked"?><?cs /if ?> value="42"><label for="maxgain3">42db</label>
+				<input type="radio" id="maxgain4" name="radio" <?cs if:maxgain=="48" ?><?cs var:"checked"?><?cs /if ?> value="48"><label for="maxgain4">48db</label>
+				<input type="radio" id="maxgain5" name="radio" <?cs if:maxgain=="54" ?><?cs var:"checked"?><?cs /if ?> value="54"><label for="maxgain5">54db</label>
+				<input type="radio" id="maxgain6" name="radio" <?cs if:maxgain=="60" ?><?cs var:"checked"?><?cs /if ?> value="60"><label for="maxgain6">60db</label>
+			</div>
+		</form>
+		</div>
+		</div>
+		<div class="secondrow">
+		<div class="section left">
+		<h2 class="demoHeaders first">Saturation(0~255):</h2>
+			<input id="saturation" class="imgproperty" type="spinner" value="<?cs var:saturation ?>" data-step="10" data-intro="Saturation">
+		<h2 class="demoHeaders">Brightness(-255~255):</h2>
+			<input id="brightness" class="imgproperty" type="spinner" value="<?cs var:brightness ?>" data-step="11" data-intro="Brightness">
+		<h2 class="demoHeaders">Contrast(0~128):</h2>
+			<input id="contrast" class="imgproperty" type="spinner" value="<?cs var:contrast ?>" data-step="12" data-intro="Contrast">
+		<h2 class="demoHeaders">De-noise/Sharpness(0~10):</h2>
+			<input id="sharpness" class="imgproperty" type="spinner" value="<?cs var:sharpness ?>" data-step="13" data-intro="De-noise/Sharpness">
+		</div>
+		<div class="section right">
+		<div class="split" id="wbc">
+		  <h2 class="demoHeaders">White Balance Control:</h2>
+		  <div>
+			<button id="wb" style="width:12em;;"><?cs var:wb ?></button>
+			<button id="select">Select an action</button>
+		  </div>
+		  <ul>
+			<li><a>Auto</a></li>
+			<li><a>Incandescent</a></li>
+			<li><a>D4000</a></li>
+			<li><a>D5000</a></li>
+			<li><a>Sunny</a></li>
+			<li><a>Cloudy</a></li>
+			<li><a>Flash</a></li>
+			<li><a>Fluorescent</a></li>
+			<li><a>Fluorescent High</a></li>
+			<li><a>Under Water</a></li>
+			<li><a>Custom</a></li>
+		  </ul>
+		</div>
+		</div>
+		</div>
+		</div>
+</div>
+</div>
+<div id="success" title="Dialog Title" >
+	<p>Setting params successfully!</p>
+</div>
+<div id="fail" title="Dialog Title" >
+	<p>Setting params failed...</p>
+</div>
+<div id="alert" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Nothing changed.</p>
+</div>
+<div id="processing" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Note:</strong> <em>Setting params...</em></p>
+</div>
+<div id="iqcommand">
+<button id="apply">Apply</button>
+<button id="cancel">Cancel</button>
+</div>
+</div>
+	<script src="../js/amba.js"></script>
+	<script src="../js/intro.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+#!/bin/sh
+# autoplay
+# if file autoplay file
+# if dir autoplay dir
+
+print_usage(){
+  echo "Usage: autoplay PATH [REPEAT_TIMES]"
+
+  echo "play file looply or directory recursively and looply using pbtest"
+
+  echo "options:"
+  echo "    REPEAT_TIMES: how many times pbtest plays file or directory repeatedly"
+}
+
+play_file(){
+    #echo "autoplay: invoke play_file ${1}"
+
+    if [ -f /tmp/mmcblk0p1/dump/es.data ]; then
+        rm -f /tmp/mmcblk0p1/dump/es.data
+    elif [ -f /sdcard/es.data ]; then
+        rm -f /sdcard/es.data
+    else
+        :
+    fi
+
+    /usr/local/bin/pbtest $1
+}
+
+play_directory(){
+    #echo "autoplay: invoke play_directory ${1}"
+
+    for file in ${1}/*
+    do
+        if [ -f $file ]; then
+            play_file ${file}
+        elif [ -d $file ]; then
+            play_directory ${file}
+        else
+            echo "invalid link"
+        fi
+    done
+}
+
+autoplay_file(){
+    #echo "autoplay: invoke autoplay_file ${1}"
+
+    time=0
+    while true;
+    do
+        if [ -n $2 ]; then
+          if [ $2 -gt 0 ]; then
+            if [ $time -ge $2 ]; then
+              break
+            fi
+          fi
+        fi
+
+        echo "####play filename: $1 time: ${time}####"
+        play_file $1
+        time=$((time+1))
+    done
+}
+
+autoplay_directory(){
+    #echo "autoplay: invoke autoplay_directory ${1}"
+
+    time=0
+    while true;
+    do
+        if [ -n $2 ]; then
+          if [ $2 -gt 0 ]; then
+            if [ $time -ge $2 ]; then
+              break
+            fi
+          fi
+        fi
+        echo "####play directory: ${1} time: ${time}####"
+        play_directory $1
+        time=$((time+1))
+    done
+}
+
+autoplay_link(){
+    #echo "autoplay: invoke autoplay_link ${1}"
+
+    if [ -z $1 ]; then
+        print_usage
+    elif [ -f $1 ]; then
+        autoplay_file $1 $2
+    elif [ -d $1 ]; then
+        autoplay_directory $1 $2
+    else
+        print_usage
+    fi
+}
+
+autoplay_link $1 $2

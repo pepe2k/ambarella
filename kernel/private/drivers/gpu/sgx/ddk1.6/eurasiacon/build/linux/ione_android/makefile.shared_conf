@@ -1,0 +1,155 @@
+#
+# Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms and conditions of the GNU General Public License,
+# version 2, as published by the Free Software Foundation.
+# 
+# This program is distributed in the hope it will be useful but, except 
+# as otherwise stated in writing, without any warranty; without even the 
+# implied warranty of merchantability or fitness for a particular purpose. 
+# See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+# 
+# The full GNU General Public License is included in this distribution in
+# the file called "COPYING".
+#
+# Contact Information:
+# Imagination Technologies Ltd. <gpl-support@imgtec.com>
+# Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
+# 
+#
+# 
+#  --- Revision Logs Removed --- 
+#
+
+OBJCOPYFORMAT 	= elf32-littlearm
+KERNEL_CC		= arm-none-linux-gnueabi-gcc
+KERNEL_LD		= arm-none-linux-gnueabi-ld
+
+# Cross-compile extra settings.
+#
+PVR_SYSTEM	  =			elephant
+DISPLAY_CONTROLLER =	ionelfb
+DISPLAY_CONTROLLER_DIR = 3rdparty/dc_ione_linux
+
+SGXCORE = 540
+
+# Product customization Android was built with (if any)
+#
+TARGET_PRODUCT ?= zoom2
+
+# Hack to support Zoom 3 with TI Zoom 2 customizations
+#
+SGXCOREREV=120
+
+SYS_SGX_ACTIVE_POWER_LATENCY_MS ?= 100
+
+# SYS_FLAGS contains any flags specific to this system
+#
+SYS_CFLAGS		:= -DANDROID -D__linux__
+SYS_CFLAGS		+= -DSGX_DYNAMIC_TIMING_INFO
+SYS_CFLAGS		+= -DSYS_CUSTOM_POWERLOCK_WRAP
+SYS_CFLAGS		+= -DSYS_SGX_ACTIVE_POWER_LATENCY_MS=$(SYS_SGX_ACTIVE_POWER_LATENCY_MS)
+#SYS_CFLAGS		+= -DSYS_IONE_PIN_MEMORY_BUS_CLOCK
+
+# More Android-specific debug
+#
+ifeq ($(ANDROID_DEBUG),1)
+SUPPORT_HW_RECOVERY ?= 0
+PVRSRV_USSE_EDM_STATUS_DEBUG ?= 1
+SUPPORT_ACTIVE_POWER_MANAGEMENT ?= 0
+SUPPORT_SGX_LOW_LATENCY_SCHEDULING ?= 0
+SYS_CFLAGS += -DUSE_SUPPORT_STATUSVALS_DEBUG
+endif
+
+# The version of the kernel that is required for compilation
+#
+REQUIREDKERNELVERSION = 2.6.36
+REQUIREDKERNELVERSION_ALT = 2.6.35
+
+LDM_PLATFORM ?= 1
+
+# Only enable active power management if passive power management is
+# enabled, as indicated by LDM_PLATFORM being set to 1.  On IONE,
+# the system can suspend in the case where active power management is
+# enabled in the SGX driver, but passive power management isn't. As
+# passive power management isn't enabled, the driver won't see the
+# system suspend/resume events, and so won't take appropriate action.
+
+ifeq ($(LDM_PLATFORM),1)
+SUPPORT_ACTIVE_POWER_MANAGEMENT ?= 1
+else
+SUPPORT_ACTIVE_POWER_MANAGEMENT = 0
+endif
+
+# Only use the new display controller if the kernel version is >=2.6.29..
+#
+IONE_KERNEL_VER		:= $(shell grep "^VERSION = " \
+	 				$(KERNELDIR)/Makefile | cut -f3 -d' ')
+IONE_KERNEL_REL		:= $(shell grep "^PATCHLEVEL = " \
+	 				$(KERNELDIR)/Makefile | cut -f3 -d' ')
+IONE_KERNEL_SUBREL		:= $(shell grep "^SUBLEVEL = " \
+	 				$(KERNELDIR)/Makefile | cut -f3 -d' ')
+
+IONE_KERNEL_AT_LEAST_2_6_29 := $(shell test $(IONE_KERNEL_VER) -ge 2 -a \
+			$(IONE_KERNEL_REL) -ge 6 -a \
+			$(IONE_KERNEL_SUBREL) -ge 29 && echo 1 || echo 0)
+
+IONE_KERNEL_AT_LEAST_2_6_32 := $(shell test $(IONE_KERNEL_VER) -ge 2 -a \
+			$(IONE_KERNEL_REL) -ge 6 -a \
+			$(IONE_KERNEL_SUBREL) -ge 32 && echo 1 || echo 0)
+
+IONE_KERNEL_AT_LEAST_2_6_38 := $(shell test $(IONE_KERNEL_VER) -ge 2 -a \
+			$(IONE_KERNEL_REL) -ge 6 -a \
+			$(IONE_KERNEL_SUBREL) -ge 38 && echo 1 || echo 0)
+
+# Make sure we select the best display controller for these
+# combinations of options
+#
+ifeq ($(IONE_KERNEL_AT_LEAST_2_6_29),1)
+ifeq ($(LDM_PLATFORM),1)
+SUPPORT_LINUX_USING_WORKQUEUES = 1
+DISPLAY_CONTROLLER_DIR = 3rdparty/dc_ione_linux
+else
+DISPLAY_CONTROLLER = pvrlfb
+DISPLAY_CONTROLLER_DIR = 3rdparty/linux_framebuffer
+endif
+endif
+
+# Sholes && 2.6.32 needs a workaround (plat/vrfb.h)
+# Regular IONE and <2.6.32 need a workaround (plat/mach.h)
+#
+ifeq ($(TARGET_PRODUCT),sholes)
+ifeq ($(IONE_KERNEL_AT_LEAST_2_6_32),1)
+SYS_CFLAGS += -DPVR_IONEFB_NEEDS_PLAT_VRFB_H
+endif
+else
+ifneq ($(IONE_KERNEL_AT_LEAST_2_6_32),1)
+SYS_CFLAGS += -DPVR_IONEFB_NEEDS_MACH_VRFB_H
+endif
+endif
+
+ifeq ($(IONE_KERNEL_AT_LEAST_2_6_38),1)
+SYS_CFLAGS += -DAUTOCONF_INCLUDED
+endif
+
+# OPTIM contains the optimisation level in timing and release builds
+#
+OPTIM = -Os
+
+SUPPORT_SGX = 1
+
+SUPPORT_HW_RECOVERY ?= 1
+SUPPORT_SGX_HWPERF = 1
+SYS_USING_INTERRUPTS = 1
+
+SUPPORT_MEMINFO_IDS = 1
+SUPPORT_SECURE_FD_EXPORT = 1
+
+SUPPORT_PDUMP_MULTI_PROCESS = 1
+
+PVR2D_ALT_2DHW = 1

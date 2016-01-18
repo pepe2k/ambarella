@@ -1,0 +1,8 @@
+#
+# test_chip configuration file
+#
+sensor: mt9t002
+vin_mode: 2304x1296
+vout_mode: 480p
+encode_mode: 1080p
+frame_rate: 60

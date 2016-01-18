@@ -1,0 +1,212 @@
+#
+# Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms and conditions of the GNU General Public License,
+# version 2, as published by the Free Software Foundation.
+# 
+# This program is distributed in the hope it will be useful but, except 
+# as otherwise stated in writing, without any warranty; without even the 
+# implied warranty of merchantability or fitness for a particular purpose. 
+# See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+# 
+# The full GNU General Public License is included in this distribution in
+# the file called "COPYING".
+#
+# Contact Information:
+# Imagination Technologies Ltd. <gpl-support@imgtec.com>
+# Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
+# 
+#
+# 
+#  --- Revision Logs Removed --- 
+#
+
+SUPPORT_ANDROID_PLATFORM = 1
+
+# Tool chain and cross-compile settings.  gcc must be in the path.
+#
+ifeq ($(CROSS_COMPILE),)
+$(error CROSS_COMPILE must be set for Android)
+endif
+ifeq ($(ANDROID_ROOT),)
+$(error ANDROID_ROOT must be set for Android)
+endif
+ifneq ($(ANDROID_PRODUCT),)
+$(error ANDROID_PRODUCT is deprecated, use TARGET_PRODUCT)
+endif
+
+OBJCOPYFORMAT 		= elf32-littlearm
+
+KERNEL_CC = arm-none-linux-gnueabi-gcc
+KERNEL_LD = arm-none-linux-gnueabi-ld
+
+PTHREAD_LDFLAGS = 
+LIBRT_LDFLAGS = 
+
+# Product customization Android was built with (if any)
+#
+TARGET_PRODUCT ?= i1bub
+SGXCOREREV=120
+
+
+# Make sure gralloc comes out with an approved name
+#
+ifeq ($(TARGET_PRODUCT),generic)
+GRALLOC_VARIANT ?= default
+else
+GRALLOC_VARIANT ?= elephant
+endif
+
+# Build type Android was built with (does NOT affect DDK build type)
+#
+TARGET_BUILD_TYPE ?= release
+
+# Point to base library path
+#
+ifeq ($(TARGET_BUILD_TYPE),debug)
+TARGET_ROOT = $(ANDROID_ROOT)/out/debug/target
+else
+TARGET_ROOT = $(ANDROID_ROOT)/out/target
+endif
+
+TOOLCHAIN ?= $(TARGET_ROOT)/product/$(TARGET_PRODUCT)/obj
+
+SYS_EXE_LDFLAGS = \
+				-Bdynamic -Wl,-T$(ANDROID_ROOT)/build/core/armelf.x \
+				-nostdlib -Wl,-dynamic-linker,/system/bin/linker \
+				$(TOOLCHAIN)/lib/crtbegin_dynamic.o \
+				$(TOOLCHAIN)/lib/crtend_android.o \
+				-lc -ldl -lcutils
+
+SYS_LIB_LDFLAGS = \
+				-Bdynamic -Wl,-T$(ANDROID_ROOT)/build/core/armelf.xsc \
+				-nostdlib -Wl,-dynamic-linker,/system/bin/linker \
+				-lc -ldl -lcutils
+
+CROSSPLATFORM_PATHS =
+CROSSPLATFORM_LIBS = $(shell $(CC) -print-libgcc-file-name)
+
+DLINK_PATH_RT_BASE = /system/lib
+
+# Cross-compile extra settings.
+#
+PVR_SYSTEM	  =			elephant
+DISPLAY_CONTROLLER =	ionelfb
+
+ARCH_CFLAGS		= -march=armv7-a -fno-short-enums \
+				-I $(ANDROID_ROOT)/bionic/libc/arch-arm/include \
+				-I $(ANDROID_ROOT)/bionic/libc/include \
+				-I $(ANDROID_ROOT)/bionic/libstdc++/include \
+				-I $(ANDROID_ROOT)/bionic/libc/kernel/common \
+				-I $(ANDROID_ROOT)/bionic/libc/kernel/arch-arm \
+				-I $(ANDROID_ROOT)/bionic/libm/include \
+				-I $(ANDROID_ROOT)/bionic/libm/include/arm \
+				-I $(ANDROID_ROOT)/bionic/libthread_db/include \
+				-I $(ANDROID_ROOT)/frameworks/base/include \
+				-I $(ANDROID_ROOT)/system/core/include \
+				-I $(ANDROID_ROOT)/hardware/libhardware/include
+
+SGXCORE = 540
+
+# Rename libraries
+#
+OGLES1_V1_BASENAME	= GLESv1_CM_POWERVR_SGX$(SGXCORE)_$(SGXCOREREV)
+OGLES2_BASENAME		= GLESv2_POWERVR_SGX$(SGXCORE)_$(SGXCOREREV)
+EGL_BASENAME		= EGL_POWERVR_SGX$(SGXCORE)_$(SGXCOREREV)
+
+# We must force our test apps to use the Android system GL
+#
+OGLES1_LIBS		= -lGLESv1_CM -lEGL
+OGLES2_LIBS		= -lGLESv2 -lEGL
+EGL_LIBS		= -lEGL
+
+GRAPHICS_HAL_DESTDIR	= /system/lib/hw
+EGL_DESTDIR				= /system/lib/egl
+
+SYS_SGX_ACTIVE_POWER_LATENCY_MS ?= 100
+
+# SYS_FLAGS contains any flags specific to this system
+#
+SYS_CFLAGS		:= -DANDROID -D__linux__
+SYS_CFLAGS		+= -DSGX_DYNAMIC_TIMING_INFO
+SYS_CFLAGS		+= -DSYS_CUSTOM_POWERLOCK_WRAP
+#SYS_CFLAGS		+= -DANDROID_SYNC_OBJECTS
+SYS_CFLAGS		+= -DOGLES1_BASENAME=\"$(OGLES1_V1_BASENAME)\"
+SYS_CFLAGS		+= -DOGLES1_BASEPATH=\"$(EGL_DESTDIR)/\"
+SYS_CFLAGS		+= -DOGLES2_BASENAME=\"$(OGLES2_BASENAME)\"
+SYS_CFLAGS		+= -DOGLES2_BASEPATH=\"$(EGL_DESTDIR)/\"
+SYS_CFLAGS		+= -DGRALLOC_BASEPATH=\"$(GRAPHICS_HAL_DESTDIR)/\"
+SYS_CFLAGS		+= -DSYS_SGX_ACTIVE_POWER_LATENCY_MS=$(SYS_SGX_ACTIVE_POWER_LATENCY_MS)
+SYS_CFLAGS		+= -DCLIENT_DRIVER_DEFAULT_WAIT_RETRIES=50
+
+# More Android-specific debug
+#
+ifeq ($(ANDROID_DEBUG),1)
+ARCH_CFLAGS += -DHAL_ENTRYPOINT_DEBUG
+SUPPORT_HW_RECOVERY ?= 0
+PVRSRV_USSE_EDM_STATUS_DEBUG ?= 1
+SUPPORT_ACTIVE_POWER_MANAGEMENT ?= 0
+SUPPORT_SGX_LOW_LATENCY_SCHEDULING ?= 0
+SYS_CFLAGS += -DUSE_SUPPORT_STATUSVALS_DEBUG
+endif
+
+# The version of the kernel that is required for compilation
+#
+REQUIREDKERNELVERSION = 2.6.36
+
+# OPTIM contains the optimisation level in timing and release builds
+#
+OPTIM			= -Os
+
+SUPPORT_SGX = 1
+
+SUPPORT_HW_RECOVERY ?= 1
+SUPPORT_SGX_HWPERF = 1
+SYS_USING_INTERRUPTS = 1
+
+ifeq ($(REQUIREDKERNELVERSION),2.6.36)
+SUPPORT_IONE_IONEFB = 1
+endif
+
+SUPPORT_CPU_CACHED_BUFFERS ?= 1
+
+SUPPORT_CACHEFLUSH_ON_ALLOC = 1
+SUPPORT_MEMINFO_IDS = 1
+SUPPORT_SECURE_FD_EXPORT = 1
+SUPPORT_PDUMP_DELAYED_INITPHASE_TERMINATION = 1
+
+PVR2D_ALT_2DHW = 1
+LDM_PLATFORM ?= 1
+
+# Only enable active power management if passive power management is
+# enabled, as indicated by LDM_PLATFORM being set to 1.  On OMAP,
+# the system can suspend in the case where active power management is
+# enabled in the SGX driver, but passive power management isn't. As
+# passive power management isn't enabled, the driver won't see the
+# system suspend/resume events, and so won't take appropriate action.
+
+ifeq ($(LDM_PLATFORM),1)
+SUPPORT_ACTIVE_POWER_MANAGEMENT ?= 1
+else
+SUPPORT_ACTIVE_POWER_MANAGEMENT = 0
+endif
+
+ifeq ($(SUPPORT_ACTIVE_POWER_MANAGEMENT),1)
+SYS_CFLAGS		+= -DPVR_LINUX_MISR_USING_WORKQUEUE
+endif
+
+SKIP_OPK_DEFAULT_CHECK = 1
+
+# Android has GLES (v1), EGL and KHR headers..
+#
+UNITTEST_INCLUDES = -I$(EURASIAROOT)/eurasiacon/graphicshal \
+					-I$(ANDROID_ROOT)/frameworks/base/opengl/include
+
+# But it doesn't have OpenVG headers
+#
+UNITTEST_INCLUDES += -I$(EURASIAROOT)/eurasiacon/unittests/include

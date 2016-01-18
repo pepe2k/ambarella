@@ -1,0 +1,410 @@
+##
+## unit_test/AmbaConfig
+##
+## History:
+##    2008/05/04 - [Anthony Ginger] Create
+##
+## Copyright (C) 2004-2008, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+menuconfig BUILD_AMBARELLA_UNIT_TESTS
+	bool "Ambarella Unit Test Configuration"
+	default n
+	help
+		Build Unit Tests.
+
+if BUILD_AMBARELLA_UNIT_TESTS
+
+config CONFIG_UNIT_TEST_INSTALL_DIR
+	string "Install Unit Tests"
+	default "$(FAKEROOT_DIR)/usr/local/bin"
+	help
+		Install Unit Tests to the defined DIR.
+
+config CONFIG_UNIT_TEST_IMGPROC_PARAM_DIR
+	string "Install Imgproc Library Param"
+	default "$(FAKEROOT_DIR)/etc/idsp"
+	help
+		Install Imgproc Library parameters to the defined DIR.
+
+config BUILD_AMBARELLA_UNIT_TESTS_STATIC
+	bool "Build static version Ambarella Unit tests"
+	default n
+	help
+		Build static version.
+
+##
+## unit_test/AmbaConfig
+##
+## Following content are generated automatically by
+##  create_mkcfg: DO NOT EDIT!!
+##
+
+##### linux
+
+menuconfig BUILD_AMBARELLA_PUBLIC_LINUX_UNIT_TESTS
+	bool "Ambarella Public Linux Unit test configs"
+	default n
+	depends on BUILD_AMBARELLA_UNIT_TESTS
+	help
+		Build Ambarella Public Linux Unit tests.
+
+if BUILD_AMBARELLA_PUBLIC_LINUX_UNIT_TESTS
+
+config BUILD_AMBARELLA_UNIT_TESTS_AUDIO
+	bool "Build Ambarella Public Linux Audio unit tests"
+	default n
+	help
+		Build Ambarella Public Linux Audio unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_BLUEZ_TOOLS
+	bool "Build Ambarella Public Linux Bluez-tools unit tests"
+	default n
+	help
+		Build Ambarella Public Linux Bluez-tools unit tests.
+
+source unit_test/linux/benchmark/AmbaConfig
+
+config BUILD_AMBARELLA_UNIT_TESTS_CRYPTO
+	bool "Build Ambarella Public Linux Crypto unit tests"
+	default n
+	help
+		Build Ambarella Public Linux Crypto unit tests.
+config BUILD_AMBARELLA_UNIT_TESTS_CRYPTO_SOCKET
+	bool "Build Crypto Test With Socket Interface"
+	default n
+	help
+		Build socket interface
+
+config BUILD_AMBARELLA_UNIT_TESTS_FLASH_FS
+	bool "Build Ambarella Public Linux Flash FS unit tests"
+	default n
+	help
+		Build Ambarella Public Linux Flash file system
+		(ubifs,yaff2) unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_IDE
+	bool "Build Ambarella Public Linux IDE unit tests"
+	default n
+	help
+		Build Ambarella Public Linux IDE unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_MISC
+	bool "Build Ambarella Public Linux Misc unit tests"
+	default n
+	help
+		Build Ambarella Public Linux Misc unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_NAND
+	bool "Build Ambarella Public Linux Nand unit tests"
+	default n
+	help
+		Build Ambarella Public Linux Nand unit tests.
+		This program just do the Fatigue Testing.
+		For functional test, please take MTD-tools.
+
+config BUILD_AMBARELLA_UNIT_TESTS_UPGRADE
+	bool "Build Ambarella Public Linux Upgrade Tool"
+	default n
+	help
+		Build Ambarella Public Linux Upgrade Tool.
+
+config BUILD_AMBARELLA_UNIT_TESTS_USB_STREAM
+	bool "Build Ambarella Public Linux USB_STREAM unit tests"
+	default n
+	help
+		Build Ambarella Public Linux USB_STREAM unit tests.
+		It use a simple protocol to transfer data between
+		host and the platform.
+
+config BUILD_AMBARELLA_UNIT_TESTS_I2C_TOOL
+	bool "Build Linux I2C tool unit tests"
+	default n
+	help
+		Build unit tests for I2C test.
+endif
+
+
+
+##### private
+
+menuconfig BUILD_AMBARELLA_PRIVATE_LINUX_UNIT_TESTS
+	bool "Ambarella Private Linux Unit test configs"
+	default n
+	depends on BUILD_AMBARELLA_PRIVATE_MODULES
+	depends on BUILD_AMBARELLA_UNIT_TESTS
+	help
+		Build Ambarella Private Linux Unit tests.
+
+if BUILD_AMBARELLA_PRIVATE_LINUX_UNIT_TESTS
+
+config BUILD_AMBARELLA_UNIT_TESTS_UCODE
+	bool "Build Ucode utility"
+	default y
+	help
+		Build Ambarella Private Linux Ucode utilities.
+
+menuconfig BUILD_AMBARELLA_UNIT_TESTS_PLAYBACK
+	bool "Build PLAYBACK unit tests"
+	default n
+	depends on (CONFIG_ARCH_S2 || CONFIG_ARCH_I1)
+	help
+		Build Ambarella Private Linux PLAYBACK unit tests.
+
+if BUILD_AMBARELLA_UNIT_TESTS_PLAYBACK
+
+config BUILD_AMBARELLA_UNIT_TESTS_PLAYBACK_EXP
+	bool "Build PLAYBACK EXPERIMENTAL unit tests"
+	default n
+	help
+		Build Ambarella Private PLAYBACK experimental unit tests
+
+endif
+
+config BUILD_AMBARELLA_UNIT_TESTS_IAV_SERVER
+	bool "Build IAV Server"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_I1)
+	help
+		Build Ambarella Private Linux IAV Server.
+
+config BUILD_AMBARELLA_UNIT_TESTS_VIN
+	bool "Build VIN unit tests"
+	default n
+	help
+		Build Ambarella Private Linux VIN unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_VOUT
+	bool "Build VOUT unit tests"
+	default n
+
+	help
+		Build Ambarella Private Linux VOUT unit tests.
+
+menuconfig BUILD_AMBARELLA_UNIT_TESTS_IPCAM
+	bool "Build IPCAM unit tests"
+	default n
+
+	help
+		Build Ambarella Private Linux IPCAM unit tests.
+
+if BUILD_AMBARELLA_UNIT_TESTS_IPCAM
+
+config BUILD_AMBARELLA_UNIT_TESTS_IPCAM_EXP
+	bool "Build IPCAM EXPERIMENTAL unit tests"
+	default n
+	help
+		Build Ambarella Private IPCAM experimental unit tests
+
+config BUILD_AMBARELLA_EIS2_TEST
+	bool "Build IPCAM EIS2"
+	default n
+	help
+		Build Ambarella EIS2
+
+config BUILD_AMBARELLA_TEXTINSERT_TEST
+	bool "Build test_textinsert"
+	select BUILD_AMBARELLA_TEXTINSERT_PACKAGE
+	select CONFIG_AMBARELLA_FREETYPE_SUPPORT
+	select CONFIG_AMBARELLA_FREETYPE_FONT_SUPPORT
+	default n
+	help
+		Build Ambarella TEXTINSERT
+
+endif
+
+config BUILD_AMBARELLA_UNIT_TESTS_MW
+	bool "Build Middleware unit tests"
+	default n
+	select BUILD_AMBARELLA_MIDDLEWARE
+	select BUILD_AMBARELLA_MIDDLEWARE_PROC
+	help
+		Build Ambarella Private Linux Middleware unit tests.
+
+menuconfig BUILD_AMBARELLA_UNIT_TESTS_IDSP
+	bool "Build Image DSP unit tests"
+	default n
+	select BUILD_AMBARELLA_IMGPROC_PACKAGE
+	help
+		Build Ambarella Private Linux image idsp unit tests.
+
+if (BUILD_AMBARELLA_UNIT_TESTS_IDSP && CONFIG_ARCH_S2)
+
+config BUILD_AMBARELLA_UNIT_TESTS_IDSP_EXP
+	bool "Build IDSP EXPERIMENTAL unit tests"
+	default n
+	help
+		Build Ambarella Private IDSP experimental unit tests
+
+endif
+
+config BUILD_AMBARELLA_UNIT_TESTS_QTAMFCMD
+	bool "Build Ambarella QtAMF API unit tests"
+	default n
+	select BUILD_AMBARELLA_QTAMF_IPCAM_PACKAGE
+	depends on CONFIG_ARCH_A5S
+	help
+		Build Ambarella QtAMF API unit tests
+
+config BUILD_AMBARELLA_UNIT_TESTS_THIRDPARTY
+	bool "Build Ambarella Linux Third-party unit tests"
+	default n
+	help
+		Build Ambarella Linux Third-party unit tests
+
+config BUILD_AMBARELLA_UNIT_TESTS_CALIBRATION
+	bool "Build Ambarella Private Linux calibration unit tests"
+	default n
+	help
+		Build Ambarella Private Linux Calibration unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_AMBADEBUG
+	bool "Build Ambarella Private Linux amba_debug"
+	default n
+	help
+		Build Ambarella Private Linux amba_debug.
+
+config BUILD_AMBARELLA_UNIT_TESTS_FDET
+	bool "Build Ambarella Private Linux test_fdet"
+	default n
+	depends on BUILD_AMBARELLA_FDET
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_fdet.
+
+config BUILD_AMBARELLA_UNIT_TESTS_FREC
+	bool "Build Ambarella Private Linux test_frec"
+	default n
+	select BUILD_AMBARELLA_UNIT_TESTS_FDET
+	select BUILD_AMBARELLA_TEXTINSERT_PACKAGE
+	select CONFIG_AMBARELLA_OPENCV_SUPPORT
+	depends on BUILD_AMBARELLA_FDET
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_fdet.
+
+config BUILD_AMBARELLA_UNIT_TESTS_BGS
+	bool "Build Ambarella Private Linux test_bgs"
+	default n
+	select CONFIG_AMBARELLA_OPENCV_SUPPORT
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_bgs.
+
+config BUILD_AMBARELLA_UNIT_TESTS_MOTION_DETECTION
+	bool "Build Ambarella Private Linux test_mdet"
+	default n
+	depends on CONFIG_ARCH_A5S
+	help
+		Build Ambarella Private Linux test_mdet.
+
+config BUILD_AMBARELLA_UNIT_TESTS_CLPR
+	bool "Build Ambarella Private Linux test_clpr"
+	default n
+	select CONFIG_AMBARELLA_OPENCV_SUPPORT
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_clpr.
+
+config BUILD_AMBARELLA_UNIT_TESTS_LDWS
+	bool "Build Ambarella Private Linux test_ldws"
+	default n
+	select CONFIG_AMBARELLA_OPENCV_SUPPORT
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_ldws.
+
+config BUILD_AMBARELLA_UNIT_TESTS_DEHAZE
+	bool "Build Ambarella Private Linux test_dehaze"
+	default n
+	select CONFIG_AMBARELLA_OPENCV_SUPPORT
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_dehaze.
+
+config BUILD_AMBARELLA_UNIT_TESTS_NEON
+	bool "Build Ambarella Private Linux test_neon"
+	default n
+	select CONFIG_AMBARELLA_OPENCV_SUPPORT
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux test_ldws.
+
+config BUILD_AMBARELLA_UNIT_TESTS_DSPBRINGUP
+	bool "Build Ambarella Private Linux dsp_bringup"
+	default n
+	depends on (CONFIG_ARCH_A7 || CONFIG_ARCH_I1)
+	help
+		Build Ambarella Private Linux dsp_bringup.
+
+config BUILD_AMBARELLA_UNIT_TESTS_VSYNC
+	bool "Build Ambarella Private Linux soft v-sync test"
+	default n
+	help
+		Build Ambarella Private Linux soft v-sync test.
+
+config BUILD_AMBARELLA_UNIT_TESTS_MDIN380_4D1
+	bool "Build Ambarella Private Linux MDIN380_4D1 test"
+	default n
+	depends on CONFIG_ARCH_A5S
+	help
+		Build Ambarella Private Linux mdinxxx test.
+
+config BUILD_AMBARELLA_UNIT_TESTS_CUSTOM_AAA
+	bool "Build Ambarella Private Linux Custom AAA"
+	default n
+	help
+		Build Ambarella Private Linux custom aaa.
+
+config BUILD_AMBARELLA_UNIT_TESTS_CUSTOM_AF
+	bool "Build Ambarella Private Linux Custom AF"
+	default n
+	help
+		Build Ambarella Private Linux custom af.
+
+config BUILD_AMBARELLA_UNIT_TESTS_GYRO
+	bool "Build Ambarella Private Linux GYRO unit tests"
+	default n
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private Linux GYRO unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_IONE
+	bool "Build Ambarella Private Linux Ione unit tests"
+	default n
+	depends on CONFIG_ARCH_I1
+	help
+		Build Ambarella Private Linux Ione unit tests.
+
+config BUILD_AMBARELLA_UNIT_TESTS_CHIP
+	bool "Build Ambarella Private Linux CHIP test"
+	default n
+	depends on CONFIG_ARCH_S2
+	help
+		Build Ambarella Private chip test.
+
+config BUILD_AMBARELLA_UNIT_TESTS_HW_TIMER
+	bool "Build Ambarella Private Linux hw_timer Unit tests"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Build Ambarella Private hw_timer unit test
+
+config BUILD_AMBARELLA_UNIT_TESTS_PIRIS
+	bool "Build Ambarella Private Linux P-Iris Driver Unit tests"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Build Ambarella Private Linux P_iris Driver unit test
+
+endif
+
+
+## The end of AmbaConfig file
+endif
+

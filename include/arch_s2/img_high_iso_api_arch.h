@@ -1,0 +1,34 @@
+#ifndef __IMG_HIGH_ISO_API_ARCH_H__
+#define __IMG_HIGH_ISO_API_ARCH_H__
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
+//I1 HighISO IQ APIs
+int img_high_iso_set_luma_level_based_noise_reduction(luma_level_based_noise_reduction_t *luma_level_based_noise_reduction);
+int img_high_iso_set_luma_freq_separation(luma_freq_separation_t *luma_freq_separation);
+int img_high_iso_set_luma_very_low_freq_filter(luma_very_low_freq_filter_t *luma_very_low_freq_filter);
+int img_high_iso_set_luma_detail_preservation(luma_detail_preservation_t *luma_detail_preservation);
+int img_high_iso_set_luma_filt_spatial_dependent(luma_filt_spatial_dependent_t *luma_filt_spatial_dependent);
+int img_high_iso_set_high_iso_chroma_filt(high_iso_chroma_filt_t *high_iso_chroma_filt);
+int img_high_iso_set_high_iso_color_correction(high_iso_color_correction_t *high_iso_color_correction);
+int img_high_iso_set_chroma_filter_spatial_dependent(chroma_filter_spatial_dependent_t *chroma_filter_spatial_dependent);
+int img_high_iso_set_chroma_filter_pre(chroma_filter_pre_t *chroma_filter_pre);
+int img_high_iso_set_chroma_filter_high(chroma_filter_high_t *chroma_filter_high);
+int img_high_iso_set_chroma_filter_med(chroma_filter_med_t *chroma_filter_med);
+int img_high_iso_set_chroma_filter_low(chroma_filter_low_t *chroma_filter_low);
+int img_high_iso_set_chroma_filter_very_low(chroma_filter_very_low_t *chroma_filter_very_low);
+int img_high_iso_set_chroma_filter_very_very_low(chroma_filter_very_very_low_t *chroma_filter_very_very_low);
+int img_high_iso_set_wide_median(wide_median_t *wide_median);
+
+//I1 HighISO flow control / debugging APIs
+void img_high_iso_update_size_info(still_size_info_t *size_info);
+int  img_high_iso_execute(high_iso_addr_t* bin_addr);
+int  img_high_iso_execute_post_wb( void );
+int  img_high_iso_get_regs_addr(u32 *addr);
+void img_high_iso_dump_hiso_bins(void);
+#ifdef  __cplusplus
+}
+#endif
+#endif //__IMG_HIGH_ISO_API_I1_H__

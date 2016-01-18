@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" " http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=" http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>Ambarella OSD Page</title>
+	<link href="../css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+	<link href="../css/amba.css" rel="stylesheet">
+	<link href="../css/introjs.css" rel="stylesheet">
+	<!--[if lte IE 8]>
+	<link href="../js/introjs-ie.css" rel="stylesheet">
+	<!-- <![endif]-->
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/jquery-ui-1.10.1.custom.js"></script>
+	<script src="../js/amba.js"></script>
+	<script src="../js/intro.js"></script>
+	<script>
+	$(function() {
+		$( "#osdtabs1" ).tabs();
+		$( "#osdtabs2" ).tabs();
+		$( "#apply" ).button();
+		$( "#cancel" ).button();
+		$( "#alert" ).hide();
+		$( "#osd_stream" ).buttonset();
+		$( "#format" ).buttonset();
+		$( "#font_size" ).buttonset();
+		$( "#font_color" ).buttonset();
+		$( "#outline" ).buttonset();
+		$( "#pattern" ).buttonset();
+		$( "#offset_x" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#offset_y" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#box_h" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$( "#box_w" ).spinner({
+			max: 100,
+			min: 0
+		});
+		$("#osd_stream1").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=osd&action=query&stream=1";
+		});
+		$("#osd_stream2").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=osd&action=query&stream=2";
+		});
+		$("#osd_stream3").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=osd&action=query&stream=3";
+		});
+		$("#osd_stream4").click(function() {
+			window.location.href = "/cgi-bin/router.cgi?page=osd&action=query&stream=4";
+		});
+		$( "#accordion" ).accordion();
+		if(<?cs var:text_enable ?> == 0) {
+			$( "#accordion" ).hide();
+		}
+		$("#text_enable").click(function() {
+			$( "#accordion" ).toggle();
+		});
+		$( "#success" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$( "#fail" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$("ul#menu>li:has(ul)").hover(function(){
+			$(this).children('a').addClass('red').end().find('ul').fadeIn(400);},
+			function(){
+			$(this).children('a').removeClass('red').end().find('ul').fadeOut(400);
+		});
+		getData("osd");
+		$("#apply").click(function() {
+			setOSD();
+		});
+		$("#cancel").click(function() {
+			setData("osd");
+		});
+		$(document).keypress(function(e){
+			keyCode = e.keyCode || e.which;
+			if(keyCode == 63){
+				introJs().start();
+			}
+		});
+	});
+	</script>
+	<style>
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	#accordion.hide {
+		display:none;
+	}
+	</style>
+</head>
+<body>
+<div id="nav-wrapper"class="ui-state-default" style="padding-left: 0px;padding-right: 0px;">
+	<div class="wrapper">
+	<div id="nav-logo"><a href="#">Ambarella</a>
+	</div>
+	<div id="nav-menu">
+		<ul id="menu">
+		<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1">Camera</a>
+			<ul>
+			<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1" class="ui-state-default ui-corner-all">Encode</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=pm&action=query" class="ui-state-default ui-corner-all">PrivacyMask</a></li>
+			<li><a class="ui-state-active ui-corner-all">OSD</a></li>
+			<?cs if:camtype=="1" ?><?cs var:'<li><a href="/cgi-bin/router.cgi?page=dwp&action=query" class="ui-state-default ui-corner-all">Dewarp</a></li>'?><?cs /if ?>
+			</ul>
+		</li>
+		<li><a href="/cgi-bin/router.cgi?page=live&action=query&stream=1">Liveview</a></li>
+		<li><a href="/cgi-bin/router.cgi?page=iq&action=query">Image</a></li>
+		</ul>
+	</div>
+	</div>
+</div>
+<div class="wrapper">
+<div id="osdtabs1" class="tabs1">
+	<ul>
+		<li><a href="#tabs-1">OSD Setting</a></li>
+	</ul>
+	<div id="tabs-1">Please select the STREAM you want to OSD items, and then apply or cancel one or multiple OSD settings.
+<h2 class="demoHeaders">Stream:</h2>
+		<form style="margin-top: 1em;" data-step="1" data-intro="Select one stream">
+			<div id="osd_stream" style="margin-bottom: 1.5em;">
+				<input type="radio" id="osd_stream1" name="radio" <?cs if:streamid=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="osd_stream1">Stream1</label>
+				<input type="radio" id="osd_stream2" name="radio" <?cs if:streamid=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="osd_stream2">Stream2</label>
+				<input type="radio" id="osd_stream3" name="radio" <?cs if:streamid=="2" ?><?cs var:"checked"?><?cs /if ?> value="2"><label for="osd_stream3">Stream3</label>
+				<input type="radio" id="osd_stream4" name="radio" <?cs if:streamid=="3" ?><?cs var:"checked"?><?cs /if ?> value="3"><label for="osd_stream4">Stream4</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Adding:</h2>
+		<div id="format" style="margin-top: 1em;" data-step="2" data-intro="One or multiple settings can be added">
+			<input type="checkbox" id="time_enable" <?cs if:time_enable=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"/><label for="time_enable">Current time</label>
+			<input type="checkbox" id="bmp_enable" <?cs if:bmp_enable=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"/><label for="bmp_enable">BMP(8-bits, <80K)</label>
+			<input type="checkbox" id="text_enable" <?cs if:text_enable=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"/><label for="text_enable">Text string</label>
+		</div>
+		<div id="accordion" style="margin-top: 1em">
+		<h3>Text string</h3>
+		<div>
+		<p>
+		Input text content below and selet the font settings.
+		</p>
+		<h2 class="demoHeaders">Content(32 character):</h2>
+			<input style="margin-top: 1em;width:300px;" type="text" class="textinput" id="text" maxlength=32 value="<?cs var:text ?>" data-step="3" data-intro="Fill in the OSD text"/>
+		<h2 class="demoHeaders">Font size:</h2>
+		<form style="margin-top: 1em;">
+			<div id="font_size" style="margin-bottom: 1.5em;" data-step="4" data-intro="Select one font size">
+				<input type="radio" id="font_size1" name="radio" <?cs if:font_size=="28" ?><?cs var:"checked"?><?cs /if ?> value="28"><label for="font_size1">Smaller</label>
+				<input type="radio" id="font_size2" name="radio" <?cs if:font_size=="30" ?><?cs var:"checked"?><?cs /if ?> value="30"><label for="font_size2">Small</label>
+				<input type="radio" id="font_size3" name="radio" <?cs if:font_size=="32" ?><?cs var:"checked"?><?cs /if ?> value="32"><label for="font_size3">Middle</label>
+				<input type="radio" id="font_size4" name="radio" <?cs if:font_size=="34" ?><?cs var:"checked"?><?cs /if ?> value="34"><label for="font_size4">Large</label>
+				<input type="radio" id="font_size5" name="radio" <?cs if:font_size=="36" ?><?cs var:"checked"?><?cs /if ?> value="36"><label for="font_size5">Larger</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Color:</h2>
+		<form style="margin-top: 1em;">
+			<div id="font_color" style="margin-bottom: 1.5em;" data-step="5" data-intro="Select one font color">
+				<input type="radio" id="font_color1" name="radio" <?cs if:font_color=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="font_color1">Black</label>
+				<input type="radio" id="font_color2" name="radio" <?cs if:font_color=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="font_color2">Red</label>
+				<input type="radio" id="font_color3" name="radio" <?cs if:font_color=="2" ?><?cs var:"checked"?><?cs /if ?> value="2"><label for="font_color3">Blue</label>
+				<input type="radio" id="font_color4" name="radio" <?cs if:font_color=="3" ?><?cs var:"checked"?><?cs /if ?> value="3"><label for="font_color4">Green</label>
+				<input type="radio" id="font_color5" name="radio" <?cs if:font_color=="4" ?><?cs var:"checked"?><?cs /if ?> value="4"><label for="font_color5">Yellow</label>
+				<input type="radio" id="font_color6" name="radio" <?cs if:font_color=="5" ?><?cs var:"checked"?><?cs /if ?> value="5"><label for="font_color6">Magenta</label>
+				<input type="radio" id="font_color7" name="radio" <?cs if:font_color=="6" ?><?cs var:"checked"?><?cs /if ?> value="6"><label for="font_color7">Cyan</label>
+				<input type="radio" id="font_color8" name="radio" <?cs if:font_color=="7" ?><?cs var:"checked"?><?cs /if ?> value="7"><label for="font_color8">White</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Outline:</h2>
+		<form style="margin-top: 1em;">
+			<div id="outline" style="margin-bottom: 1.5em;" data-step="6" data-intro="Select one font outline width">
+				<input type="radio" id="outline1" <?cs if:outline=="0" ?><?cs var:"checked"?><?cs /if ?> name="radio" value="0"><label for="outline1">Thin</label>
+				<input type="radio" id="outline2" <?cs if:outline=="1" ?><?cs var:"checked"?><?cs /if ?> name="radio" value="1"><label for="outline2">Medium</label>
+				<input type="radio" id="outline3" <?cs if:outline=="2" ?><?cs var:"checked"?><?cs /if ?> name="radio" value="2"><label for="outline3">Thick</label>
+				<input type="radio" id="outline4" <?cs if:outline=="3" ?><?cs var:"checked"?><?cs /if ?> name="radio" value="3"><label for="outline4">Thicker</label>
+			</div>
+		</form>
+		<h2 class="demoHeaders">Pattern:</h2>
+		<div id="pattern" style="margin-top: 1em;" data-step="7" data-intro="Turn fonts bold or italic or both.">
+			<input type="checkbox" id="bold" <?cs if:bold=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"/><label for="bold">Bold</label>
+			<input type="checkbox" id="italic" <?cs if:italic=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"/><label for="italic">Italic</label>
+		</div>
+		<h2 class="demoHeaders" style="margin-top: 1em;">Text Box Offset:</h2>
+		<div style="float:left;">
+		<h2 class="demoHeaders">X(%):</h2>
+			<input id="offset_x" type="spinner" value="<?cs var:offset_x ?>" data-step="8" data-intro="Text Box lateral offset from the upper left conner(Range:0% to 100%)">
+		</div>
+		<div style="float:left;margin-left:3em;">
+		<h2 class="demoHeaders">Y(%):</h2>
+			<input id="offset_y" type="spinner" value="<?cs var:offset_y ?>" data-step="9" data-intro="Text Box vertical offset from the upper left conner(Range:0% to 100%)">
+		</div>
+		<div style="float:left;margin-left:3em;">
+		<h2 class="demoHeaders">Width(%):</h2>
+			<input id="box_w" type="spinner" value="<?cs var:box_w ?>" data-step="10" data-intro="Text Box width(Range:0% to 100%)">
+		</div>
+		<div style="float:left;margin-left:3em;">
+		<h2 class="demoHeaders">Height(%):</h2>
+			<input id="box_h" type="spinner" value="<?cs var:box_h ?>" data-step="11" data-intro="Text Box height(Range:0% to 100%)">
+		</div>
+		</div>
+		</div>
+	</div>
+</div>
+<div id="success" title="Dialog Title" >
+	<p>Setting params successfully!</p>
+</div>
+<div id="fail" title="Dialog Title" >
+	<p>Setting params failed...</p>
+</div>
+<div id="osdcommand">
+<button id="apply">Apply</button>
+<button id="cancel">Cancel</button>
+</div>
+<div id="alert" class="ui-state-error ui-corner-all">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Nothing changed.</p>
+</div>
+<div id="processing" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Note:</strong> Setting params...</p>
+</div>
+</div>
+</body>
+</html>

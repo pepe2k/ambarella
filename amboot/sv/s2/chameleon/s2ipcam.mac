@@ -1,0 +1,202 @@
+; A7sBUB startup macro for the Signum Chameleon Debugger Interfacea
+;refresh_mode_disable ; Disable display of windows
+if __CPU_STATE__ == "Unknown"
+	echo off
+	echo
+	echo Error: cannot access the CPU
+	echo
+	echo on
+	exit
+endif
+
+if __CPU_STATE__ == "NoPower"
+	echo off
+	echo
+	echo Error: target has no power!
+	echo Please connect power to the target now...
+	echo
+	while __CPU_STATE__ == "NoPower"
+	endwhile
+	echo on
+	pause 2000
+endif
+
+if __CPU_STATE__ == "InReset"
+	echo off
+	echo
+	echo CPU is resetting!
+	echo Waiting for release from reset...
+	echo
+	while __CPU_STATE__ == "InReset"
+	endwhile
+	echo on
+endif
+
+if __CPU_STATE__ == "Running"
+	echo off
+	echo
+	echo Stopping the CPU...
+	echo
+	stop
+	echo on
+endif
+
+;
+; Load definition file of registers for A6
+;
+
+loadreg a7s.def
+
+;
+; Initialize the board
+;
+CP15_REMAP_PERIPHERAL_PORT_MEMORY=0x60000014
+
+map	all	none				; Clear old mapping
+
+map	0x60000000 0x6fffffff	user volatile
+map	0x70000000 0x7fffffff	user volatile
+map	0xc0000000 0xcfffffff	user
+
+map						; Display current mapping
+;dram pll setting
+PLL_DDR_CTRL_REG=0x21100000
+
+PLL_DDR_CTRL2_REG=0x3f770000
+
+PLL_DDR_CTRL3_REG=0x00068300
+
+PLL_DDR_CTRL_REG=0x21100001
+
+PLL_DDR_CTRL_REG=0x21100000
+
+;setup dram dll
+DLL0_REG=0x00210021
+
+DLL1_REG=0x00210021
+
+DLL2_REG=0x00210021
+
+DLL3_REG=0x00210021
+
+DLL_CTRL_SEL_0_REG=0x00008001
+
+DLL_CTRL_SEL_1_REG=0x00008001
+
+DLL_CTRL_SEL_2_REG=0x00008001
+
+DLL_CTRL_SEL_3_REG=0x00008001
+
+DLL_CTRL_SEL=0x12e50000
+
+while (PLL_LOCK_REG & 0x00000020) != 0x00000020
+endwhile
+
+pause 1
+;write to DRAM RESERVED SPACE; addr for training seq
+DRAM_RSVD_SPACE = 0xc0000000
+
+;write to DRAM_CFG_REG step 2
+DRAM_CFG_REG = 0x00084899
+
+;write to DRAM_TIMING1 reg step 3
+DRAM_TIMING1_REG = 0x6ad948ec
+
+;write to DRAM_TIMING2 reg step 3
+DRAM_TIMING2_REG = 0x026e407b
+
+;write to DRAM_TIMING3 reg step 3
+DRAM_TIMING3_REG = 0x000000c6
+
+;write to DRAM BYTE MAP
+DRAM_BYTE_MAP = 0x000000e4
+
+;disable DQS
+DRAM_DQS_SYNC_REG = 0x000000a0
+
+;disable ZQ calibration
+DRAM_ZQ_CALIB = 0x00000060
+
+;write to PAD TERM to set RESET high
+DRAM_PAD_TERM = 0x00020054
+
+;deassert DRAM_RESET step 4
+DRAM_CTL_REG = 0x00000008
+
+;wait 500us for reset step 5
+pause 1
+;set DRAM_CKE bit step 6
+DRAM_CTL_REG = 0x0000000c
+
+;wait 400ns for cke high step 5
+pause 1
+;DRAM_EXT_MODE_REG2 step 9
+DRAM_MODE_REG = 0x01020008
+
+;wait EXT_MODE_REG2 busy to clear step9
+while (DRAM_MODE_REG & 0x80000000) != 0x00000000
+endwhile
+
+;DRAM_EXT_MODE_REG3 step 10
+DRAM_MODE_REG = 0x01030000
+
+while (DRAM_MODE_REG & 0x80000000) != 0x00000000
+endwhile
+
+;write to DRAM_EXT_MODE_REG register step 11
+DRAM_MODE_REG = 0x01010040
+
+;poll_dram for busy bit step 11
+while (DRAM_MODE_REG & 0x80000000) != 0x00000000
+endwhile
+
+;write DRAM_MODE_REG to reset DLL on memory
+DRAM_MODE_REG = 0x01001731
+
+;poll_dram for busy bit step 12
+while (DRAM_MODE_REG & 0x80000000) != 0x00000000
+endwhile
+
+;wait 5 clocks to allow for tMOD
+; issue ZQCL command
+DRAM_INIT_CTL_REG = 0x00000010
+
+;wait for ZQ Calibration to complete
+while (DRAM_INIT_CTL_REG & 0x00000010) != 0x00000000
+endwhile
+
+;DLL_RST_EN 
+DRAM_INIT_CTL_REG = 0x00000008
+
+;wait for DLL_RST_EN to clear step 8
+while (DRAM_INIT_CTL_REG & 0x00000008) != 0x00000000
+endwhile
+
+;set DRAM_AUTO_REF_EN step 18
+DRAM_CTL_REG = 0x0000000e
+
+;set PAD_CLB_EN bit step 20.5
+DRAM_INIT_CTL_REG = 0x00000020
+
+;wait for PAD Calibration to finish step 20.5
+while (DRAM_INIT_CTL_REG & 0x00000020) != 0x00000000
+endwhile
+
+;set GET_RTT_EN bit step 21
+DRAM_INIT_CTL_REG = 0x00000004
+
+;wait for GET_RTT to finish step 21
+while (DRAM_INIT_CTL_REG & 0x00000004) != 0x00000000
+endwhile
+
+;set DQS ON
+DRAM_DQS_SYNC_REG = 0x00000040
+
+;set periodic pad calibration and ZQ calibration on
+DRAM_ZQ_CALIB = 0x00000026
+
+;set DRAM_ENABLE bit
+DRAM_CTL_REG = 0x0000000f
+
+;DRAM INITIALIZATION done
+;DRAM controller is initialized...

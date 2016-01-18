@@ -1,0 +1,43 @@
+################################################################################
+## This is the configuration of AmStream Module
+## This configuration specifies Recording file name, file type and duration
+################################################################################
+[RECORD]
+## Min: 1, Max: 2
+StreamNumber                              = 1
+
+## TS
+## TS_HTTP
+## RTSP
+## MP4
+FileType0                                 = TS_HTTP
+FileType1                                 =
+
+## TS Upload URL
+TsUploadUrl                               = http://211.22.107.140/amcloud
+
+## File Duration in seconds
+## Seconds
+## Default file duration: 5 minutes(300 seconds)
+## 0      : Infinite
+FileDuration                              = 5
+
+## Record Duration in seconds
+## 0      : Infinite
+RecordDuration                            = 0
+
+## File Name Prefix
+## The total file name will be Prefix_Time_streamX.Extension
+FileNamePrefix                            = A5s
+
+## If file name needs time-stamp
+FileNameTimestamp                         = 1
+
+## File Store Location
+FileStoreLocation                         = /sdcard/video/
+
+## RTSP Send Mode
+RtspSendInBlockMode                       = No
+
+## RTSP Authentication
+RtspNeedAuthentication                    = Yes

@@ -1,0 +1,88 @@
+##
+## kernel/private/drivers/iav/AmbaConfig
+##
+## History:
+##    2008/01/16 - [Anthony Ginger] Create
+##
+## Copyright (C) 2004-2008, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+config BUILD_AMBARELLA_IAV2
+depends on (BUILD_AMBARELLA_PRIVATE_MODULES && CONFIG_ARCH_I1)
+	bool "Build Ambarella private IAV2 module"
+	default y
+	help
+		Build Ambarella private IAV2 module for Linux.
+
+menu "IAV2 debug configuration"
+depends on BUILD_AMBARELLA_IAV2
+
+config CONFIG_DSP_ENABLE_L2_ON_OFF
+depends on BUILD_AMBARELLA_IAV2
+	bool "enable dynamic L2 cache switching"
+	default n
+	help
+		enable dynamic L2 cache switching
+
+config CONFIG_DSP_ENABLE_HIGH_IRQ_LEVEL
+depends on BUILD_AMBARELLA_IAV2
+	bool "use high IRQ number (VIC4) for DSP/SYNCC IRQs"
+	default y
+	help
+		use high IRQ number (VIC4) for DSP/SYNCC IRQs
+
+config CONFIG_DSP_USE_VIRTUAL_MEMORY
+depends on BUILD_AMBARELLA_IAV2
+	bool "Support DSP virtual memory"
+	default n
+	help
+		Support DSP virtual memory
+
+config CONFIG_IAV_DBG
+depends on BUILD_AMBARELLA_IAV2
+	bool "enable IAV debug functions"
+	default n
+	help
+		enable IAV debug functions
+
+config CONFIG_PRINT_DSP_CMD
+depends on BUILD_AMBARELLA_IAV2
+	bool "Print all commands sent to DSP by printk"
+	default n
+	help
+		should be enabled by amba_debug tool
+
+config CONFIG_IAV_ENABLE_PRINTK
+depends on BUILD_AMBARELLA_IAV2
+	bool "enable printk in IAV"
+	default n
+	help
+		enable printk in IAV
+
+config CONFIG_LOG_DSP_CMDMSG
+depends on BUILD_AMBARELLA_IAV2
+	bool "Log dsp cmd and msg"
+	default n
+	help
+		Save dsp cmds and msgs in memory for debug use
+
+endmenu
+
+config CONFIG_IAV_ENABLE_MDEC
+depends on BUILD_AMBARELLA_IAV2
+	bool "Enable multiple udec (up to 16)"
+	default n
+	help
+		Support up to 16 udec instances (for NVR)
+
+config CONFIG_ENABLE_IPC_IN_AMBARELLA_IAV2
+depends on BUILD_AMBARELLA_IAV2
+	bool "Enable IPC in Ambarella private IAV2 module"
+	default n
+	help
+		Enable IPC in Ambarella private IAV2

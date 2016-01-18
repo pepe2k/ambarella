@@ -1,0 +1,127 @@
+/*
+ * kernel/private/drivers/ambarella/vin/sensors/sony_imx226/imx226_arch_reg_tbl.c
+ *
+ * History:
+ *    2013/12/20 - [Long Zhao] Create
+ *
+ * Copyright (C) 2004-2013, Ambarella, Inc.
+ *
+ * All rights reserved. No Part of this file may be reproduced, stored
+ * in a retrieval system, or transmitted, in any form, or by any means,
+ * electronic, mechanical, photocopying, recording, or otherwise,
+ * without the prior consent of Ambarella, Inc.
+ *
+ */
+
+/* ========================================================================== */
+static const struct imx226_reg_table imx226_share_regs[] = {
+	{IMX226_REG_00, 0x06},
+	{IMX226_REG_01, 0x11},
+	{IMX226_REG_02, 0x01},
+	{IMX226_REG_MDSEL3, 0x00},
+	{IMX226_REG_MDSEL4, 0x00},
+	{IMX226_REG_MDVREV, 0x00},
+	{IMX226_REG_MDSEL13, 0x74},
+	{IMX226_REG_MDSEL14, 0x74},
+	{IMX226_REG_MDSEL15, 0x74},
+	{IMX226_REG_PLSTMG01, 0x10},
+	{IMX226_REG_PLSTMG02, 0x04},
+	{IMX226_REG_PLSTMG03, 0x24},
+	{IMX226_REG_MDSEL5_LSB, 0x20},
+	{IMX226_REG_MDSEL5_MSB, 0x01},
+	{IMX226_REG_MDPLS01, 0x00},
+	{IMX226_REG_MDPLS02, 0x00},
+	{IMX226_REG_MDPLS03, 0x00},
+	{IMX226_REG_MDPLS04, 0x00},
+	{IMX226_REG_MDPLS05, 0x00},
+	{IMX226_REG_MDPLS06, 0x00},
+	{IMX226_REG_MDPLS07, 0x00},
+	{IMX226_REG_MDPLS08, 0x00},
+	{IMX226_REG_MDPLS09, 0x00},
+	{IMX226_REG_MDPLS10, 0x00},
+	{IMX226_REG_MDPLS11, 0x00},
+	{IMX226_REG_MDPLS12, 0x00},
+	{IMX226_REG_MDPLS13, 0x00},
+	{IMX226_REG_MDPLS14, 0x00},
+	{IMX226_REG_MDPLS15, 0x00},
+	{IMX226_REG_MDPLS16, 0x00},
+	{IMX226_REG_MDSEL7, 0x00},
+	{IMX226_REG_MDSEL8, 0x00},
+	{IMX226_REG_MDSEL9, 0x00},
+	{IMX226_REG_MDSEL10, 0x00},
+	{IMX226_REG_MDSEL11, 0x00},
+	{IMX226_REG_MDPLS17, 0x00},
+	{IMX226_REG_MDPLS18, 0x00},
+	{IMX226_REG_MDPLS19, 0x00},
+	{IMX226_REG_MDPLS20, 0x00},
+	{IMX226_REG_MDPLS21, 0x00},
+	{IMX226_REG_MDPLS22, 0x00},
+	{IMX226_REG_MDPLS23, 0x00},
+	{IMX226_REG_MDPLS24, 0x00},
+	{IMX226_REG_MDPLS25, 0x00},
+	{IMX226_REG_MDPLS26, 0x00},
+	{IMX226_REG_MDPLS27, 0x00},
+	{IMX226_REG_MDPLS28, 0x00},
+	{IMX226_REG_MDPLS29, 0x00},
+	{IMX226_REG_MDPLS30, 0x00},
+	{IMX226_REG_MDPLS31, 0x00},
+	{IMX226_REG_MDPLS32, 0x00},
+	{IMX226_REG_MDPLS33, 0x00},
+	{IMX226_REG_MDSEL12, 0x0E},
+	{IMX226_REG_PLSTMG04_LSB, 0x0A},
+	{IMX226_REG_PLSTMG04_MSB, 0x00},
+	{IMX226_REG_PLSTMG05_LSB, 0x31},
+	{IMX226_REG_PLSTMG05_MSB, 0x01},
+	{IMX226_REG_PLSTMG22_LSB, 0x64},
+	{IMX226_REG_PLSTMG22_MSB, 0x00},
+	{IMX226_REG_PLSTMG06_LSB, 0xEF},
+	{IMX226_REG_PLSTMG06_MSB, 0x00},
+	{IMX226_REG_PLSTMG23_LSB, 0x30},
+	{IMX226_REG_PLSTMG23_MSB, 0x01},
+	{IMX226_REG_PLSTMG07, 0x10},
+	{IMX226_REG_PLSTMG08, 0x01},
+	{IMX226_REG_PLSTMG09, 0x01},
+	{IMX226_REG_PLSTMG10, 0x0F},
+	{IMX226_REG_PLSTMG11, 0x0F},
+	{IMX226_REG_PLSTMG12, 0x1F},
+	{IMX226_REG_PLSTMG13_LSB, 0x01},
+	{IMX226_REG_PLSTMG13_MSB, 0x04},
+	{IMX226_REG_PLSTMG24, 0x10},
+	{IMX226_REG_PLSTMG14_LSB, 0x0B},
+	{IMX226_REG_PLSTMG14_MSB, 0x00},
+	{IMX226_REG_PLSTMG15, 0x0A},
+	{IMX226_REG_PLSTMG16, 0x00},
+	{IMX226_REG_PLSTMG17, 0x07},
+	{IMX226_REG_PLSTMG18, 0x10},
+	{IMX226_REG_PLSTMG19, 0x00},
+	{IMX226_REG_PLSTMG20, 0x07},
+	{IMX226_REG_PLSTMG21_LSB, 0x19},
+	{IMX226_REG_PLSTMG21_MSB, 0x19},
+};
+
+#define IMX226_SHARE_REG_SIZE		ARRAY_SIZE(imx226_share_regs)
+
+static const struct imx226_pll_reg_table imx226_pll_tbl[] = {
+	[0] = { // For 4096x2160/1080p@30fps(8lanes), 2048x1080@59.94 2x2 binning(4lanes)
+		.pixclk = 575999424,
+		.extclk = 71999928,
+		.factor = 8,
+		.regs = {
+		}
+	},
+	[1] = { // For 4000x3000 10ch 12bit 30fps
+		.pixclk = 576000000,
+		.extclk = 72000000,
+		.factor = 8,
+		.regs = {
+		}
+	},
+	[2] = { // For 4096x2160@60fps(10lanes)
+		.pixclk = 575999424,
+		.extclk = 72000000,
+		.factor = 8,
+		.regs = {
+		}
+	},
+};
+

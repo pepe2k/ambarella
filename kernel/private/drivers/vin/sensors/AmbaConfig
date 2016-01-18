@@ -1,0 +1,507 @@
+##
+## kernel/private/drivers/vin/sensors/AmbaConfig
+##
+## History:
+##    2008/01/16 - [Anthony Ginger] Create
+##
+## Copyright (C) 2004-2008, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+
+menu "Ambarella Sensor Configuration"
+	depends on BUILD_AMBARELLA_VIN
+
+config CONFIG_SENSOR_MT9P001
+	bool "Micron MT9P001 5M CMOS sensor"
+	default n
+	help
+		Select MICRON MT9P001 5M CMOS sensor.
+
+config CONFIG_SENSOR_MT9P031
+	bool "Micron MT9P031 5M CMOS sensor"
+	default y
+	help
+		Select MICRON MT9P031 5M CMOS sensor.
+
+config CONFIG_SENSOR_MT9P401
+	bool "Micron MT9P401 5M CMOS sensor"
+	default n
+	help
+		Select MICRON MT9P401 5M CMOS sensor.
+
+config CONFIG_SENSOR_MT9P006
+	bool "Micron MT9P006 5MHD+ CMOS sensor"
+	default n
+	help
+		Select MICRON MT9P006 5MHD+ CMOS sensor.
+
+config CONFIG_SENSOR_MT9P015
+	bool "Micron MT9P015 5M CMOS sensor"
+	default n
+	depends on CONFIG_ARCH_I1
+	help
+		Select MICRON MT9P015 5M CMOS sensor.
+
+config CONFIG_SENSOR_MT9V136
+	bool "Micron MT9V136 0.3M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M)
+	help
+		Select MICRON MT9V136 0.3M CMOS sensor.
+
+config CONFIG_SENSOR_MT9M033
+	bool "Micron MT9M033 1.2M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select MICRON MT9M033 1.2M CMOS sensor.
+
+config CONFIG_SENSOR_MT9J001_HISPI
+	bool "Micron MT9J001 10M CMOS sensor(Hispi Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1)
+	help
+		Select MICRON MT9J001 10M CMOS sensor, with hispi output, 1080p/60fps.
+
+config CONFIG_SENSOR_MT9J001_PARALLEL
+	bool "Micron MT9J001 10M CMOS sensor(Parallel Output)"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A3 || CONFIG_ARCH_A5S)
+	help
+		Select MICRON MT9J001 10M CMOS sensor, with parallel output.
+
+config CONFIG_SENSOR_MT9T002
+	bool "Micron MT9T002 3.4M CMOS sensor(Hispi Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1 || CONFIG_ARCH_S2 || CONFIG_ARCH_A7L)
+	help
+		Select MICRON MT9T002 3.4M CMOS sensor, with hispi output.
+
+config CONFIG_SENSOR_MT9T002_P
+	bool "Micron MT9T002 3.4M CMOS sensor(Parallel Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select MICRON MT9T002 3.4M CMOS sensor, with parallel output.
+
+config CONFIG_SENSOR_MT9T002_MIPI
+	bool "Micron MT9T002 3.4M CMOS sensor(MIPI Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Select MICRON MT9T002 3.4M CMOS sensor, with MIPI output.
+
+config CONFIG_SENSOR_MT9T002_S3D
+	bool "Micron MT9T002 3.4M CMOS sensor(Hispi Output) with S3D"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)&&(CONFIG_SBRIDGE_S3D)
+	help
+		Select MICRON MT9T002 3.4M CMOS sensor, with hispi output,
+		for S3D adapter.
+
+config CONFIG_SENSOR_AR0331
+	bool "Micron AR0331 3.1M CMOS sensor(Hispi Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1 || CONFIG_ARCH_S2)
+	help
+		Select MICRON AR0331 3.1M CMOS sensor, with hispi output.
+
+config CONFIG_SENSOR_AR0331_P
+	bool "Micron AR0331 3.1M CMOS sensor(Parallel Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Select MICRON AR0331 3.1M CMOS sensor, with parallel output.
+
+config CONFIG_SENSOR_AR0130
+	bool "Micron AR0130 1.2M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Select MICRON AR0130 1.2M CMOS sensor.
+
+config CONFIG_SENSOR_AR0835HS
+	bool "Micron AR0835HS 8M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A7 ||CONFIG_ARCH_S2)
+	help
+		Select MICRON AR0835HS 8M CMOS sensor.
+
+config CONFIG_SENSOR_OV7720
+	bool "Omnivison OV7720 0.3M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A3)
+	help
+		Select Omnivison OV7720 0.3M CMOS sensor.
+
+config CONFIG_SENSOR_OV7725
+	bool "Omnivison OV7725 0.3M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A3 || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV7725 0.3M CMOS sensor.
+
+config CONFIG_SENSOR_OV7740
+	bool "Omnivison OV7740 0.3M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A3)
+	help
+		Select Omnivison OV7740 0.3M CMOS sensor.
+
+config CONFIG_SENSOR_OV9710
+	bool "Omnivison OV9710 1M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV9710 1M CMOS sensor.
+
+config CONFIG_SENSOR_OV9718_MIPI
+	bool "Omnivison OV9718 1M CMOS sensor MIPI."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Select Omnivison OV9718 1M CMOS sensor, with MIPI output.
+
+config CONFIG_SENSOR_OV2710
+	bool "Omnivison OV2710 2M CMOS sensor MIPI."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Select Omnivison OV2710 2M CMOS sensor,with MIPI output.
+
+config CONFIG_SENSOR_OV2710P
+	bool "Omnivison OV2710 2M CMOS sensor parallel."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Omnivison OV2710 2M CMOS sensor, with parallel output.
+
+config CONFIG_SENSOR_OV5653
+	bool "Omnivison OV5653 5M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV5653 5M CMOS sensor
+
+config CONFIG_SENSOR_OV5653_MIPI
+	bool "Omnivison OV5653 5M CMOS sensor(MIPI Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV5653 5M CMOS sensor with MIPI output.
+
+config CONFIG_SENSOR_OV5658_MIPI
+	bool "Omnivison OV5658 5M CMOS sensor(MIPI Output)"
+	default n
+	depends on (CONFIG_ARCH_S2) || (CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV5658 5M CMOS sensor with MIPI output.
+
+config CONFIG_SENSOR_OV9726
+	bool "Omnivison OV9726 1M CMOS sensor"
+	default n
+	depends on (CONFIG_ARCH_I1)
+	help
+		Select Omnivison OV9726 1M CMOS sensor
+
+config CONFIG_SENSOR_OV10620
+	bool "Omnivison OV10620 0.4M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M)
+	help
+		Select Omnivison OV10620 0.4M CMOS sensor.
+
+config CONFIG_SENSOR_OV10630_YUV
+	bool "Omnivison OV10630 1M CMOS sensor(YUV Output)."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV10630 1M CMOS sensor with YUV Output.
+
+config CONFIG_SENSOR_OV10633_YUV
+	bool "Omnivison OV10633 1M CMOS sensor(YUV Output)."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV10633 1M CMOS sensor with YUV Output.
+
+config CONFIG_SENSOR_OV10630_RGB
+	bool "Omnivison OV10630 1M CMOS sensor(RGB Output)."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV10630 1M CMOS sensor with RGB Output.
+
+config CONFIG_SENSOR_OV14810
+	bool "Omnivison OV14810 14M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_I1)
+	help
+		Select Omnivison OV14810 14M CMOS sensor.
+
+config CONFIG_SENSOR_OV4688_MIPI
+	bool "Omnivison OV4688 4M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	help
+		Select Omnivison OV4688 4M CMOS sensor.
+
+config CONFIG_SENSOR_OV4689_MIPI
+	bool "Omnivison OV4689 4M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2 || CONFIG_ARCH_A7L || CONFIG_ARCH_A5S)
+	help
+		Select Omnivison OV4689 4M CMOS sensor with MIPI output.
+
+config CONFIG_SENSOR_IMX035
+	bool "Sony IMX035 1.3M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S || CONFIG_ARCH_A7)
+	help
+		Select Sony IMX035 1.3M CMOS sensor.
+
+config CONFIG_SENSOR_IMX036
+	bool "Sony IMX036 3.1M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX036 3.1M CMOS sensor.
+
+config CONFIG_SENSOR_IMX036PLVDS
+	bool "Sony IMX036 3.1M CMOS sensor(LVDS Parallel Output)."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX036 3.1M CMOS sensor, with LVDS parallel output.
+
+config CONFIG_SENSOR_IMX072
+	bool "Sony IMX072 5M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S)
+	help
+		Select Sony IMX072 5M CMOS sensor.
+
+config CONFIG_SENSOR_IMX078
+	bool "Sony IMX078 12M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A7L || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX078 12M CMOS sensor.
+
+config CONFIG_SENSOR_IMX121
+	bool "Sony IMX121 8M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX121 8M CMOS sensor.
+
+config CONFIG_SENSOR_IMX122
+	bool "Sony IMX122 2M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2 || CONFIG_ARCH_I1)
+	help
+		Select Sony IMX122 2M CMOS sensor.
+
+config CONFIG_SENSOR_IMX104
+	bool "Sony IMX104/IMX138 1.3M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX104/IMX138 1.3M CMOS sensor.
+
+config CONFIG_SENSOR_IMX105
+	bool "Sony IMX105 8M CMOS sensor."
+	default n
+	depends on CONFIG_ARCH_I1
+	help
+		Select Sony IMX105 8M CMOS sensor.
+
+config CONFIG_SENSOR_IMX136
+	bool "Sony IMX136 2.3M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX136 2.3M CMOS sensor.
+
+config CONFIG_SENSOR_IMX136P
+	bool "Sony IMX136 2.3M CMOS sensor(Parallel Output)."
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX136 2.3M CMOS sensor, with parallel output.
+
+config CONFIG_SENSOR_IMX136PLVDS
+	bool "Sony IMX136 2.3M CMOS sensor(LVDS Parallel Output)."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX136 2.3M CMOS sensor, with LVDS parallel output.
+
+config CONFIG_SENSOR_IMX172
+	bool "Sony IMX172 12M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Sony IMX172 12M CMOS sensor.
+
+config CONFIG_SENSOR_IMX178
+	bool "Sony IMX178 6.44M CMOS sensor with I2C interface(default)"
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX178 6.44M CMOS sensor.
+
+config CONFIG_SENSOR_IMX178_SPI
+	bool "Sony IMX178 6.44M CMOS sensor with SPI interface."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX178 6.44M CMOS sensor with SPI interface
+
+config CONFIG_SENSOR_IMX185
+	bool "Sony IMX185 2.38M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX185 2.38 CMOS sensor.
+
+config CONFIG_SENSOR_IMX185PLVDS
+	bool "Sony IMX185 2.38M CMOS sensor(LVDS Parallel Output)."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX185 2.38 CMOS sensor, with LVDS parallel output.
+
+config CONFIG_SENSOR_IMX226
+	bool "Sony IMX226 12M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX226 12M CMOS sensor.
+
+config CONFIG_SENSOR_IMX123
+	bool "Sony IMX123 3.2M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX123 3.2M CMOS sensor.
+
+config CONFIG_SENSOR_IMX124
+	bool "Sony IMX124 3.2M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX124 3.2M CMOS sensor.
+
+config CONFIG_SENSOR_IMX224
+	bool "Sony IMX224 1.23M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX224 1.23M CMOS sensor.
+
+config CONFIG_SENSOR_IMX183
+	bool "Sony IMX183 20.48M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX183 20.48M CMOS sensor.
+
+config CONFIG_SENSOR_IMX290
+	bool "Sony IMX290 2.13M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select Sony IMX290 2.13M CMOS sensor.
+
+config CONFIG_SENSOR_S5K4AWFX
+	bool "Samsung S5K4AWFX 1.2M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M)
+	help
+		Select Samsung S5K4AWFX 1.2M CMOS sensor.
+		(basic, still need addtional work for demo)
+
+config CONFIG_SENSOR_S5K3E2FX
+	bool "Samsung S5K3E2FX 5M CMOS sensor."
+	default n
+	depends on (CONFIG_ARCH_A2 || CONFIG_ARCH_A2S || CONFIG_ARCH_A2M || CONFIG_ARCH_A5S)
+	help
+		Select Samsung S5K3E2FX 5M CMOS sensor.
+		(RGB Raw only)
+
+config CONFIG_SENSOR_S5K5B3GX
+	bool "Samsung S5K5B3GX 2M CMOS sensor(Parallel Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S)
+	help
+		Select Samsung S5K5B3GX 2M CMOS sensor, with parallel output.
+
+config CONFIG_SENSOR_MN34031PL
+	bool "Panasonic MN34031PL 1.3M CMOS sensor(Parellel Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 )
+	help
+		Select Panasonic MN34031PL 1.3M CMOS sensor, with parellel output.
+
+config CONFIG_SENSOR_MN34041PL
+	bool "Panasonic MN34041PL 2.1M CMOS sensor(subLVDS Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_A7 || CONFIG_ARCH_S2)
+	help
+		Select Panasonic MN34041PL 2.1M CMOS sensor, with subLVDS output.
+
+config CONFIG_SENSOR_MN34210PL
+	bool "Panasonic MN34210PL 1.3M CMOS sensor(subLVDS Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S ||CONFIG_ARCH_S2)
+	help
+		Select Panasonic MN34210PL 1.3M CMOS sensor, with subLVDS output.
+
+config CONFIG_SENSOR_MN34220PL
+	bool "Panasonic MN34220PL 2.4M CMOS sensor(subLVDS Output)"
+	default n
+	depends on (CONFIG_ARCH_A5S ||CONFIG_ARCH_S2)
+	help
+		Select Panasonic MN34220PL 2.4M CMOS sensor, with subLVDS output.
+
+config CONFIG_SENSOR_GT2005
+	bool "GalaxyCore 2M CMOS sensor"
+	default n
+	depends on CONFIG_ARCH_I1
+	help
+		Select GalaxyCore GT2005 2M CMOS sensor.
+
+config CONFIG_SENSOR_TPG_FPGA
+	bool "Tpg Fpga sensor"
+	default n
+	depends on (CONFIG_ARCH_S2)
+	help
+		Select TPG_FPGA sensor
+
+config CONFIG_SENSOR_ALTERA_FPGA
+	bool "VIN by ALTERA FPGA"
+	default n
+	depends on CONFIG_ARCH_S2
+	help
+		Select ALTERA FPGA VIN.
+
+config CONFIG_SENSOR_TCM5117_MIPI
+	bool "Toshiba TCM5117 2M CMOS sensor(MIPI Output)."
+	default n
+	depends on CONFIG_ARCH_A5S
+	help
+		Select Toshiba TCM5117 2M CMOS sensor with MIPI output.
+
+config CONFIG_SENSOR_AMBDS
+	bool "Ambarella Dummy Sensor"
+	default n
+	help
+		Select Ambarella Dummy Sensor.
+endmenu
+

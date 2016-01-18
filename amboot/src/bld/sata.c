@@ -1,0 +1,367 @@
+/**
+ * system/src/bld/sata.c
+ *
+ * History:
+ *    2010/11/19 - [Cao Rongrong] Created file
+ *
+ * Copyright (C) 2004-2005, Ambarella, Inc.
+ *
+ * All rights reserved. No Part of this file may be reproduced, stored
+ * in a retrieval system, or transmitted, in any form, or by any means,
+ * electronic, mechanical, photocopying, recording, or otherwise,
+ * without the prior consent of Ambarella, Inc.
+ */
+
+#include <bldfunc.h>
+
+#define AHBSP_SATA_PHY_CTRL1_REG 	(AHB_SCRATCHPAD_BASE + 0x28)
+#define AHBSP_SATA_PHY_CTRL2_REG 	(AHB_SCRATCHPAD_BASE + 0x2c)
+
+void sata_phy_init(void)
+{
+	u32 val;
+
+	/* Initialize PHY CTRL register which are scratchpad registers */
+	val = readl(AHBSP_SATA_PHY_CTRL2_REG);
+	val |= 0x8;
+	writel(AHBSP_SATA_PHY_CTRL2_REG, val);
+
+	val = readl(AHBSP_SATA_PHY_CTRL1_REG);
+	val |= 0x5c000710;
+	val &= ~0x0000e000;
+	writel(AHBSP_SATA_PHY_CTRL1_REG, val);
+
+	/* Initialization sequence for SATA PHY registers */
+	writeb(SATA_PHY_REG(0x000), 0x07);
+	writeb(SATA_PHY_REG(0x001), 0x00);
+	writeb(SATA_PHY_REG(0x002), 0x80);
+	writeb(SATA_PHY_REG(0x003), 0x00);
+	writeb(SATA_PHY_REG(0x004), 0x00);
+	writeb(SATA_PHY_REG(0x005), 0x00);
+
+	writeb(SATA_PHY_REG(0x006), 0x00);
+	writeb(SATA_PHY_REG(0x007), 0x00);
+	writeb(SATA_PHY_REG(0x008), 0x00);
+	writeb(SATA_PHY_REG(0x009), 0x00);
+	writeb(SATA_PHY_REG(0x00a), 0x00);
+	writeb(SATA_PHY_REG(0x00b), 0x24);
+	writeb(SATA_PHY_REG(0x00c), 0x00);
+
+	writeb(SATA_PHY_REG(0x00d), 0x00);
+	writeb(SATA_PHY_REG(0x00e), 0x00);
+	writeb(SATA_PHY_REG(0x00f), 0x00);
+	writeb(SATA_PHY_REG(0x010), 0x00);
+	writeb(SATA_PHY_REG(0x011), 0x00);
+	writeb(SATA_PHY_REG(0x012), 0x00);
+	writeb(SATA_PHY_REG(0x013), 0x00);
+
+	writeb(SATA_PHY_REG(0x014), 0x00);
+	writeb(SATA_PHY_REG(0x015), 0x00);
+	writeb(SATA_PHY_REG(0x016), 0x00);
+	writeb(SATA_PHY_REG(0x017), 0x00);
+	writeb(SATA_PHY_REG(0x018), 0x00);
+	writeb(SATA_PHY_REG(0x019), 0x00);
+	writeb(SATA_PHY_REG(0x01a), 0x00);
+
+	writeb(SATA_PHY_REG(0x01b), 0x00);
+	writeb(SATA_PHY_REG(0x01c), 0x00);
+	writeb(SATA_PHY_REG(0x01d), 0x00);
+	writeb(SATA_PHY_REG(0x01e), 0x00);
+	writeb(SATA_PHY_REG(0x01f), 0x00);
+	writeb(SATA_PHY_REG(0x020), 0x00);
+	writeb(SATA_PHY_REG(0x021), 0x00);
+
+	writeb(SATA_PHY_REG(0x022), 0xa0);
+	writeb(SATA_PHY_REG(0x023), 0x64);
+	writeb(SATA_PHY_REG(0x024), 0x00);
+	writeb(SATA_PHY_REG(0x025), 0x00);
+	writeb(SATA_PHY_REG(0x026), 0x00);
+	writeb(SATA_PHY_REG(0x027), 0x00);
+	writeb(SATA_PHY_REG(0x028), 0x00);
+	writeb(SATA_PHY_REG(0x029), 0x00);
+
+	writeb(SATA_PHY_REG(0x02a), 0x00);
+	writeb(SATA_PHY_REG(0x02b), 0x00);
+	writeb(SATA_PHY_REG(0x02c), 0x00);
+	writeb(SATA_PHY_REG(0x02d), 0x00);
+	writeb(SATA_PHY_REG(0x02e), 0x04);
+	writeb(SATA_PHY_REG(0x02f), 0x50);
+	writeb(SATA_PHY_REG(0x030), 0x70);
+	writeb(SATA_PHY_REG(0x031), 0x02);
+
+	writeb(SATA_PHY_REG(0x032), 0x25);
+	writeb(SATA_PHY_REG(0x033), 0x40);
+	writeb(SATA_PHY_REG(0x034), 0x01);
+	writeb(SATA_PHY_REG(0x035), 0x40);
+	writeb(SATA_PHY_REG(0x036), 0x00);
+	writeb(SATA_PHY_REG(0x037), 0x00);
+	writeb(SATA_PHY_REG(0x038), 0x00);
+
+	writeb(SATA_PHY_REG(0x039), 0x00);
+	writeb(SATA_PHY_REG(0x03a), 0x00);
+	writeb(SATA_PHY_REG(0x03b), 0x00);
+	writeb(SATA_PHY_REG(0x03c), 0x00);
+	writeb(SATA_PHY_REG(0x03d), 0x00);
+	writeb(SATA_PHY_REG(0x03e), 0x00);
+	writeb(SATA_PHY_REG(0x03f), 0x00);
+
+	writeb(SATA_PHY_REG(0x040), 0x00);
+	writeb(SATA_PHY_REG(0x041), 0x00);
+	writeb(SATA_PHY_REG(0x042), 0x00);
+	writeb(SATA_PHY_REG(0x043), 0x00);
+	writeb(SATA_PHY_REG(0x044), 0x00);
+	writeb(SATA_PHY_REG(0x045), 0x00);
+	writeb(SATA_PHY_REG(0x046), 0x00);
+
+	writeb(SATA_PHY_REG(0x047), 0x00);
+	writeb(SATA_PHY_REG(0x048), 0x00);
+	writeb(SATA_PHY_REG(0x049), 0x00);
+	writeb(SATA_PHY_REG(0x044), 0x00);
+	writeb(SATA_PHY_REG(0x04b), 0x00);
+	writeb(SATA_PHY_REG(0x04c), 0x00);
+	writeb(SATA_PHY_REG(0x04d), 0x00);
+	writeb(SATA_PHY_REG(0x004e), 0x00);
+	writeb(SATA_PHY_REG(0x004f), 0x00);
+	writeb(SATA_PHY_REG(0x0050), 0x00);
+	writeb(SATA_PHY_REG(0x0051), 0x00);
+	writeb(SATA_PHY_REG(0x0052), 0x00);
+	writeb(SATA_PHY_REG(0x0053), 0x00);
+	writeb(SATA_PHY_REG(0x0054), 0x00);
+	writeb(SATA_PHY_REG(0x0055), 0x00);
+	writeb(SATA_PHY_REG(0x0056), 0x00);
+	writeb(SATA_PHY_REG(0x0057), 0x00);
+	writeb(SATA_PHY_REG(0x0058), 0x00);
+	writeb(SATA_PHY_REG(0x0059), 0x00);
+	writeb(SATA_PHY_REG(0x005a), 0x00);
+	writeb(SATA_PHY_REG(0x005b), 0x00);
+	writeb(SATA_PHY_REG(0x005c), 0x00);
+	writeb(SATA_PHY_REG(0x005d), 0x00);
+	writeb(SATA_PHY_REG(0x005e), 0x00);
+	writeb(SATA_PHY_REG(0x005f), 0x00);
+	writeb(SATA_PHY_REG(0x0060), 0x00);
+	writeb(SATA_PHY_REG(0x0061), 0x2e);
+	writeb(SATA_PHY_REG(0x0062), 0x00);
+	writeb(SATA_PHY_REG(0x0063), 0x5e);
+	writeb(SATA_PHY_REG(0x0064), 0x00);
+	writeb(SATA_PHY_REG(0x0065), 0x42);
+	writeb(SATA_PHY_REG(0x0066), 0xd1);
+	writeb(SATA_PHY_REG(0x0067), 0x20);
+	writeb(SATA_PHY_REG(0x0068), 0x28);
+	writeb(SATA_PHY_REG(0x0069), 0x78);
+	writeb(SATA_PHY_REG(0x006a), 0x44);
+	writeb(SATA_PHY_REG(0x006b), 0xce);
+	writeb(SATA_PHY_REG(0x006c), 0x0b);
+	writeb(SATA_PHY_REG(0x006d), 0x00);
+	writeb(SATA_PHY_REG(0x006e), 0x00);
+	writeb(SATA_PHY_REG(0x006f), 0x00);
+	writeb(SATA_PHY_REG(0x0070), 0x00);
+	writeb(SATA_PHY_REG(0x0071), 0x00);
+	writeb(SATA_PHY_REG(0x0072), 0x00);
+	writeb(SATA_PHY_REG(0x0200), 0x02);
+	writeb(SATA_PHY_REG(0x0201), 0x00);
+	writeb(SATA_PHY_REG(0x0202), 0x00);
+	writeb(SATA_PHY_REG(0x0203), 0x00);
+	writeb(SATA_PHY_REG(0x0204), 0x00);
+	writeb(SATA_PHY_REG(0x0205), 0x10);
+	writeb(SATA_PHY_REG(0x0206), 0x84);
+	writeb(SATA_PHY_REG(0x0207), 0x04);
+	writeb(SATA_PHY_REG(0x0208), 0xe0);
+	writeb(SATA_PHY_REG(0x0210), 0x23);
+	writeb(SATA_PHY_REG(0x0211), 0x00);
+	writeb(SATA_PHY_REG(0x0212), 0x00);
+	writeb(SATA_PHY_REG(0x0213), 0x05);
+	writeb(SATA_PHY_REG(0x0214), 0x38);
+	writeb(SATA_PHY_REG(0x0215), 0x04);
+	writeb(SATA_PHY_REG(0x0216), 0x00);
+	writeb(SATA_PHY_REG(0x0217), 0x68);
+	writeb(SATA_PHY_REG(0x0218), 0xf2);
+	writeb(SATA_PHY_REG(0x0219), 0x1e);
+	writeb(SATA_PHY_REG(0x021a), 0x18);
+	writeb(SATA_PHY_REG(0x021b), 0x0d);
+	writeb(SATA_PHY_REG(0x021c), 0x0d);
+	writeb(SATA_PHY_REG(0x021d), 0x00);
+	writeb(SATA_PHY_REG(0x021e), 0x00);
+	writeb(SATA_PHY_REG(0x021f), 0x00);
+	writeb(SATA_PHY_REG(0x0220), 0x00);
+	writeb(SATA_PHY_REG(0x0221), 0x00);
+	writeb(SATA_PHY_REG(0x0222), 0x00);
+	writeb(SATA_PHY_REG(0x0223), 0x00);
+	writeb(SATA_PHY_REG(0x0224), 0x00);
+	writeb(SATA_PHY_REG(0x0225), 0x00);
+	writeb(SATA_PHY_REG(0x0226), 0x00);
+	writeb(SATA_PHY_REG(0x0227), 0x00);
+	writeb(SATA_PHY_REG(0x0228), 0x00);
+	writeb(SATA_PHY_REG(0x0229), 0x00);
+	writeb(SATA_PHY_REG(0x022a), 0x00);
+	writeb(SATA_PHY_REG(0x022b), 0x00);
+	writeb(SATA_PHY_REG(0x022c), 0x00);
+	writeb(SATA_PHY_REG(0x022d), 0x00);
+	writeb(SATA_PHY_REG(0x022e), 0x00);
+	writeb(SATA_PHY_REG(0x022f), 0x00);
+	writeb(SATA_PHY_REG(0x0230), 0x00);
+	writeb(SATA_PHY_REG(0x0231), 0x00);
+	writeb(SATA_PHY_REG(0x0232), 0x00);
+	writeb(SATA_PHY_REG(0x0233), 0x00);
+	writeb(SATA_PHY_REG(0x0234), 0x00);
+	writeb(SATA_PHY_REG(0x0235), 0x00);
+	writeb(SATA_PHY_REG(0x0236), 0x00);
+	writeb(SATA_PHY_REG(0x0237), 0x00);
+	writeb(SATA_PHY_REG(0x0238), 0x00);
+	writeb(SATA_PHY_REG(0x0239), 0x00);
+	writeb(SATA_PHY_REG(0x023a), 0x00);
+	writeb(SATA_PHY_REG(0x023b), 0x00);
+	writeb(SATA_PHY_REG(0x023c), 0x00);
+	writeb(SATA_PHY_REG(0x023d), 0x00);
+	writeb(SATA_PHY_REG(0x023e), 0x00);
+	writeb(SATA_PHY_REG(0x023f), 0x00);
+	writeb(SATA_PHY_REG(0x0240), 0x00);
+	writeb(SATA_PHY_REG(0x0241), 0x00);
+	writeb(SATA_PHY_REG(0x0242), 0x00);
+	writeb(SATA_PHY_REG(0x0243), 0x00);
+	writeb(SATA_PHY_REG(0x0244), 0x00);
+	writeb(SATA_PHY_REG(0x0245), 0x00);
+	writeb(SATA_PHY_REG(0x0246), 0x00);
+	writeb(SATA_PHY_REG(0x0247), 0x00);
+	writeb(SATA_PHY_REG(0x0248), 0x00);
+	writeb(SATA_PHY_REG(0x0249), 0x00);
+	writeb(SATA_PHY_REG(0x024a), 0x00);
+	writeb(SATA_PHY_REG(0x024b), 0x00);
+	writeb(SATA_PHY_REG(0x024c), 0x00);
+	writeb(SATA_PHY_REG(0x024d), 0x00);
+	writeb(SATA_PHY_REG(0x024e), 0x00);
+	writeb(SATA_PHY_REG(0x024f), 0x00);
+	writeb(SATA_PHY_REG(0x0250), 0x60);
+	writeb(SATA_PHY_REG(0x0251), 0x0f);
+	writeb(SATA_PHY_REG(0x0a00), 0x02);
+	writeb(SATA_PHY_REG(0x0a01), 0x20);
+	writeb(SATA_PHY_REG(0x0a02), 0x00);
+	writeb(SATA_PHY_REG(0x0a03), 0x40);
+	writeb(SATA_PHY_REG(0x0a04), 0x24);
+	writeb(SATA_PHY_REG(0x0a05), 0xAE);
+	writeb(SATA_PHY_REG(0x0a06), 0x19);
+	writeb(SATA_PHY_REG(0x0a07), 0x49);
+	writeb(SATA_PHY_REG(0x0a08), 0x04);
+	writeb(SATA_PHY_REG(0x0a09), 0x23);
+	writeb(SATA_PHY_REG(0x0a0a), 0x48);
+	writeb(SATA_PHY_REG(0x0a0b), 0xc6);
+	writeb(SATA_PHY_REG(0x0a0c), 0x01);
+	writeb(SATA_PHY_REG(0x0a0d), 0x03);
+	writeb(SATA_PHY_REG(0x0a0e), 0x28);
+	writeb(SATA_PHY_REG(0x0a0f), 0x98);
+	writeb(SATA_PHY_REG(0x0a10), 0x19);
+	writeb(SATA_PHY_REG(0x0a11), 0x00);
+	writeb(SATA_PHY_REG(0x0a12), 0x00);
+	writeb(SATA_PHY_REG(0x0a13), 0x80);
+	writeb(SATA_PHY_REG(0x0a14), 0xf0);
+	writeb(SATA_PHY_REG(0x0a15), 0xd0);
+	writeb(SATA_PHY_REG(0x0a16), 0x00);
+	writeb(SATA_PHY_REG(0x0a17), 0x00);
+	writeb(SATA_PHY_REG(0x0a30), 0x00);
+	writeb(SATA_PHY_REG(0x0a31), 0x00);
+	writeb(SATA_PHY_REG(0x0a32), 0x00);
+	writeb(SATA_PHY_REG(0x0a33), 0x00);
+	writeb(SATA_PHY_REG(0x0a34), 0x00);
+	writeb(SATA_PHY_REG(0x0a35), 0x00);
+	writeb(SATA_PHY_REG(0x0a36), 0x00);
+	writeb(SATA_PHY_REG(0x0a37), 0x00);
+	writeb(SATA_PHY_REG(0x0a38), 0x00);
+	writeb(SATA_PHY_REG(0x0a39), 0xa0);
+	writeb(SATA_PHY_REG(0x0a3a), 0xa0);
+	writeb(SATA_PHY_REG(0x0a3b), 0xa0);
+	writeb(SATA_PHY_REG(0x0a3c), 0xa0);
+	writeb(SATA_PHY_REG(0x0a3d), 0xa0);
+	writeb(SATA_PHY_REG(0x0a3e), 0xa0);
+	writeb(SATA_PHY_REG(0x0a3f), 0xa0);
+	writeb(SATA_PHY_REG(0x0a40), 0x64);
+	writeb(SATA_PHY_REG(0x0a41), 0x00);
+	writeb(SATA_PHY_REG(0x0a42), 0x80);
+	writeb(SATA_PHY_REG(0x0a43), 0x58);
+	writeb(SATA_PHY_REG(0x0a44), 0x00);
+	writeb(SATA_PHY_REG(0x0a45), 0x44);
+	writeb(SATA_PHY_REG(0x0a46), 0x5c);
+	writeb(SATA_PHY_REG(0x0a47), 0x86);
+	writeb(SATA_PHY_REG(0x0a48), 0x8d);
+	writeb(SATA_PHY_REG(0x0a49), 0xd0);
+	writeb(SATA_PHY_REG(0x0a4a), 0x09);
+	writeb(SATA_PHY_REG(0x0a4b), 0x90);
+	writeb(SATA_PHY_REG(0x0a4c), 0x07);
+	writeb(SATA_PHY_REG(0x0a4d), 0x40);
+	writeb(SATA_PHY_REG(0x0a4e), 0x00);
+	writeb(SATA_PHY_REG(0x0a4f), 0x00);
+	writeb(SATA_PHY_REG(0x0a50), 0x00);
+	writeb(SATA_PHY_REG(0x0a51), 0x20);
+	writeb(SATA_PHY_REG(0x0a52), 0x32);
+	writeb(SATA_PHY_REG(0x0a53), 0x00);
+	writeb(SATA_PHY_REG(0x0a54), 0x00);
+	writeb(SATA_PHY_REG(0x0a55), 0x00);
+	writeb(SATA_PHY_REG(0x0a56), 0x00);
+	writeb(SATA_PHY_REG(0x0a57), 0x00);
+	writeb(SATA_PHY_REG(0x0a58), 0x00);
+	writeb(SATA_PHY_REG(0x0a59), 0x00);
+	writeb(SATA_PHY_REG(0x0a5a), 0x00);
+	writeb(SATA_PHY_REG(0x0a5b), 0x00);
+	writeb(SATA_PHY_REG(0x0a5c), 0x00);
+	writeb(SATA_PHY_REG(0x0a5d), 0x00);
+	writeb(SATA_PHY_REG(0x0a5e), 0x00);
+	writeb(SATA_PHY_REG(0x0a5f), 0x00);
+	writeb(SATA_PHY_REG(0x0a60), 0x00);
+	writeb(SATA_PHY_REG(0x0a61), 0x00);
+	writeb(SATA_PHY_REG(0x0a62), 0x00);
+	writeb(SATA_PHY_REG(0x0a63), 0x00);
+	writeb(SATA_PHY_REG(0x0a64), 0x00);
+	writeb(SATA_PHY_REG(0x0a65), 0x00);
+	writeb(SATA_PHY_REG(0x0a66), 0x00);
+	writeb(SATA_PHY_REG(0x0a67), 0x00);
+	writeb(SATA_PHY_REG(0x0a68), 0x00);
+	writeb(SATA_PHY_REG(0x0a69), 0x00);
+	writeb(SATA_PHY_REG(0x0a6a), 0x00);
+	writeb(SATA_PHY_REG(0x0a6b), 0x00);
+	writeb(SATA_PHY_REG(0x0a6c), 0x00);
+	writeb(SATA_PHY_REG(0x0a6d), 0x00);
+	writeb(SATA_PHY_REG(0x0a6e), 0x00);
+	writeb(SATA_PHY_REG(0x0a6f), 0x00);
+	writeb(SATA_PHY_REG(0x0a70), 0x00);
+	writeb(SATA_PHY_REG(0x0a71), 0x00);
+	writeb(SATA_PHY_REG(0x0a72), 0x00);
+	writeb(SATA_PHY_REG(0x0a73), 0x00);
+	writeb(SATA_PHY_REG(0x0a74), 0x00);
+	writeb(SATA_PHY_REG(0x0a75), 0x00);
+	writeb(SATA_PHY_REG(0x0a76), 0x00);
+	writeb(SATA_PHY_REG(0x0a77), 0x00);
+	writeb(SATA_PHY_REG(0x0a78), 0x00);
+	writeb(SATA_PHY_REG(0x0a79), 0x00);
+	writeb(SATA_PHY_REG(0x0a7a), 0x00);
+	writeb(SATA_PHY_REG(0x0a7b), 0x00);
+	writeb(SATA_PHY_REG(0x0a7c), 0x00);
+	writeb(SATA_PHY_REG(0x0a7d), 0x00);
+	writeb(SATA_PHY_REG(0x0a7e), 0x00);
+	writeb(SATA_PHY_REG(0x0a7f), 0xd8);
+	writeb(SATA_PHY_REG(0x0a80), 0x1a);
+	writeb(SATA_PHY_REG(0x0a81), 0xff);
+	writeb(SATA_PHY_REG(0x0a82), 0x11);
+	writeb(SATA_PHY_REG(0x0a83), 0x00);
+	writeb(SATA_PHY_REG(0x0a84), 0x00);
+	writeb(SATA_PHY_REG(0x0a85), 0x00);
+	writeb(SATA_PHY_REG(0x0a86), 0x00);
+	writeb(SATA_PHY_REG(0x0a87), 0xf0);
+	writeb(SATA_PHY_REG(0x0a88), 0xff);
+	writeb(SATA_PHY_REG(0x0a89), 0xff);
+	writeb(SATA_PHY_REG(0x0a8a), 0xff);
+	writeb(SATA_PHY_REG(0x0a8b), 0xff);
+	writeb(SATA_PHY_REG(0x0a8c), 0x1c);
+	writeb(SATA_PHY_REG(0x0a8d), 0xc2);
+	writeb(SATA_PHY_REG(0x0a8e), 0xc3);
+	writeb(SATA_PHY_REG(0x0a8f), 0x3f);
+	writeb(SATA_PHY_REG(0xa90), 0x0a);
+	writeb(SATA_PHY_REG(0xa91), 0x00);
+	writeb(SATA_PHY_REG(0xa92), 0x00);
+	writeb(SATA_PHY_REG(0xa93), 0x00);
+	writeb(SATA_PHY_REG(0xa94), 0x00);
+	writeb(SATA_PHY_REG(0xa95), 0x00);
+	writeb(SATA_PHY_REG(0xa96), 0xf8);
+
+	val = readl(AHBSP_SATA_PHY_CTRL1_REG);
+	val |= 0x00080000;
+	writel(AHBSP_SATA_PHY_CTRL1_REG, val);
+}
+

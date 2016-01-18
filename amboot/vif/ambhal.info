@@ -1,0 +1,32 @@
+/**
+ * system/vendor/ambarella/a5m/ambhal.info
+ *
+ * Version info for the hal firmware.
+ *
+ * History:
+ *    2009/03/24 - [Chien-Yang Chen] created file
+ *
+ * Copyright (C) 2008-2010, Ambarella, Inc.
+ *
+ * All rights reserved. No Part of this file may be reproduced, stored
+ * in a retrieval system, or transmitted, in any form, or by any means,
+ * electronic, mechanical, photocopying, recording, or otherwise,
+ * without the prior consent of Ambarella, Inc.
+ */
+
+#ifndef __AMBHAL_INFO__
+#define __AMBHAL_INFO__
+
+#include <ambhw.h>
+#include <hal/hal.h>
+
+#define FIRM_VER_NUM	AMB_VER_NUM(5,1)
+#if defined(__YEAR__) && defined(__MONTH__) && defined(__DAY__)
+#define FIRM_VER_DATE	AMB_VER_DATE(__YEAR__,__MONTH__,__DAY__)
+#else
+#define FIRM_VER_DATE	AMB_VER_DATE(2009,03,24)
+#endif
+#define FIRM_MEM_ADDR	HAL_BASE_PHYS
+#define FIRM_FLAG	PART_LOAD
+
+#endif

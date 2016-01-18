@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 5.5 Transitional//EN" " http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=" http://www.w3.org/1999/xhtml">
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>Ambarella Dewarp Setting Page</title>
+	<link href="../css/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+	<link href="../css/amba.css" rel="stylesheet">
+	<link href="../css/introjs.css" rel="stylesheet">
+	<!--[if lte IE 8]>
+	<link href="../js/introjs-ie.css" rel="stylesheet">
+	<!-- <![endif]-->
+	<script src="../js/jquery-1.9.1.js"></script>
+	<script src="../js/jquery-ui-1.10.1.custom.js"></script>
+	<script src="../js/amba.js"></script>
+	<script src="../js/intro.js"></script>
+	<script>
+	$(function() {
+		$( "#apply" ).button();
+		$( "#cancel" ).button();
+		$( "#alert" ).hide();
+		$( "#check" ).hide();
+		$( "#dwtabs1" ).tabs();
+		$( "#dwtabs2" ).tabs();
+		$( "#mount" ).buttonset();
+		$( "#imgsize" ).buttonset();
+		$( "#vendors" ).buttonset();
+		$( "#maxfov" ).spinner();
+		$( "#radium" ).spinner();
+		$( "#type" ).buttonset();
+
+		if($("#mount1").is(':checked')) {
+			for(var i = 4; i < 6; i++) {
+				$('#layout' + i).hide();
+				$('#layoutpic' + i).hide();
+			}
+		}
+		if($("#vendor1").is(':checked')) {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "disable" );
+			var radium = $( "#radium" ).spinner();
+			radium.spinner("disable");
+			$( "#type2" ).button({ disabled: true });
+		} else if($("#vendor2").is(':checked')) {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "disable" );
+			var radium = $( "#radium" ).spinner();
+			radium.spinner("disable");
+			$( "#type2" ).button({ disabled: true });
+		} else if($("#vendor3").is(':checked')) {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "disable" );
+			var radium = $( "#radium" ).spinner();
+			radium.spinner("disable");
+			$( "#type2" ).button({ disabled: true });
+		} else {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "enable" );
+			var radium = $( "#radium" ).spinner();
+			radium.spinner("enable");
+			$( "#type2" ).button({ disabled: false });
+		}
+		$("#vendor1").click(function() {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "value", 185);
+			var radium = $( "#radium" ).spinner();
+			radium.spinner( "value", 2298);
+			$("#type2").attr("checked",'');
+			$("#type2").next("label").removeClass( "ui-state-active");
+			$("#type1").attr("checked",'checked');
+			$("#type1").next("label").addClass( "ui-state-active");
+			maxfov.spinner( "disable" );
+			radium.spinner("disable");
+			$( "#type2" ).button({ disabled: true });
+		});
+		$("#vendor2").click(function() {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "value", 185);
+			var radium = $( "#radium" ).spinner();
+			radium.spinner( "value", 3000);
+			$("#type2").attr("checked",'');
+			$("#type2").next("label").removeClass( "ui-state-active");
+			$("#type1").attr("checked",'checked');
+			$("#type1").next("label").addClass( "ui-state-active");
+			maxfov.spinner( "disable" );
+			radium.spinner("disable");
+			$( "#type2" ).button({ disabled: true });
+		});
+		$("#vendor3").click(function() {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "value", 187);
+			var radium = $( "#radium" ).spinner();
+			radium.spinner( "value", 2322);
+			$("#type2").attr("checked",'');
+			$("#type2").next("label").removeClass( "ui-state-active");
+			$("#type1").attr("checked",'checked');
+			$("#type1").next("label").addClass( "ui-state-active");
+			maxfov.spinner( "disable" );
+			radium.spinner("disable");
+			$( "#type2" ).button({ disabled: true });
+		});
+		$("#vendor4").click(function() {
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "value", "");
+			var radium = $( "#radium" ).spinner();
+			radium.spinner( "value", "");
+			$("#type1").next("label").removeClass( "ui-state-active");
+			$("#type2").next("label").removeClass( "ui-state-active");
+			maxfov.spinner( "enable" );
+			radium.spinner("enable");
+			$( "#type2" ).button({ disabled: false });
+		});
+		$("#layoutpic1").click(function() {
+			$("#layout1").click();
+		});
+		$("#layoutpic2").click(function() {
+			$("#layout2").click();
+		});
+		$("#layoutpic3").click(function() {
+			$("#layout3").click();
+		});
+		$("#layoutpic4").click(function() {
+			$("#layout4").click();
+		});
+		$("#layoutpic5").click(function() {
+			$("#layout5").click();
+		});
+		$("#mount1").click(function() {
+			for(var i = 4; i < 6; i++) {
+				$('#layout' + i).hide();
+				$('#layoutpic' + i).hide();
+			}
+			$('#layoutpic' + 2).switchClass( 'cdpic' + 2, 'wallpic' + 2);
+			$('#layoutpic' + 3).switchClass( 'cdpic' + 3, 'wallpic' + 3);
+		});
+		$("#mount2").click(function() {
+			for(var i = 4; i < 6; i++) {
+				$('#layout' + i).show();
+				$('#layoutpic' + i).show();
+			}
+			$('#layoutpic' + 2).switchClass( 'wallpic' + 2, 'cdpic' + 2);
+			$('#layoutpic' + 3).switchClass( 'wallpic' + 3, 'cdpic' + 3);
+		});
+		$( "#success" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$( "#fail" ).dialog({
+			autoOpen: false,
+			width: 400,
+			buttons: [{
+				text: "Ok",
+				click: function() {
+					$( this ).dialog( "close" );
+				}},
+				{
+				text: "Cancel",
+				click: function() {
+					$( this ).dialog( "close" );
+				}
+				}
+		]});
+		$("ul#menu>li:has(ul)").hover(function(){ 
+			$(this).children('a').addClass('red').end().find('ul').fadeIn(400);},
+			function(){
+			$(this).children('a').removeClass('red').end().find('ul').fadeOut(400);
+		});
+		getData("dwp");
+		$("#apply").click(function() {
+			setDwp();
+		});
+		$("#cancel").click(function() {
+			setData("dwp");
+			for(var i = 4; i < 6; i++) {
+				$('#layout' + i).hide();
+				$('#layoutpic' + i).hide();
+			}
+			$('#layoutpic' + 2).switchClass( 'cdpic' + 2, 'wallpic' + 2);
+			$('#layoutpic' + 3).switchClass( 'cdpic' + 3, 'wallpic' + 3);
+			var maxfov = $( "#maxfov" ).spinner();
+			maxfov.spinner( "enable" );
+			var radium = $( "#radium" ).spinner();
+			radium.spinner("enable");
+			$( "#type2" ).button({ disabled: false });
+		});
+		$(document).keypress(function(e){
+			keyCode = e.keyCode || e.which;
+			if(keyCode == 63){
+				introJs().start();
+			}
+		});
+	});
+	</script>
+	<style>
+	
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	</style>
+</head>
+<body>
+<div id="nav-wrapper"class="ui-state-default" style="padding-left: 0px;padding-right: 0px;">
+	<div class="wrapper">
+	<div id="nav-logo"><a href="#">Ambarella</a>
+	</div>
+	<div id="nav-menu">
+		<ul id="menu">
+		<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1">Camera</a>
+			<ul>
+			<li><a href="/cgi-bin/router.cgi?page=enc&action=query&stream=1" class="ui-state-default ui-corner-all">Encode</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=pm&action=query" class="ui-state-default ui-corner-all">PrivacyMask</a></li>
+			<li><a href="/cgi-bin/router.cgi?page=osd&action=query&stream=1" class="ui-state-default ui-corner-all">OSD</a></li>
+			<li><a class="ui-state-active ui-corner-all">Dewarp</a></li>
+			</ul>
+		</li>
+		<li><a href="/cgi-bin/router.cgi?page=live&action=query&stream=1">Liveview</a></li>
+		<li><a href="/cgi-bin/router.cgi?page=iq&action=query">Image</a></li>
+		</ul>
+	</div>
+	</div>
+</div>
+<div class="wrapper">
+<div id="dwtabs1" class="tabs1">
+	<ul>
+		<li><a href="#tabs-1">Dewarp</a></li>
+	</ul>
+	<div id="tabs-1">Select one fisheye camera mount type.
+<h2 class="demoHeaders">Mount:</h2>
+		<form style="margin-top: 1em;">
+			<div id="mount" style="margin-bottom: 2em;" data-step="1" data-intro="Select one fisheye camera mount type">
+				<input type="radio" id="mount1" name="radio" <?cs if:mount=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="mount1">Wall</label>
+				<input type="radio" id="mount2" name="radio" <?cs if:mount=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="mount2">Ceiling</label>
+			</div>
+		</form>
+</div>
+</div>
+<div id="dwtabs2" class="tabs2">
+	<ul>
+		<li><a href="#tabs-1">Lens</a></li>
+	</ul>
+	<div id="tabs-1">Setting fisheye camera.
+<h2 class="demoHeaders" style="margin-top: 2em;">Vendors:</h2>
+		<form style="margin-top: 1em;">
+			<div id="vendors" data-step="2" data-intro="Select one set default params or select Customer then fill in your customer params">
+				<input type="radio" id="vendor1" name="radio" <?cs if:vendor=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="vendor1">Focusafe 1.25mm</label>
+				<input type="radio" id="vendor2" name="radio" <?cs if:vendor=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="vendor2">Focusafe 1.55mm</label>
+				<input type="radio" id="vendor3" name="radio" <?cs if:vendor=="2" ?><?cs var:"checked"?><?cs /if ?> value="2"><label for="vendor3">Sunex 216</label>
+				<input type="radio" id="vendor4" name="radio" <?cs if:vendor=="3" ?><?cs var:"checked"?><?cs /if ?> value="3"><label for="vendor4">Customer</label>
+			</div>
+		</form>
+<div style="float:left;"><h2 class="demoHeaders" style="margin-bottom:.5em;">Max FOV:</h2>
+<input id="maxfov" style="height:24px;" type="spinner" value="<?cs var:maxfov ?>" data-step="3" data-intro="Fill in max fov">
+</div>
+<div style="float:left;margin-left:3em;"><h2 class="demoHeaders" style="margin-bottom:.5em;">Image Circle:</h2>
+<input id="radium" style="height:24px;" type="spinner" value="<?cs var:radium ?>" data-step="4" data-intro="Fill in image circle">
+</div>
+<div style="float:left;margin-left:3em;">
+<h2 class="demoHeaders">Type:</h2>
+		<form style="margin-top: .5em;">
+			<div id="type" data-step="5" data-intro="Select one lens type">
+				<input type="radio" id="type1" name="radio" <?cs if:type=="0" ?><?cs var:"checked"?><?cs /if ?> value="0"><label for="type1">F(&theta;)</label>
+				<input type="radio" id="type2" name="radio" <?cs if:type=="1" ?><?cs var:"checked"?><?cs /if ?> value="1"><label for="type2">2Ftan(&theta;/2)</label>
+			</div>
+		</form>
+</div>
+<div style="clear:both;">
+</div>
+<h2 class="demoHeaders" style="margin-top: 2em;">Layout:<font style="font-size: 0.8em;color:#ffffff"> <font style="background-color:#7abdd9">stream 1</font>, <font style="background-color:#8fbf5c">stream2</font>, <font style="background-color:#e87a53">stream3</font>, <font style="background-color:#ebe94c">stream 4</font></font></h2>
+<form style="margin-top: 1em;">
+			<div id="layout">
+			<div style="float:left;" data-step="6" data-intro="Click on the picture to select one layout">
+				<input type="radio" id="layout1" name="special" <?cs if:layout=="0" ?><?cs var:"checked"?><?cs /if ?> value="0">
+				<div id="layoutpic1" class="cdwallpic1"><a>1</a></div>
+			</div>
+			<div style="float:left;margin-left:3em;">
+				<input type="radio" id="layout2" name="special" <?cs if:layout=="1" ?><?cs var:"checked"?><?cs /if ?> value="1">
+				<div id="layoutpic2" class="<?cs if:mount=='1'?><?cs var:'cdpic2'?><?cs else?><?cs var:'wallpic2'?><?cs /if?>"><a>2</a></div>
+			</div>
+			<div style="float:left;margin-left:3em;">
+				<input type="radio" id="layout3" name="special" <?cs if:layout=="2" ?><?cs var:"checked"?><?cs /if ?> value="2">
+				<div id="layoutpic3" class="<?cs if:mount=='1'?><?cs var:'cdpic3'?><?cs else?><?cs var:'wallpic3'?><?cs /if?>"><a>3</a></div>
+			</div>
+			<div style="float:left;margin-left:3em;">
+				<input type="radio" id="layout4" name="special" <?cs if:layout=="3" ?><?cs var:"checked"?><?cs /if ?> value="3">
+				<div id="layoutpic4" class="cdpic4"><a>4</a></div>
+			</div>
+			<div style="float:left;margin-left:3em;">
+				<input type="radio" id="layout5" name="special" <?cs if:layout=="4" ?><?cs var:"checked"?><?cs /if ?> value="4">
+				<div id="layoutpic5" class="cdpic5"><a>5</a></div>
+			</div>
+			</div>
+</form>
+<div style="clear:both;">
+</div>
+</div>
+</div>
+<div id="success" title="Dialog Title" >
+	<p>Setting params successfully!</p>
+</div>
+<div id="fail" title="Dialog Title" >
+	<p>Setting params failed...</p>
+</div>
+<div id="check" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Please fill the Customer data.</p>
+</div>
+<div id="check2" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Please select a layout.</p>
+</div>
+<div id="alert" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Alert:</strong> Nothing changed.</p>
+</div>
+<div id="processing" class="ui-state-error ui-corner-all alert">
+	<p><span class="ui-icon ui-icon-alert"></span>
+	<strong>Note:</strong> Setting params...</p>
+</div>
+<div id="dwcommand">
+<button id="apply">Apply</button>
+<button id="cancel">Cancel</button>
+</div>
+</div>
+</body>
+</html>

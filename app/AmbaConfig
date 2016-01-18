@@ -1,0 +1,177 @@
+##
+## app/AmbaConfig
+##
+## History:
+##    2008/01/16 - [Anthony Ginger] Create
+##
+## Copyright (C) 2008-2016, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+menuconfig BUILD_AMBARELLA_APPLICATION
+	bool "Ambarella Application Configuration"
+	default n
+	help
+		Build Ambarella Application.
+
+if BUILD_AMBARELLA_APPLICATION
+
+config CONFIG_APP_INSTALL_DIR
+	string "Install Application"
+	default "$(FAKEROOT_DIR)/usr/local/bin"
+	help
+		Install Application to the defined DIR.
+
+config CONFIG_APP_IPCAM_CONFIG_DIR
+	string "Install IPCam Configuration"
+	default "$(FAKEROOT_DIR)/etc/ambaipcam"
+	help
+		Install IPCam Configuration files to the defined DIR.
+
+config BUILD_AMBARELLA_APP_DEBUG
+	bool "Build Ambarella Application with debug info"
+	default n
+	help
+		Build Ambarella Application with debug info
+
+##
+## app/AmbaConfig
+##
+## Following content are generated automatically by
+##  create_mkcfg: DO NOT EDIT!!
+##
+
+##### ipcam
+
+menuconfig BUILD_AMBARELLA_APP_IPCAM
+	bool "Build IPCAM"
+	default n
+	help
+		Build IPCAM Application Configurations.
+
+if BUILD_AMBARELLA_APP_IPCAM
+
+config BUILD_AMBARELLA_APP_IPCAM_AMFDEMOS
+	bool "Build AMF Demo Application"
+	default n
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	depends on BUILD_AMBARELLA_MIDDLEWARE_FRAMEWORK
+	help
+		Build amf demo applications.
+
+config BUILD_AMBARELLA_APP_CLOUDCAM_UPGRADE
+	bool "Build Cloud Cam Upgrade Application"
+	default n
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	help
+		Build Cloud Cam Upgrade Application.
+
+config BUILD_AMBARELLA_APP_IPCAM_MEDIASERVER
+	bool "Build Media Server"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	help
+		Build mediaserver, encode_server, image_server and rtsp_server.
+
+source app/ipcam/mediaserver/AmbaConfig
+
+config BUILD_AMBARELLA_APP_IPCAM_IPTSDEMO
+	bool "Build IPTS Demo Application"
+	default n
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	help
+		Build IPTS demo application.
+
+config BUILD_AMBARELLA_APP_IPCAM_CTRLSERVER
+	depends on CONFIG_AMBARELLA_AVAHI_SUPPORT
+	bool "Build IP Camera Control Center Server"
+	default n
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	help
+		Build IP Camera Control Center Server.
+
+config BUILD_AMBARELLA_APP_IPCAM_QTAMFDEMO
+	depends on BUILD_AMBARELLA_QTAMF_IPCAM_PACKAGE
+	depends on CONFIG_AMBARELLA_QT_SUPPORT
+	bool "Build QtAmf Demo Application"
+	default n
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	help
+		Build QtAmf Demo Application.
+
+config BUILD_AMBARELLA_APP_IPCAM_WEBCGI
+	bool "Build Web CGI Application"
+	default n
+	depends on (CONFIG_ARCH_A5S || CONFIG_ARCH_S2)
+	depends on BUILD_AMBARELLA_APP_IPCAM
+	help
+
+choice
+	prompt "Build Web CGI"
+	depends on CONFIG_AMBARELLA_WEB_SERVICE_SUPPORT
+	depends on BUILD_AMBARELLA_APP_IPCAM_WEBCGI
+	default BUILD_AMBARELLA_APP_IPCAM_WEB_CGI_CS
+
+config BUILD_AMBARELLA_APP_IPCAM_WEB_CGI_C
+	bool "CGI in C"
+	help
+		Build Web CGI with C
+
+config BUILD_AMBARELLA_APP_IPCAM_WEB_CGI_CS
+	bool "CGI in Clearsilver"
+	help
+		Build Web CGI with Clearsilver
+
+endchoice
+
+config BUILD_AMBARELLA_APP_IPCAM_WEB_CGI_PARTNER_Y
+	bool "Build Web CGI in Partner Y"
+	depends on CONFIG_ARCH_A5S
+	default n
+	help
+		Build Web CGI with Partner Y
+
+config BUILD_AMBARELLA_APP_IPCAM_WEB_CGI_PARTNER_Y_V2
+	bool "Build Web CGI in Partner Y V2 "
+	depends on CONFIG_ARCH_A5S
+	depends on BUILD_AMBARELLA_APP_IPCAM_WEB_CGI_PARTNER_Y
+	default n
+	help
+		Build Web CGI with Partner Y and V2
+
+
+source app/ipcam/rtsp/AmbaConfig
+
+endif
+
+
+
+
+##### utility
+
+menuconfig BUILD_AMBAREALLA_APP_UTILITY
+	bool "Build Utilities"
+	default n
+	---help---
+		Build Utilities APP
+
+if BUILD_AMBAREALLA_APP_UTILITY
+
+source app/utility/jpg_enc/AmbaConfig
+
+endif
+
+
+## The end of AmbaConfig file
+endif
+

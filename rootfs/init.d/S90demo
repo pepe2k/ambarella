@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# Init IPCAM Demo...
+#
+
+AMBARELLA_CONF=ambarella.conf
+AMBARELLA_INIT=/usr/local/bin/init.sh
+
+[ -r /etc/$AMBARELLA_CONF ] && . /etc/$AMBARELLA_CONF
+[ "$IPCAM_AUTO_DEMO" = "yes" ] || exit 0
+[ -x "$AMBARELLA_INIT" ] || exit 0
+[ -x "$IPCAM_AUTO_DEMO_EXE" ] || exit 0
+
+start()
+{
+	# Return
+	#   0 if demo has been started
+	#   1 if demo was already running
+	#   2 if demo could not be started
+
+	start-stop-daemon -S --quiet --background --pidfile /var/run/demo.pid --make-pidfile --exec $IPCAM_AUTO_DEMO_EXE --user "$IPCAM_AUTO_DEMO_USER" --chuid "$IPCAM_AUTO_DEMO_USER" -- $IPCAM_AUTO_DEMO_ARGUMENTS >/dev/null
+	return "$?"
+}
+
+stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+
+	start-stop-daemon -K --quiet --pidfile /var/run/demo.pid --exec $IPCAM_AUTO_DEMO_EXE --user "$IPCAM_AUTO_DEMO_USER" --chuid "$IPCAM_AUTO_DEMO_USER" 
+	return "$?"
+}
+
+case "$1" in
+  start)
+  	start
+	case "$?" in
+	    0 | 1)
+		echo "$IPCAM_AUTO_DEMO_EXE started by $IPCAM_AUTO_DEMO_USER."
+		;;
+	    *)
+		echo "Failed to start $IPCAM_AUTO_DEMO_EXE."
+		;;
+	esac
+	;;
+  stop)
+  	stop
+	case "$?" in
+	    0 | 1)
+		echo "$IPCAM_AUTO_DEMO_EXE stopped by $IPCAM_AUTO_DEMO_USER."
+		;;
+	    *)
+		echo "Failed to stop $IPCAM_AUTO_DEMO_EXE."
+		;;
+	esac
+	;;
+  restart|reload)
+  	stop
+	case "$?" in
+	    0 | 1)
+	  	start
+		case "$?" in
+		    0 | 1)
+			echo "$IPCAM_AUTO_DEMO_EXE restarted by $IPCAM_AUTO_DEMO_USER."
+			;;
+		    *)
+			echo "Failed to restart $IPCAM_AUTO_DEMO_EXE."
+			;;
+		esac
+		;;
+	    *)
+		echo "Failed to stop $IPCAM_AUTO_DEMO_EXE."
+		;;
+	esac
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+	;;
+esac
+
+exit $?
+

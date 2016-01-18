@@ -1,0 +1,1155 @@
+##
+## amboot/config/Makefile.amboot
+##
+## History:
+##    2005/01/26 - [Charles Chiou] created file
+##    2007/11/27 - [Charles Chiou] added echo supression
+##    2008/02/19 - [Anthony Ginger] imported to AMBuild
+##
+## Copyright (C) 2004-2007, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+# Requirements:
+#	Please define the following before including this Makefile,
+#	$(HOSTOS)
+#	$(TOP)
+#	$(BSP)
+#	$(CROSS) and all the compilation tool variables.
+
+LEX =		flex
+YACC =		bison
+
+
+get_macro =	$(shell $(CROSS)$(CPP) $(CFLAGS) -w amboot_macro.inc | grep -E '^\__$(1)__[[:space:]]*=[[:space:]]*0x[[:alnum:]]*$$'| awk '{ print $$3; }')
+
+
+DEFINES =	-D__BUILD_AMBOOT__ -D__ARCH_$(ARCH)__ -D__BSP_$(BSP)__ \
+		$(EXTRA_DEFINES)
+INCLUDES =	-I$(TOP)/include -I$(TOP)/src/bld -I. \
+		-I$(BUILD_DIR) -I$(BSP_DIR)
+
+ifeq ($(GCC_VERSION), 3.4.4)
+
+ifeq ($(CPU),ARM926EJS)
+CPU_OPT =	-mcpu=arm926ejs -msoft-float
+else
+ifeq ($(CPU),ARM1136JS)
+CPU_OPT =	-mcpu=arm1136js -msoft-float
+endif
+endif
+
+else
+
+ifeq ($(CPU),ARM926EJS)
+CPU_OPT =	-mcpu=arm926ej-s -mfpu=fpa
+else
+ifeq ($(CPU),ARM1136JS)
+CPU_OPT =	-mcpu=arm1136j-s -mfpu=fpa
+endif
+endif
+
+endif
+
+AFLAGS =	$(CPU_OPT) \
+		-fomit-frame-pointer -fno-builtin -fno-strict-aliasing \
+		-fno-common \
+		-nostdinc -D__ASM__ $(DEFINES) $(INCLUDES) \
+		-Wa,-gdwarf2
+
+CFLAGS_DEBUG =	-Wall \
+		$(CPU_OPT) \
+		-fno-builtin -fno-strict-aliasing \
+		-fno-common \
+		-nostdinc $(DEFINES) -D__DEBUG_BUILD__ $(INCLUDES) \
+		-g -O0
+
+CFLAGS_RELEASE =-Wall \
+		$(CPU_OPT) \
+		-fno-builtin -fno-strict-aliasing \
+		-fno-common \
+		-nostdinc $(DEFINES) -D__RELEASE_BUILD__ $(INCLUDES) \
+		-O3
+
+HOST_CFLAGS = -D__BUILD_AMBOOT__ -D__BUILD_HOST__ \
+		-D__ARCH_$(ARCH)__ -D__BSP_$(BSP)__ $(EXTRA_DEFINES)
+
+HOST_UTILS = 	host_crc32 \
+		host_partgen \
+		host_romfs_gen \
+		host_embc \
+		host_embbin \
+		host_prefcomp \
+		host_permutate
+
+ifeq ($(LINK_PRE_BUILT_BST),yes)
+HOST_UTILS += host_bstpar_gen
+
+ifeq ($(DRAM_TYPE_DDR2),y)
+DRAM_TYPE = ddr2
+BUILD_SPIEEPROM = yes
+endif
+
+ifeq ($(DRAM_TYPE_DDR3),y)
+DRAM_TYPE = ddr3
+BUILD_SPIEEPROM = yes
+endif
+
+ifeq ($(DRAM_TYPE_LPDDR),y)
+DRAM_TYPE = lpddr
+BUILD_SPIEEPROM = no
+endif
+
+ifeq ($(DRAM_TYPE_LPDDR2),y)
+DRAM_TYPE = lpddr2
+BUILD_SPIEEPROM = no
+endif
+
+BST_BOARD_VER := $(shell echo $(BSP_BOARD_VER).ini | tr [:upper:] [:lower:])
+ifeq ($(BSP_DIR)/$(BST_BOARD_VER),$(wildcard $(BSP_DIR)/$(BST_BOARD_VER)))
+BST_PAR := $(BST_BOARD_VER)
+else
+BST_PAR := bst.ini
+endif
+
+## Multiple bst images support, max bst number is 4.
+BST_RELEASE_BINS :=
+ifeq ($(wildcard $(BSP_DIR)/$(BST_PAR:%.ini=%_0.ini)), $(BSP_DIR)/$(BST_PAR:%.ini=%_0.ini))
+BST_RELEASE_BINS += amboot_bst_0_release.bin
+endif
+ifeq ($(wildcard $(BSP_DIR)/$(BST_PAR:%.ini=%_1.ini)), $(BSP_DIR)/$(BST_PAR:%.ini=%_1.ini))
+BST_RELEASE_BINS += amboot_bst_1_release.bin
+endif
+ifeq ($(wildcard $(BSP_DIR)/$(BST_PAR:%.ini=%_2.ini)), $(BSP_DIR)/$(BST_PAR:%.ini=%_2.ini))
+BST_RELEASE_BINS += amboot_bst_2_release.bin
+endif
+ifeq ($(wildcard $(BSP_DIR)/$(BST_PAR:%.ini=%_3.ini)), $(BSP_DIR)/$(BST_PAR:%.ini=%_3.ini))
+BST_RELEASE_BINS += amboot_bst_3_release.bin
+endif
+
+ifneq ($(BST_RELEASE_BINS), )
+MUL_BST_ENABLE := yes
+MUL_BST_PAR := $(basename $(BST_PAR))_%.ini
+else
+MUL_BST_ENABLE := no
+MUL_BST_PAR :=
+BST_RELEASE_BINS := amboot_bst_release.bin
+endif
+BST_DEBUG_BINS := $(subst _release.bin,_debug.bin,$(BST_RELEASE_BINS))
+
+ifeq ($(MUL_BST_ENABLE),yes)
+ifeq ($(BUILD_AMBPROM),y)
+$(error Do not support multiple BST for eeprom yet!)
+endif
+endif
+
+ARCH_LO := $(shell gawk 'BEGIN { print tolower("$(ARCH)") }')
+SV_DIR := $(TOP)/sv/$(ARCH_LO)
+SPIEEPROM_DIR := $(SV_DIR)/image
+SPIEEPROM := spieeprom.bin
+
+ifeq ($(HOST_OS),Linux)
+ifeq ($(CPU_BIT_WIDTH),x86_64)
+BSTCONFIG := $(SV_DIR)/bin/lnx64/bstconfig
+else
+BSTCONFIG := $(SV_DIR)/bin/lnx/bstconfig
+endif
+else
+ifeq ($(HOST_OS),Darwin)
+BSTCONFIG := $(SV_DIR)/bin/osx/bstconfig
+else
+BSTCONFIG := $(SV_DIR)/bin/msw/bstconfig.exe
+endif
+endif
+
+ifeq ($(ENABLE_EMMC_BOOT),y)
+BST_BIN := $(SV_DIR)/image/amboot_emmc_$(DRAM_TYPE).bin
+else
+BST_BIN := $(SV_DIR)/image/amboot_bst_$(DRAM_TYPE).bin
+endif
+else
+SPIEEPROM :=
+endif
+
+ifeq ($(BUILD_AMBPROM),y)
+HOST_UTILS += host_prom_gen
+endif
+
+__MAKE_HOST_OBJ = \
+		$(CC) $(HOST_CFLAGS) \
+		-I$(BUILD_DIR) -I$(TOP)/src -I$(TOP)/include -I$(TOP)/src/bld \
+		-I. -I$(BSP_DIR) -c $< -o $@
+__MAKE_HOST_EXE = \
+		$(CC) $(HOST_C_FLAGS) -o $@
+
+ifeq ($(MAKE_VERBOSE),yes)
+MAKE_HOST_OBJ =	$(__MAKE_HOST_OBJ)
+MAKE_HOST_EXE =	$(__MAKE_HOST_EXE)
+else
+MAKE_HOST_OBJ =	@echo "  HOSTCC    $@" ; $(__MAKE_HOST_OBJ)
+MAKE_HOST_EXE =	@echo "  HOSTLD    $@" ; $(__MAKE_HOST_EXE)
+endif
+
+ifneq ($(MAKE_VERBOSE),yes)
+ECHO_GCC =	@echo "  GCC       $@" ;
+ECHO_OCP =	@echo "  OBJCOPY   $@" ;
+ECHO_LD =	@echo "  LD        $@" ;
+ECHO_NM =	@echo "  NM        $@" ;
+ECHO_LDS =	@echo "  LDS       $@" ;
+endif
+
+__ASM_DEBUG_OBJ =	$(CROSS)$(CC) $(AFLAGS) -c $< -o $@
+__ASM_NDEBUG_OBJ =	$(__ASM_DEBUG_OBJ)
+__MAKE_DEBUG_OBJ =	$(CROSS)$(CC) $(CFLAGS_DEBUG) -c $< -o $@
+__MAKE_NDEBUG_OBJ =	$(CROSS)$(CC) $(CFLAGS_RELEASE) -c $< -o $@
+
+ifeq ($(MAKE_VERBOSE),yes)
+ASM_DEBUG_OBJ =	$(__ASM_DEBUG_OBJ)
+ASM_NDEBUG_OBJ =	$(__ASM_NDEBUG_OBJ)
+MAKE_DEBUG_OBJ =	$(__MAKE_DEBUG_OBJ)
+MAKE_NDEBUG_OBJ =	$(__MAKE_NDEBUG_OBJ)
+else
+ASM_DEBUG_OBJ =	@echo "  AS        $@" ; $(__ASM_DEBUG_OBJ)
+ASM_NDEBUG_OBJ =	@echo "  AS        $@" ; $(__ASM_NDEBUG_OBJ)
+MAKE_DEBUG_OBJ =	@echo "  GCC       $@" ; $(__MAKE_DEBUG_OBJ)
+MAKE_NDEBUG_OBJ =	@echo "  GCC       $@" ; $(__MAKE_NDEBUG_OBJ)
+endif
+
+## Enumerate BST objects
+ifneq ($(LINK_PRE_BUILT_BST),yes)
+SRCS =		$(TOP)/src/bst/start.S \
+		$(TOP)/src/bst/corefreq.S \
+		$(TOP)/src/bst/postreloc.S
+
+AMBOOT_BST_OBJS = 	start.o \
+			corefreq.o \
+			postreloc.o
+
+ifeq ($(ENABLE_FLASH),y)
+SRCS +=			$(TOP)/src/bst/bstnand.S \
+			$(TOP)/src/bst/bstonenand.S \
+			$(TOP)/src/bst/bstnor.S \
+			$(TOP)/src/bst/bstsnor.S
+
+AMBOOT_BST_OBJS += 	bstnand.o \
+			bstonenand.o \
+			bstnor.o \
+			bstsnor.o
+endif
+
+ifeq ($(ENABLE_SD),y)
+SRCS +=			$(TOP)/src/bst/bstemmc.S
+
+AMBOOT_BST_OBJS += 	bstemmc.o
+endif
+
+ifeq ($(CONFIG_ARCH_A1),y)
+SRCS +=			$(TOP)/src/bst/memsetup.S
+AMBOOT_BST_OBJS += 	memsetup.o
+endif
+ifeq ($(CONFIG_ARCH_A2),y)
+SRCS +=			$(TOP)/src/bst/memsetup.S
+AMBOOT_BST_OBJS += 	memsetup.o
+endif
+ifeq ($(CONFIG_ARCH_A2S),y)
+SRCS +=			$(TOP)/src/bst/memsetup.S
+AMBOOT_BST_OBJS += 	memsetup.o
+endif
+ifeq ($(CONFIG_ARCH_A2Q),y)
+SRCS +=			$(TOP)/src/bst/memsetup.S
+AMBOOT_BST_OBJS += 	memsetup.o
+endif
+ifeq ($(CONFIG_ARCH_A2M),y)
+SRCS +=			$(TOP)/src/bst/memsetup.S
+AMBOOT_BST_OBJS += 	memsetup.o
+endif
+ifeq ($(CONFIG_ARCH_A5L),y)
+SRCS +=			$(TOP)/src/bst/memsetup5l.S
+AMBOOT_BST_OBJS += 	memsetup5l.o
+endif
+ifeq ($(CONFIG_ARCH_A3),y)
+SRCS +=			$(TOP)/src/bst/memsetup3.S
+AMBOOT_BST_OBJS += 	memsetup3.o
+endif
+ifeq ($(CONFIG_ARCH_A5),y)
+SRCS +=			$(TOP)/src/bst/memsetup5.S
+AMBOOT_BST_OBJS += 	memsetup5.o
+endif
+ifeq ($(CONFIG_ARCH_A6),y)
+SRCS +=			$(TOP)/src/bst/memsetup6.S
+AMBOOT_BST_OBJS += 	memsetup6.o
+endif
+
+AMBOOT_BST_DEBUG_OBJS = $(patsubst %.o,%_debug.o,$(AMBOOT_BST_OBJS))
+AMBOOT_BST_RELEASE_OBJS = $(patsubst %.o,%_release.o,$(AMBOOT_BST_OBJS))
+endif
+
+## Enumerate BLD objects
+SRCS +=		$(TOP)/src/bld/trampoline.S \
+		$(TOP)/src/bld/mmu.S \
+		$(TOP)/src/bld/usb_irq.S \
+		$(TOP)/src/bld/irq_timer.S \
+		$(TOP)/src/bld/irq_eth.S \
+		$(TOP)/src/bld/armcache.S \
+		$(TOP)/src/bld/cache.c \
+		$(TOP)/src/bld/gpio.S \
+		$(TOP)/src/bld/led.S \
+		$(TOP)/src/bld/jump.S \
+		$(TOP)/src/bld/rtpll.S \
+		$(TOP)/src/bld/util.c \
+		$(TOP)/src/bld/strutil.c \
+		$(TOP)/src/bld/vic.c \
+		$(TOP)/src/bld/memcpy.c \
+		$(TOP)/src/bld/memzero.c \
+		$(TOP)/src/bld/memset.c \
+		$(TOP)/src/bld/memcmp.c \
+		$(TOP)/src/bld/crc32.c \
+		$(TOP)/src/bld/timer.c \
+		$(TOP)/src/bld/uart.c \
+		$(TOP)/src/bld/usb_drv.c \
+		$(TOP)/src/bld/eth.c \
+		$(TOP)/src/bld/firmfl.c \
+		$(TOP)/src/bld/partition.c \
+		$(TOP)/src/bld/decompress.c \
+		$(TOP)/src/bld/hal.c \
+		$(TOP)/src/bld/atag.c \
+		$(TOP)/src/bld/loader.c \
+		$(TOP)/src/bld/bldnet.c \
+		$(TOP)/src/bld/netboot.c \
+		$(TOP)/src/bld/command.c \
+		$(TOP)/src/bld/cmd_help.c \
+		$(TOP)/src/bld/cmd_bios.c \
+		$(TOP)/src/bld/cmd_dump.c \
+		$(TOP)/src/bld/cmd_erase.c \
+		$(TOP)/src/bld/cmd_exec.c \
+		$(TOP)/src/bld/cmd_ping.c \
+		$(TOP)/src/bld/cmd_r8.c \
+		$(TOP)/src/bld/cmd_r16.c \
+		$(TOP)/src/bld/cmd_r32.c \
+		$(TOP)/src/bld/cmd_reboot.c \
+		$(TOP)/src/bld/cmd_reset.c \
+		$(TOP)/src/bld/cmd_setenv.c \
+		$(TOP)/src/bld/cmd_show.c \
+		$(TOP)/src/bld/cmd_usbdl.c \
+		$(TOP)/src/bld/cmd_w8.c \
+		$(TOP)/src/bld/cmd_w16.c \
+		$(TOP)/src/bld/cmd_w32.c \
+		$(TOP)/src/bld/sdmmc.c \
+		$(TOP)/src/bld/sm.c \
+		$(TOP)/src/bld/nand_bbt.c \
+		$(TOP)/src/bld/splash.c \
+		$(TOP)/src/bld/main.c
+
+ifeq ($(AMBOOT_BUILD_DIAG),y)
+SRCS += \
+		$(TOP)/src/bld/cmd_diag.c \
+		$(TOP)/src/bld/diag_adc.c \
+		$(TOP)/src/bld/diag_sd.c \
+		$(TOP)/src/bld/diag_gpio.c \
+		$(TOP)/src/bld/diag_ir.c
+
+SRCS += \
+		$(TOP)/src/bld/crypto.S \
+		$(TOP)/src/bld/cryptoinit.c \
+		$(TOP)/src/bld/diag_crypto.c
+endif
+
+AMBOOT_BLD_OBJS = \
+		trampoline.o \
+		mmu.o \
+		usb_irq.o \
+		irq_timer.o \
+		irq_eth.o \
+		armcache.o \
+		cache.o \
+		gpio.o \
+		led.o \
+		jump.o \
+		rtpll.o \
+		vic.o \
+		util.o \
+		strutil.o \
+		memcpy.o \
+		memzero.o \
+		memset.o \
+		memcmp.o \
+		crc32.o \
+		timer.o \
+		uart.o \
+		usb_drv.o \
+		eth.o \
+		firmfl.o \
+		partition.o \
+		decompress.o \
+		hal.o \
+		atag.o \
+		loader.o \
+		bldnet.o \
+		command.o \
+		netboot.o \
+		cmd_help.o \
+		cmd_bios.o \
+		cmd_dump.o \
+		cmd_erase.o \
+		cmd_exec.o \
+		cmd_ping.o \
+		cmd_r8.o \
+		cmd_r16.o \
+		cmd_r32.o \
+		cmd_reboot.o \
+		cmd_reset.o \
+		cmd_setenv.o \
+		cmd_show.o \
+		cmd_usbdl.o \
+		cmd_w8.o \
+		cmd_w16.o \
+		cmd_w32.o \
+		sdmmc.o \
+		idc.o \
+		sm.o \
+		nand_bbt.o \
+		splash.o \
+		main.o
+
+ifeq ($(AMBOOT_BUILD_DIAG),y)
+AMBOOT_BLD_OBJS += \
+		cmd_diag.o \
+		diag_adc.o \
+		diag_sd.o \
+		diag_gpio.o \
+		diag_ir.o
+
+AMBOOT_BLD_OBJS += \
+		crypto.o \
+		cryptoinit.o \
+		diag_crypto.o
+endif
+
+ifeq ($(BUILD_AMBPROM),y)
+SRCS +=		$(TOP)/src/bld/eeprom.c
+AMBOOT_BLD_OBJS += \
+		eeprom.o
+endif
+
+ifeq ($(CONFIG_AMBOOT_BAPI_SUPPORT),y)
+SRCS +=		$(TOP)/src/bld/cmd_bapi.c
+AMBOOT_BLD_OBJS += cmd_bapi.o
+endif
+
+ifeq ($(ENABLE_FLASH),y)
+
+SRCS +=		$(TOP)/src/bld/nand.c \
+		$(TOP)/src/bld/nor.c \
+		$(TOP)/src/bld/snor.c \
+		$(TOP)/src/bld/onenand.c
+ifeq ($(AMBOOT_BUILD_DIAG),y)
+SRCS += \
+		$(TOP)/src/bld/diag_nand.c \
+		$(TOP)/src/bld/diag_onenand.c \
+		$(TOP)/src/bld/diag_nor.c \
+		$(TOP)/src/bld/diag_snor.c
+endif
+
+AMBOOT_BLD_OBJS += \
+		nand.o \
+		nor.o \
+		snor.o \
+		onenand.o
+ifeq ($(AMBOOT_BUILD_DIAG),y)
+AMBOOT_BLD_OBJS += \
+		diag_onenand.o \
+		diag_nand.o \
+		diag_nor.o \
+		diag_snor.o
+endif
+
+ifneq ($(CONFIG_NAND_NONE),y)
+include $(TOP)/src/flashdb/slcnand/make.inc
+SRCS +=		$(NANDDB_SRCS)
+AMBOOT_BLD_OBJS += \
+		$(NANDDB_OBJS)
+endif
+endif
+
+ifeq ($(CONFIG_ARCH_I1),y)
+SRCS +=		$(TOP)/src/bld/sata.c
+
+AMBOOT_BLD_OBJS	+= sata.o
+endif
+
+ifeq ($(SHOW_AMBOOT_SPLASH),y)
+
+SRCS +=		\
+		$(TOP)/src/bld/dsp.c \
+		$(TOP)/src/bld/vout.c
+
+AMBOOT_BLD_OBJS += \
+		dsp.o \
+		vout.o
+
+ifeq ($(CONFIG_ARCH_A2),y)
+EMBBIN_DESC = $(TOP)/src/bld/a2.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_A2S),y)
+EMBBIN_DESC = $(TOP)/src/bld/a2s.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_A5L),y)
+EMBBIN_DESC = $(TOP)/src/bld/a5l.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_A3),y)
+EMBBIN_DESC = $(TOP)/src/bld/a3.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_A5),y)
+EMBBIN_DESC = $(TOP)/src/bld/a5.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_A5S),y)
+EMBBIN_DESC = $(TOP)/src/bld/a5s.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_A7),y)
+EMBBIN_DESC = $(TOP)/src/bld/a7.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_I1),y)
+EMBBIN_DESC = $(TOP)/src/bld/i1.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+ifeq ($(CONFIG_ARCH_S2),y)
+EMBBIN_DESC = $(TOP)/src/bld/s2.embbin
+AMBOOT_BLD_OBJS +=	embbin.o \
+			emblogo.o
+endif
+
+endif
+
+SRCS		+= $(BSP_DIR)/bsp.c
+AMBOOT_BLD_OBJS	+= bsp.o
+
+ifeq ($(wildcard $(BSP_DIR)/bsp_fw.c),$(BSP_DIR)/bsp_fw.c)
+SRCS		+= $(BSP_DIR)/bsp_fw.c
+endif
+
+ifeq ($(AMBOOT_BUILD_SPI),y)
+SRCS 		+= $(TOP)/src/bld/spi.c
+AMBOOT_BLD_OBJS += spi.o
+endif
+
+ifeq ($(AMBOOT_DEV_BOOT_CORTEX),y)
+SRCS 			+= $(TOP)/src/bld/cmd_cortex.c
+AMBOOT_BLD_OBJS		+= cmd_cortex.o
+endif
+
+ifeq ($(wildcard $(BSP_DIR)/make.amboot),$(BSP_DIR)/make.amboot)
+include $(BSP_DIR)/make.amboot
+endif
+
+ifeq ($(wildcard $(BSP_DIR)/make.devfw),$(BSP_DIR)/make.devfw)
+include $(BSP_DIR)/make.devfw
+endif
+
+ifeq ($(wildcard $(BSP_DIR)/make.cortex),$(BSP_DIR)/make.cortex)
+include $(BSP_DIR)/make.cortex
+endif
+
+AMBOOT_BLD_DEBUG_OBJS = $(patsubst %.o,%_debug.o,$(AMBOOT_BLD_OBJS))
+AMBOOT_BLD_RELEASE_OBJS = $(patsubst %.o,%_release.o,$(AMBOOT_BLD_OBJS))
+
+# PROM OBJS
+ifeq ($(BUILD_AMBPROM),y)
+SRCS +=		$(TOP)/src/prom/start.S \
+		$(TOP)/src/prom/main.c \
+		$(TOP)/src/prom/rct.c \
+		$(TOP)/src/prom/uart.c \
+		$(TOP)/src/prom/gpio.S \
+		$(TOP)/src/prom/sdmmc.c
+
+__AMBOOT_PROM_OBJS =	start.o \
+			main.o \
+			rct.o \
+			uart.o \
+			gpio.o \
+			sdmmc.o
+
+AMBOOT_PROM_DEBUG_OBJS = $(patsubst %.o,%_prom_debug.o,$(__AMBOOT_PROM_OBJS))
+AMBOOT_PROM_RELEASE_OBJS = $(patsubst %.o,%_prom_release.o,$(__AMBOOT_PROM_OBJS))
+endif
+
+# Target for HAL support
+ifeq ($(BUILD_SPIEEPROM),yes)
+$(SPIEEPROM): $(SPIEEPROM_DIR)/$(SPIEEPROM) $(BSTCONFIG) $(BST_PAR)
+	$(BSTCONFIG) -batch -spieeprom -parameters $(BST_PAR) \
+		     -input $(SPIEEPROM_DIR)/$(SPIEEPROM) -output $@
+endif
+
+#
+# Native utilities
+#
+ifeq ($(LINK_PRE_BUILT_BST),yes)
+host_bstpar_gen: bstpar_gen.tab.o \
+		 bstpar_gen.yy.o \
+		 host_bstpar_gen.o
+	$(MAKE_HOST_EXE) $^
+
+bstpar_gen.tab.o: bstpar_gen.tab.c bstpar_gen.tab.h
+	$(MAKE_HOST_OBJ)
+
+bstpar_gen.yy.o: bstpar_gen.yy.c bstpar_gen.tab.h
+	$(MAKE_HOST_OBJ)
+
+host_bstpar_gen.o: $(TOP)/src/bld/host_bstpar_gen.c \
+		   $(BUILD_DIR)/config.h partinfo.h $(BSP_DIR)/bsp.h
+	$(MAKE_HOST_OBJ)
+
+bstpar_gen.tab.c: $(TOP)/src/bld/bstpar_gen.y bstpar_gen.tab.h
+	$(YACC) -v -b bstpar_gen $<
+
+bstpar_gen.tab.h: $(TOP)/src/bld/bstpar_gen.y
+	$(YACC) -b bstpar_gen -d $<
+
+bstpar_gen.yy.c: $(TOP)/src/bld/bstpar_gen.l bstpar_gen.tab.h
+	$(LEX) -o$@ $<
+endif
+
+# BST_VER
+
+bst_ver.h: $(BST_RELEASE_BINS)
+	@echo "generate bst_ver.h"
+	@echo "/* automatic generated file; don't edit! */" > $@; \
+	echo "" >> $@; \
+	echo \#ifndef __BST_VER_H__ >> $@; \
+	echo \#define __BST_VER_H__ >> $@; \
+	VERSION_LOW2BYTE=$(shell od $< -j 12 -N 2 -w2 -x | awk -F' ' '{print $$2}'); \
+	VERSION_HIGH2BYTE=$(shell od $< -j 14 -N 2 -w2 -x | awk -F' ' '{print $$2}'); \
+	VERSION=0x$$VERSION_HIGH2BYTE$$VERSION_LOW2BYTE; \
+	echo \#define BST_VER `printf %d $$VERSION` >> $@; \
+	echo \#endif >> $@;
+
+hal_debug.o: $(TOP)/src/bld/hal.c bst_ver.h
+
+hal_release.o: $(TOP)/src/bld/hal.c bst_ver.h
+
+host_crc32.o: $(TOP)/src/bld/host_crc32.c
+	$(MAKE_HOST_OBJ)
+
+host_crc32: host_crc32.o
+	$(MAKE_HOST_EXE) host_crc32.o
+
+host_partgen.o:  $(TOP)/src/bld/host_partgen.c \
+		$(BUILD_DIR)/config.h $(TOP)/include/flash/flpart.h $(BSP_DIR)/bsp.h
+	$(MAKE_HOST_OBJ)
+
+host_partgen: host_partgen.o \
+		$(BUILD_DIR)/config.h $(TOP)/include/flash/flpart.h
+	$(MAKE_HOST_EXE) host_partgen.o
+
+partinfo.h: host_partgen
+	./host_partgen > $@
+
+host_romfs_gen: romfs_gen.tab.o \
+		romfs_gen.yy.o \
+		host_romfs_gen.o
+	$(MAKE_HOST_EXE) $^
+
+romfs_gen.tab.o: romfs_gen.tab.c romfs_gen.tab.h
+	$(MAKE_HOST_OBJ)
+
+romfs_gen.yy.o: romfs_gen.yy.c
+	$(MAKE_HOST_OBJ)
+
+host_romfs_gen.o: $(TOP)/src/comsvc/host_romfs_gen.c
+	$(MAKE_HOST_OBJ)
+
+romfs_gen.tab.c romfs_gen.tab.h: $(TOP)/src/comsvc/romfs_gen.y
+	$(YACC) -v -b romfs_gen -d $<
+
+romfs_gen.yy.c: $(TOP)/src/comsvc/romfs_gen.l romfs_gen.tab.h
+	$(LEX) -o$@ $<
+
+host_embc: host_embc.o
+	$(MAKE_HOST_EXE) $^
+
+host_embc.o: $(TOP)/src/comsvc/host_embc.c
+	$(MAKE_HOST_OBJ)
+
+host_embbin: host_embbin.o
+	$(MAKE_HOST_EXE) $^
+
+host_embbin.o: $(TOP)/src/comsvc/host_embbin.c
+	$(MAKE_HOST_OBJ)
+
+host_prefcomp:	prefcomp.tab.o \
+		prefcomp.yy.o \
+		prefcomp.o \
+		host_prefcomp.o
+	$(MAKE_HOST_EXE) $^
+
+prefcomp.o: prefcomp.c $(TOP)/src/comsvc/prefcomp.h
+	$(MAKE_HOST_OBJ)
+
+host_prefcomp.o: $(TOP)/src/comsvc/host_prefcomp.c $(TOP)/src/comsvc/prefcomp.h
+	$(MAKE_HOST_OBJ)
+
+prefcomp.tab.o: prefcomp.tab.c prefcomp.tab.h $(TOP)/src/comsvc/prefcomp.h
+	$(MAKE_HOST_OBJ)
+
+prefcomp.yy.o: prefcomp.yy.c prefcomp.tab.h $(TOP)/src/comsvc/prefcomp.h
+	$(MAKE_HOST_OBJ)
+
+prefcomp.c: $(TOP)/src/comsvc/prefcomp.i host_embc
+	./host_embc $< > $@
+
+prefcomp.tab.c prefcomp.tab.h:	$(TOP)/src/comsvc/prefcomp.y \
+				$(TOP)/src/comsvc/prefcomp.h
+	$(YACC) -v -b prefcomp -d $<
+
+prefcomp.yy.c:	$(TOP)/src/comsvc/prefcomp.l \
+		$(TOP)/src/comsvc/prefcomp.h \
+		prefcomp.tab.h \
+		romfs_gen.tab.h
+	$(LEX) -o$@ $<
+
+
+host_permutate.o: $(TOP)/src/bld/host_permutate.c
+	$(MAKE_HOST_OBJ)
+
+host_permutate: host_permutate.o
+	$(MAKE_HOST_EXE) host_permutate.o
+
+# BST targets
+
+ifeq ($(LINK_PRE_BUILT_BST),yes)
+ifeq ($(MUL_BST_ENABLE),yes)
+amboot_bst_%_debug.bin: amboot_bst_%_release.bin
+	cp $< $@
+
+amboot_bst_%_release.bin: $(MUL_BST_PAR) $(BST_BIN)
+	$(BSTCONFIG) -batch -parameters $< -input $(BST_BIN) -output $@
+
+$(MUL_BST_PAR): $(BSP_DIR)/$(MUL_BST_PAR) host_bstpar_gen
+	./host_bstpar_gen $< > $@
+
+else
+amboot_bst_debug.bin: amboot_bst_release.bin
+	cp $< $@
+
+amboot_bst_release.bin: $(BST_PAR) $(BST_BIN)
+	$(BSTCONFIG) -batch -parameters $(BST_PAR) -input $(BST_BIN) -output $@
+
+$(BST_PAR): $(BSP_DIR)/$(BST_PAR) host_bstpar_gen
+	./host_bstpar_gen $< > $@
+
+endif
+
+# Avoid to delete $(BST_PAR) $(MUL_BST_PAR) automatically by MAKE.
+.PRECIOUS: $(BST_PAR) $(MUL_BST_PAR)
+
+else
+amboot_bst_debug.bin: amboot_bst_debug.elf
+	$(ECHO_OCP) $(CROSS)$(OBJCOPY) -j .text -j .data -j .bst_2 \
+		-S -O binary $< $@
+
+amboot_bst_debug.elf: .temp/amboot_bst.lds $(AMBOOT_BST_DEBUG_OBJS)
+	$(ECHO_LD) $(CROSS)$(LD) -T.temp/amboot_bst.lds -o $@ \
+		 $(AMBOOT_BST_DEBUG_OBJS)
+	$(ECHO_NM) $(CROSS)$(NM) -n $@ | grep -v '\( [aUw] \)\|\(__crc__\)' > \
+		amboot_bst_debug.map
+
+amboot_bst_release.bin: amboot_bst_release.elf
+	$(ECHO_OCP) $(CROSS)$(OBJCOPY) -j .text -j .data -j .bst_2 \
+		-S -O binary $< $@
+
+amboot_bst_release.elf: .temp/amboot_bst.lds $(AMBOOT_BST_RELEASE_OBJS)
+	$(ECHO_LD) $(CROSS)$(LD) -T.temp/amboot_bst.lds -o $@ \
+		$(AMBOOT_BST_RELEASE_OBJS)
+	$(ECHO_NM) $(CROSS)$(NM) -n $@ | grep -v '\( [aUw] \)\|\(__crc__\)' > \
+		amboot_bst_release.map
+
+.temp/amboot_bst.lds: $(TOP)/src/bst/amboot_bst.lds.cpp $(TOP)/include/ambhw.h
+	@mkdir -p .temp
+	$(ECHO_LDS) $(CROSS)$(CPP) -D__ASM__ $(DEFINES) $(INCLUDES) $< \
+		| sed /^#/d > $@
+endif
+
+# Targets for debugging 2nd-stage loader inside the BST
+
+ifneq ($(LINK_PRE_BUILT_BST),yes)
+ifeq ($(ENABLE_FLASH),y)
+
+just_bst_2_debug.elf: .temp/just_bst_2.lds \
+	postreloc_debug.o bstnand_debug.o bstnor_debug.o \
+	bstsnor_debug.o bstonenand_debug.o bstemmc_debug.o
+	$(ECHO_LD) $(CROSS)$(LD) -T.temp/just_bst_2.lds -o $@ \
+		 postreloc_debug.o bstnand_debug.o bstnor_debug.o \
+		 bstsnor_debug.o bstonenand_debug.o bstemmc_debug.o
+
+just_bst_2_release.elf: .temp/just_bst_2.lds \
+	postreloc_release.o bstnand_release.o bstnor_release.o \
+	bstsnor_release.o bstonenand_release.o bstemmc_release.o
+	$(ECHO_LD) $(CROSS)$(LD) -T.temp/just_bst_2.lds -o $@ \
+		postreloc_release.o bstnand_release.o bstnor_release.o \
+		bstsnor_release.o bstonenand_release.o bstemmc_release.o
+
+.temp/just_bst_2.lds: $(TOP)/src/bst/just_bst_2.lds.cpp $(TOP)/include/ambhw.h
+	@mkdir -p .temp
+	$(ECHO_LDS) $(CROSS)$(CPP) -D__ASM__ $(DEFINES) $(INCLUDES) $< \
+		| sed /^#/d > $@
+
+else
+
+just_bst_2_debug.elf: .temp/just_bst_2.lds postreloc_debug.o
+	$(ECHO_LD) $(CROSS)$(LD) -T.temp/just_bst_2.lds -o $@ postreloc_debug.o
+
+just_bst_2_release.elf: .temp/just_bst_2.lds postreloc_release.o
+	$(ECHO_LD) $(CROSS)$(LD) -T.temp/just_bst_2.lds -o $@ postreloc_release.o
+
+.temp/just_bst_2.lds: $(TOP)/src/bst/just_bst_2.lds.cpp $(TOP)/include/ambhw.h
+	@mkdir -p .temp
+	$(ECHO_LDS) $(CROSS)$(CPP) -D__ASM__ $(DEFINES) $(INCLUDES) $< \
+		| sed /^#/d > $@
+
+endif
+endif
+
+# BLD targets
+amboot_bld_debug.bin: amboot_bld_debug.elf
+	$(ECHO_OCP) $(CROSS)$(OBJCOPY) -j .text -j .data -S -O binary $< $@
+
+amboot_bld_debug.elf: .temp/amboot_bld.lds $(AMBOOT_BLD_DEBUG_OBJS)
+	$(ECHO_LD) $(CROSS)$(CC) -Wl,-T,.temp/amboot_bld.lds -nostartfiles \
+		$(AMBOOT_BLD_DEBUG_OBJS) $(LINK_EXTERNAL_LIB) -o $@
+	$(ECHO_NM) $(CROSS)$(NM) -n $@ | grep -v '\( [aUw] \)\|\(__crc__\)' > \
+		amboot_bld_debug.map
+
+amboot_bld_release.bin: amboot_bld_release.elf
+	$(ECHO_OCP) $(CROSS)$(OBJCOPY) -j .text -j .data -S -O binary $< $@
+
+amboot_bld_release.elf: .temp/amboot_bld.lds $(AMBOOT_BLD_RELEASE_OBJS)
+	$(ECHO_LD) $(CROSS)$(CC) -Wl,-T,.temp/amboot_bld.lds -nostartfiles \
+		$(AMBOOT_BLD_RELEASE_OBJS) $(LINK_EXTERNAL_LIB) -o $@
+	$(ECHO_NM) $(CROSS)$(NM) -n $@ | grep -v '\( [aUw] \)\|\(__crc__\)' > \
+		amboot_bld_release.map
+
+.temp/amboot_bld.lds: $(TOP)/src/bld/amboot_bld.lds.cpp $(TOP)/include/ambhw.h
+	@mkdir -p .temp
+	$(ECHO_LDS) $(CROSS)$(CPP) -D__ASM__ $(DEFINES) $(INCLUDES) $< \
+		| sed /^#/d > $@
+
+# PROM targets
+ifeq ($(BUILD_AMBPROM),y)
+prom_fw_debug.bin: host_prom_gen prom_debug.bin $(SPIEEPROM)
+	./host_prom_gen prom_debug.bin $@ $(SPIEEPROM)
+
+prom_debug.bin: prom_debug.elf
+	$(ECHO_OCP) $(CROSS)$(OBJCOPY) -j .text -j .data -S -O binary $< $@
+
+prom_debug.elf: .temp/prom.lds $(AMBOOT_PROM_DEBUG_OBJS)
+	$(ECHO_LD) $(CROSS)$(CC) -Wl,-T,.temp/prom.lds -nostartfiles \
+		$(AMBOOT_PROM_DEBUG_OBJS) $(LINK_EXTERNAL_LIB_GC) -o $@
+	$(ECHO_NM) $(CROSS)$(NM) -n $@ | grep -v '\( [aUw] \)\|\(__crc__\)' > \
+		prom_debug.map
+
+prom_fw_release.bin: host_prom_gen prom_release.bin $(SPIEEPROM)
+	./host_prom_gen prom_release.bin $@ $(SPIEEPROM)
+
+prom_release.bin: prom_release.elf
+	$(ECHO_OCP) $(CROSS)$(OBJCOPY) -j .text -j .data -S -O binary $< $@
+
+prom_release.elf: .temp/prom.lds $(AMBOOT_PROM_RELEASE_OBJS)
+	$(ECHO_LD) $(CROSS)$(CC) -Wl,-T,.temp/prom.lds -nostartfiles \
+		$(AMBOOT_PROM_RELEASE_OBJS) $(LINK_EXTERNAL_LIB_GC) -o $@
+	$(ECHO_NM) $(CROSS)$(NM) -n $@ | grep -v '\( [aUw] \)\|\(__crc__\)' > \
+		prom_release.map
+
+.temp/prom.lds: $(TOP)/src/prom/prom.lds.cpp $(TOP)/include/ambhw.h
+	@mkdir -p .temp
+	$(ECHO_LDS) $(CROSS)$(CPP) -D__ASM__ $(DEFINES) $(INCLUDES) $< \
+		| sed /^#/d > $@
+
+host_prom_gen: host_prom_gen.o
+	$(MAKE_HOST_EXE) host_prom_gen.o
+
+host_prom_gen.o: $(TOP)/src/prom/host_prom_gen.c
+	$(MAKE_HOST_OBJ)
+endif
+
+# Splash targets
+ifeq ($(SHOW_AMBOOT_SPLASH),y)
+
+embbin_debug.o: embbin.c
+	$(MAKE_DEBUG_OBJ)
+
+embbin_release.o: embbin.c
+	$(MAKE_NDEBUG_OBJ)
+
+embbin.c: $(EMBBIN_DESC) host_embbin
+	./host_embbin $(TOP)/src/bld $< $@.tmp
+	cat $@.tmp | sed -e s/G_embbin/G_bld_embbin/ > $@
+	$(RM) $@.tmp
+
+emblogo_debug.o: emblogo.c
+	$(MAKE_DEBUG_OBJ)
+
+emblogo_release.o: emblogo.c
+	$(MAKE_NDEBUG_OBJ)
+
+emblogo.c: emblogo_1.c emblogo_2.c emblogo_3.c emblogo_4.c emblogo_5.c
+	$(RM) $@
+	cat emblogo_1.c >> $@
+	cat emblogo_2.c >> $@
+	cat emblogo_3.c >> $@
+	cat emblogo_4.c >> $@
+	cat emblogo_5.c >> $@
+	$(RM) $^
+	echo "emblogo make complete"
+
+EMBLOGO_FILE_1 := $(shell echo $(AMBOOT_SPLASH_FILE_1))
+ifneq ($(EMBLOGO_FILE_1), )
+emblogo_1.c: $(EMBLOGO_FILE_1) host_embc
+	gzip -c -9 $< > $@.gz
+	./host_embc $@.gz > $@.tmp
+	cat $@.tmp | sed -e s/__embc/__gzip_logo_1/ > $@
+	$(RM) $@.tmp $@.gz
+else
+emblogo_1.c:
+	touch emblogo_1.c
+	echo "" > $@
+	echo "const char __gzip_logo_1[] = {};" >> $@
+	echo "" >> $@
+	echo "const int __gzip_logo_1_len = 0;" >> $@
+endif
+
+EMBLOGO_FILE_2 := $(shell echo $(AMBOOT_SPLASH_FILE_2))
+ifneq ($(EMBLOGO_FILE_2), )
+emblogo_2.c: $(EMBLOGO_FILE_2) host_embc
+	gzip -c -9 $< > $@.gz
+	./host_embc $@.gz > $@.tmp
+	cat $@.tmp | sed -e s/__embc/__gzip_logo_2/ > $@
+	$(RM) $@.tmp $@.gz
+else
+emblogo_2.c:
+	touch emblogo_2.c
+	echo "" > $@
+	echo "const char __gzip_logo_2[] = {};" >> $@
+	echo "" >> $@
+	echo "const int __gzip_logo_2_len = 0;" >> $@
+endif
+
+EMBLOGO_FILE_3 := $(shell echo $(AMBOOT_SPLASH_FILE_3))
+ifneq ($(EMBLOGO_FILE_3),)
+emblogo_3.c: $(EMBLOGO_FILE_3) host_embc
+	gzip -c -9 $< > $@.gz
+	./host_embc $@.gz > $@.tmp
+	cat $@.tmp | sed -e s/__embc/__gzip_logo_3/ > $@
+	$(RM) $@.tmp $@.gz
+else
+emblogo_3.c:
+	touch emblogo_3.c
+	echo "" > $@
+	echo "const char __gzip_logo_3[] = {};" >> $@
+	echo "" >> $@
+	echo "const int __gzip_logo_3_len = 0;" >> $@
+endif
+
+EMBLOGO_FILE_4 := $(shell echo $(AMBOOT_SPLASH_FILE_4))
+ifneq ($(EMBLOGO_FILE_4),)
+emblogo_4.c: $(EMBLOGO_FILE_4) host_embc
+	gzip -c -9 $< > $@.gz
+	./host_embc $@.gz > $@.tmp
+	cat $@.tmp | sed -e s/__embc/__gzip_logo_4/ > $@
+	$(RM) $@.tmp $@.gz
+else
+emblogo_4.c:
+	touch emblogo_4.c
+	echo "" > $@
+	echo "const char __gzip_logo_4[] = {};" >> $@
+	echo "" >> $@
+	echo "const int __gzip_logo_4_len = 0;" >> $@
+endif
+
+EMBLOGO_FILE_5 := $(shell echo $(AMBOOT_SPLASH_FILE_5))
+ifneq ($(EMBLOGO_FILE_5),)
+emblogo_5.c: $(EMBLOGO_FILE_5) host_embc
+	gzip -c -9 $< > $@.gz
+	./host_embc $@.gz > $@.tmp
+	cat $@.tmp | sed -e s/__embc/__gzip_logo_5/ > $@
+	$(RM) $@.tmp $@.gz
+else
+emblogo_5.c:
+	touch emblogo_5.c
+	echo "" > $@
+	echo "const char __gzip_logo_5[] = {};" >> $@
+	echo "" >> $@
+	echo "const int __gzip_logo_5_len = 0;" >> $@
+endif
+
+endif
+
+# Object targets
+
+ifneq ($(LINK_PRE_BUILT_BST),yes)
+%_debug.o: $(TOP)/src/bst/%.S partinfo.h
+	$(ASM_DEBUG_OBJ)
+endif
+
+%_debug.o: $(TOP)/src/bld/%.S partinfo.h
+	$(ASM_DEBUG_OBJ)
+
+util_debug.o: $(TOP)/src/bld/util.c \
+		$(TOP)/src/bld/rct_a1.c \
+		$(TOP)/src/bld/rct_a2.c \
+		$(TOP)/src/bld/rct_a2s.c \
+		$(TOP)/src/bld/rct_a3.c \
+		$(TOP)/src/bld/rct_a5.c \
+		$(TOP)/src/bld/rct_a5s.c \
+		$(TOP)/src/bld/rct_a5l.c \
+		$(TOP)/src/bld/rct_a6.c \
+		$(TOP)/src/bld/rct_a7.c \
+		$(TOP)/src/bld/rct_i1.c \
+		$(TOP)/src/bld/rct_s2.c \
+		partinfo.h
+	$(MAKE_DEBUG_OBJ)
+
+bin_info.h:
+	@echo "generate bin_info.h"
+	@echo "// # automatic generated file at $$(date); don't edit!" > $@
+	@echo "#define LENGTH_RW_DATA 0" >> $@
+	@echo "#define LENGTH_ZI_DATA 0" >> $@
+	@echo "#define IDSP_RAM_SIZE 0" >> $@
+	#@fromelf -z ../prkapp_release.elf | sed '1,8d' | awk '{print $$4}' | sed s/^/\#define\ LENGTH_RW_DATA\ / >> $@
+	#@fromelf -z ../prkapp_release.elf | sed '1,8d' | awk '{print $$5}' | sed s/^/\#define\ LENGTH_ZI_DATA\ / >> $@
+
+%_debug.o: $(TOP)/src/bld/%.c partinfo.h
+	$(MAKE_DEBUG_OBJ)
+
+%_debug.o: $(TOP)/src/flashdb/slcnand/%.c partinfo.h
+	$(MAKE_DEBUG_OBJ)
+
+%_debug.o: $(BSP_DIR)/%.S partinfo.h
+	$(ASM_DEBUG_OBJ)
+
+%_debug.o: $(BSP_DIR)/%.c partinfo.h
+	$(MAKE_DEBUG_OBJ)
+
+ifneq ($(LINK_PRE_BUILT_BST),yes)
+%_release.o: $(TOP)/src/bst/%.S partinfo.h
+	$(ASM_NDEBUG_OBJ)
+endif
+%_release.o: $(TOP)/src/bld/%.S partinfo.h
+	$(ASM_NDEBUG_OBJ)
+
+util_release.o: $(TOP)/src/bld/util.c \
+		$(TOP)/src/bld/rct_a1.c \
+		$(TOP)/src/bld/rct_a2.c \
+		$(TOP)/src/bld/rct_a2s.c \
+		$(TOP)/src/bld/rct_a3.c \
+		$(TOP)/src/bld/rct_a5.c \
+		$(TOP)/src/bld/rct_a5s.c \
+		$(TOP)/src/bld/rct_a5l.c \
+		$(TOP)/src/bld/rct_a6.c \
+		$(TOP)/src/bld/rct_a7.c \
+		$(TOP)/src/bld/rct_i1.c \
+		$(TOP)/src/bld/rct_s2.c \
+		partinfo.h
+	$(MAKE_NDEBUG_OBJ)
+
+%_release.o: $(TOP)/src/bld/%.c partinfo.h
+	$(MAKE_NDEBUG_OBJ)
+
+%_release.o: $(TOP)/src/flashdb/slcnand/%.c partinfo.h
+	$(MAKE_NDEBUG_OBJ)
+
+%_release.o: $(BSP_DIR)/%.S partinfo.h
+	$(ASM_NDEBUG_OBJ)
+
+%_release.o: $(BSP_DIR)/%.c partinfo.h
+	$(MAKE_NDEBUG_OBJ)
+
+%_prom_debug.o: $(TOP)/src/prom/%.S
+	$(ASM_DEBUG_OBJ)
+
+%_prom_debug.o: $(TOP)/src/prom/%.c
+	$(MAKE_DEBUG_OBJ)
+
+%_prom_release.o: $(TOP)/src/prom/%.S
+	$(ASM_NDEBUG_OBJ)
+
+%_prom_release.o: $(TOP)/src/prom/%.c
+	$(MAKE_NDEBUG_OBJ)
+
+ifeq ($(BUILD_AMBPROM),y)
+__MAKEDEP = \
+	$(CROSS)$(GCCDEP) $(DEFINES) $(INCLUDES) $(SRCS) > .deppre ; \
+	cat .deppre | sed -e s/.o:/_debug.o:/ > .dep ; \
+	cat .deppre | sed -e s/.o:/_release.o:/ >> .dep ; \
+	cat .deppre | sed -e s/.o:/_prom_debug.o:/ >> .dep ; \
+	cat .deppre | sed -e s/.o:/_prom_release.o:/ >> .dep ; \
+	$(RM) .deppre
+else
+__MAKEDEP = \
+	$(CROSS)$(GCCDEP) $(DEFINES) $(INCLUDES) $(SRCS) > .deppre ; \
+	cat .deppre | sed -e s/.o:/_debug.o:/ > .dep ; \
+	cat .deppre | sed -e s/.o:/_release.o:/ >> .dep ; \
+	$(RM) .deppre
+endif
+
+ifeq ($(MAKE_VERBOSE),yes)
+MAKEDEP =	$(__MAKEDEP)
+else
+MAKEDEP =	@echo "  MAKEDEP" ; $(__MAKEDEP)
+endif
+
+dep .dep:: partinfo.h bin_info.h bst_ver.h
+	$(MAKEDEP)
+
+fwlist .fwlist:: $(HOST_UTILS)
+	@/bin/echo -n "FIRMWARES =	" > .fwlist
+ifneq ($(MINIMAL_FIRMWARE_COMBO),y)
+	@./host_permutate  $(HOST_PERMUTATE_ARG) >> .fwlist
+	@./host_permutate  $(HOST_PERMUTATE_ARG) | sed -e s/amboot/bld/g >> .fwlist
+else
+	@./host_permutate -m $(HOST_PERMUTATE_ARG) | sed -e s/amboot/amboot_bld/g >> .fwlist
+	@/bin/echo -n "amboot " >> .fwlist
+ifneq ($(HAL), )
+	@/bin/echo -n "amboot_bld_hal " >> .fwlist
+	@/bin/echo -n "bld_hal " >> .fwlist
+endif
+endif
+	@rm -rf memfwprog devfw
+
+ifeq ($(MAKE_VERBOSE),yes)
+CLEANUP =	rm -rf
+else
+CLEANUP =	@echo "  CLEANUP amboot" ; rm -rf
+endif
+
+clean::
+	$(CLEANUP) \
+	partinfo.h *.c *.output *.h \
+	.dep .fwlist *.o *.elf *.bin *.idb *.stf *.map *.lds *~ \
+	$(HOST_UTILS) *.exe *.efw devfw memfwprog .temp *.ini \
+	*.piggy *.fw header_*.S devfw_*.lds memfwprog_*.lds *.log *.stackdump

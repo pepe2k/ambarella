@@ -1,0 +1,15 @@
+KERNEL=="mmcblk[0-9]p[0-9]", GOTO="sd_cards_start_mount"
+KERNEL!="mmcblk[0-9]", GOTO="sd_cards_auto_mount_end"
+
+LABEL="sd_cards_start_mount"
+# Global mount options
+ACTION=="add", ENV{mount_options}="relatime,noatime,nodiratime"
+
+# Filesystem specific options
+ACTION=="add", IMPORT{program}="/sbin/blkid -o udev -p %N"
+ACTION=="add", ENV{ID_FS_TYPE}=="vfat|ntfs", ENV{mount_options}="$env{mount_options},utf8,gid=100,umask=000"
+
+ACTION=="add", RUN+="/bin/mkdir -p /sdcard", RUN+="/bin/ln -s /sdcard /tmp/%k", RUN+="/bin/mount -o $env{mount_options} /dev/%k /sdcard"
+ACTION=="remove", RUN+="/bin/umount -l /sdcard", RUN+="/bin/rm -rf /tmp/%k", RUN+="/bin/rmdir /sdcard"
+LABEL="sd_cards_auto_mount_end"
+

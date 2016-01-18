@@ -1,0 +1,23 @@
+##
+## prebuild/third-party/AmbaConfig
+##
+## History:
+##    2012/06/19 - [Cao Rongrong] Create
+##
+## Copyright (C) 2012-2016, Ambarella, Inc.
+##
+## All rights reserved. No Part of this file may be reproduced, stored
+## in a retrieval system, or transmitted, in any form, or by any means,
+## electronic, mechanical, photocopying, recording, or otherwise,
+## without the prior consent of Ambarella, Inc.
+##
+
+menu "Ambarella Misc"
+config CONFIG_AMBARELLA_AMIRROR_SUPPORT
+	bool "Add amirror app"
+	default n
+	depends on CONFIG_ARCH_I1
+	help
+		Add amirror app.
+endmenu
+

@@ -1,0 +1,460 @@
+/*************************************************************************
+/**																		**
+/**					CSS Document(Eng Version)							**
+/**	Author :		Tang Jian											**
+/**	Date :			2010-02-02											**
+/**	Version :		0.1													**
+/**																		**
+/*************************************************************************/
+
+
+/* Global settings */
+
+body {
+	background:#8b8b8b;
+	color:#303030;
+	font:76% Verdana,Tahoma,Arial,sans-serif;
+	margin:0;
+	padding:0;
+	text-align:center;
+}
+
+a {
+	color:#505050;
+	font-weight:bold;
+	text-decoration:none;
+}
+
+a:hover {
+	color:#808080;
+	text-decoration:underline;
+}
+
+p {
+	line-height:1.5em;
+	margin:0 10px 15px;
+}
+
+label {
+	margin: 0 10px;
+}
+
+select {
+	vertical-align:middle;
+}
+
+fieldset fieldset {
+	margin: 0 10px 0 10px;
+}
+
+em {
+	color:red;
+	font-style: italic;
+}
+
+input:focus {
+	background: yellow;
+}
+
+/* Main container */
+
+#container {
+	color:#303030;
+	margin-left:auto;
+	margin-right:auto;
+	padding:0;
+	text-align:left;
+	width:800px;
+}
+
+.subcont {
+	background:#f0f0f0;
+/*	background-image:url(alt-img/bodybg-red.jpg) repeat-x;	*/
+}
+
+/* Header section */
+
+#sitename {
+	color:#ffffff;
+	height:50px;
+	margin:0 0 2px 0;
+	text-align:left;
+}
+
+.setting {
+/*	background-image:url(setting.gif)	/*TODO: add*/
+}
+
+#sitename h1, #sitename h2 {
+	font-weight:400;
+	letter-spacing:-2px;
+	margin:0;
+	padding:0;
+}
+
+#sitename h1 {
+	font-size:2.4em;
+	padding-top:20px;
+}
+
+#sitename h2 {
+	font-size:1.6em;
+}
+
+
+/* badge div */
+
+#top {
+	float:left;
+	width:800px;
+	height:30px;
+	margin:0 0 0 0;
+}
+
+#title {
+	float:right;
+	height:50px;
+	width:550px;
+/*	margin:140px 0 0 0;
+	background-image:url(img/title.gif)	*/
+}
+
+#badge {
+	float:right;
+	width:50px;
+	height:50px;
+	margin:26px 20px 16px 0;
+/*	background-image: url(img/badge.gif);	*/
+}
+
+/* Status */
+
+#status {
+	float:right;
+	width:100%;
+	background-color:#ff0000;
+	color:#ffffff;
+	visibility:hidden;
+}
+
+/* Content wrap */
+
+#wrap {
+	clear:both;
+	font-size:0.9em;
+	padding:0;
+}
+
+/* Sidebars */
+
+#menunav {
+	margin:0;
+	padding:0 10px 10px;
+	width:20%;
+	float:left;
+	margin-right:10px;
+}
+
+#menunav h1 {
+	color:#505050;
+	font-size:1.6em;
+	font-weight:bold;
+	letter-spacing:-1px;
+	margin:0 0 12px;
+}
+
+#menunav h2 {
+	font-size:1.1em;
+	margin:0 0 20px;
+}
+
+#menunav p, #rightside p {
+	font-size:0.9em;
+	line-height:1.4em;
+	margin:0 0 16px 10px;
+}
+
+/* Sidebar menu */
+
+.nav {
+	background:#e8e9ea;
+	border:1px solid #b0b0b0;
+	color:#606060;
+	display:block;
+	margin-top:8px;
+	padding:5px 4px 4px 10px;
+	position:relative;
+	text-transform:uppercase;
+	width:100%;
+}
+
+.nav:hover, .active {
+	background:#f8f9fa;
+	border:1px solid #909090;
+	color:#303030;
+	text-decoration:none;
+}
+
+.sub {
+	font-size:0.8em;
+	margin:3px 0 2px 10%;
+	padding:4px 0 2px 8px;
+	width:90%;
+}
+
+
+/* Content */
+
+#content {
+	background-color:#fafcff;
+	border:1px solid #909090;
+	color:#2a2a2a;
+	padding:15px 20px 5px;
+	margin: 0 20px 0 200px;
+}
+
+#content h1, #content h2 {
+	background-color:inherit;
+	color:#606060;
+	font-size:1.8em;
+	font-weight:bold;
+	letter-spacing:-1px;
+	margin:0 0 15px;
+	padding:0;
+	font-size:1.6em;
+	margin-bottom:10px;
+}
+
+#content img {
+	margin:0;
+	padding:0;
+}
+
+#content .imgtitle {
+	font-size: 0.8em;
+	text-decoration: underline;
+	padding: 1px 0 3px 0;
+	margin: 1px 0 3px 0;
+}
+
+#content li {
+	line-height: 150%;
+}
+
+
+/* Footer */
+
+#footer {
+	clear:both;
+	color:#d0d0d0;
+	font-size:0.9em;
+	font-weight:bold;
+	margin:0;
+	padding:20px 0;
+	text-align:center;
+	width:100%;
+}
+
+#footer a {
+	color:#d0d0d0;
+	font-weight:bold;
+}
+
+
+/* Various classes */
+
+.thumbnail {
+	background:#fafbfc;
+	border:1px solid #b0b0b0;
+	margin:0 0 10px 10px;
+	padding:5px;
+}
+
+.clearingdiv {
+	clear:both;
+	height:30px;
+	width:1px;
+}
+
+.hide {
+	display:none;
+}
+
+/* Text format */
+
+.intro {
+	font-size:1.1em;
+	font-weight:bold;
+	letter-spacing:-1px;
+}
+
+.modified {
+	font-size: 0.8em;
+	color: #CCCCCC;
+	text-align: right;
+}
+
+.small {
+	font-size:0.8em;
+}
+
+.large {
+	font-size:1.4em;
+}
+
+.center {
+	text-align:center;
+}
+
+.right {
+	text-align:right;
+}
+
+.textbox {
+	float:left;
+	margin:10px;
+	padding:10px;
+	width:25%;
+	font-weight:bold;
+	border:1px solid #909090;
+	text-align:center;
+	font-size:1.0em;
+}
+
+.form {
+	margin:50px 0 0 0;
+}
+
+.textinput, .widetextinput {
+	height:20px;
+	width:60px;
+	vertical-align:middle;
+}
+
+.widetextinput {
+	width:240px;
+}
+
+.tbtitle {
+	background-color:#E4CAFF;
+	text-align:center;
+	height:25px;
+	font-weight:bold;
+}
+
+.odd {
+	background-color:#E2F1FE;
+	text-align:center;
+	height:20px;
+}
+
+.even {
+	background-color:#EFEFEF;
+	text-align:center;
+	height:20px;
+}
+
+.style1, .style2 {
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	color: #1462B1;
+	font-size:15px;
+}
+
+.style2 {
+	text-align:center;
+	color: #181685;
+	font-size:20px;
+}
+
+#container, #top { width:800px; }
+#content { margin:0 20px 0 200px; }
+
+.left {
+	float: left;
+}
+
+.slider {
+	width: 362px;
+	height: 20px;
+	border: 1px #000 solid;
+	margin: 0;
+	overflow: hidden;
+}
+
+.bar {
+	position: relative;
+	width: 12px;
+	height: 20px;
+	overflow: hidden;
+	background: #ff0000;
+	margin: 0;
+}
+
+.barholder {
+	width: 35px;
+	height: 20px;
+	margin: 0;
+	overflow: hidden;
+}
+
+/* Expand / Fold block styles */
+.expandstyle {
+	width: 90%;
+	margin: 0px 10px 0px 10px;
+	padding: 0;
+}
+
+span {
+	float: right;
+	cursor: pointer;
+}
+
+.expandcontent {
+	height: 360px;
+	overflow: hidden;
+	display: none;
+}
+
+table.tableForm{margin: 1em 0;}
+table.tableForm th,
+table.tableForm td{font: 76% Verdana,Tahoma,Arial,sans-serif;padding: 2px 4px;}
+table.tableForm td input,
+table.tableForm td span{vertical-align: middle;}
+table.tableForm th{text-align: right;}
+table.tableForm
+{
+    margin: 1em auto;
+    border-collapse: collapse;
+}
+table.tableForm thead th
+{
+    font: 76% Verdana,Tahoma,Arial,sans-serif;
+    text-transform : uppercase;
+    text-align: left;
+    padding: 4px 8px;
+    white-space: nowrap;
+}
+table.tableForm thead th.center{text-align: center;}
+table.tableForm thead th.right{text-align: right;}
+table.tableForm tbody th
+{
+    text-align: right;
+
+    width: 200px;
+    font-weight: normal;
+    padding: 4px 4px 4px 12px;
+}
+table.tableForm tbody td{padding: 4px 8px;}
+table.tableForm tfoot th{}
+table.tableForm tfoot td{padding: 4px 8px 12px;}
+.tabelLanguages thead th
+
+{
+    text-align: left;
+    padding: 4px 8px;
+
+}
+
+/*** End of file ***/
+

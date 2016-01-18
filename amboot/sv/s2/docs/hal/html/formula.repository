@@ -1,0 +1,9 @@
+\form#0:\[ f_{out} = (\frac{reference}{prescaler})*(intprog+1+fraction)*(\frac{sdiv+1}{sout+1})*(\frac{1}{postscaler}) \]
+\form#1:\begin{equation*} fraction = \begin{cases} 0& \text{if fractional\_mode is 0}\\ (-0.5*frac[31])+(\frac{frac[30:0]}{2^{32}})& \text{if fractional\_mode is 1} \end{cases} \end{equation*}
+\form#2:\[ f_{jdiv} = \frac{f_{vco}}{sdiv+1} <= 800 MHz \]
+\form#3:\[ f_{vco} = f_{out}*(sout+1)*postscaler <= 2.2 GHz \]
+\form#4:\[ amb\_operating\_mode\_parameters\_table [][] = \{ idsp, postscaler_{idsp}, postscaler_{arm}, core, dram \} \]
+\form#5:\[ idsp\_clock\_frequency = \frac{idsp}{postscaler_{idsp}} \]
+\form#6:\[ arm\_clock\_frequency = \frac{idsp}{postscaler_{arm}} \]
+\form#7:\[ core\_clock\_frequency = core \]
+\form#8:\[ dram\_clock\_frequency = dram \]
