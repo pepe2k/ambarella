@@ -129,26 +129,26 @@ $(LOCAL_TARGET): $(LOCAL_MODULE)
 $(call add-target-into-build, $(LOCAL_TARGET))
 
 ###
-include $(CLEAR_VARS)
+##include $(CLEAR_VARS)
 
-LOCAL_TARGET	:= rtmp_video
-LOCAL_SRCS	:= $(LOCAL_PATH)/rtmp_video.cpp
-LOCAL_CFLAGS	:= -I$(AMB_TOPDIR)/packages/bsreader \
-	-I$(AMB_TOPDIR)/packages/data_transfer \
-	-I/home/shawn/rtmpdump/librtmp
-LOCAL_LDFLAGS	:= -lpthread -lrtmp -L/usr/local/lib
-LOCAL_LIBS	:= libbsreader.a libdatatx.a
+#LOCAL_TARGET	:= rtmp_video
+#LOCAL_SRCS	:= $(LOCAL_PATH)/rtmp_video.cpp
+#LOCAL_CFLAGS	:= -I$(AMB_TOPDIR)/packages/bsreader \
+#	-I$(AMB_TOPDIR)/packages/data_transfer \
+#	-I/home/shawn/rtmpdump/librtmp
+#LOCAL_LDFLAGS	:= -lpthread -lrtmp -L/usr/local/lib
+#LOCAL_LIBS	:= libbsreader.a libdatatx.a
 
-include $(BUILD_APP)
+##include $(BUILD_APP)
 
-.PHONY: $(LOCAL_TARGET)
+#.PHONY: $(LOCAL_TARGET)
 
-$(LOCAL_TARGET): $(LOCAL_MODULE)
-	@mkdir -p $(UNIT_TEST_PATH)/
-	@cp -dpRf $< $(UNIT_TEST_PATH)/
-	@echo "Build $@ Done."
+#$(LOCAL_TARGET): $(LOCAL_MODULE)
+#	@mkdir -p $(UNIT_TEST_PATH)/
+#	@cp -dpRf $< $(UNIT_TEST_PATH)/
+#	@echo "Build $@ Done."
 
-$(call add-target-into-build, $(LOCAL_TARGET))
+#$(call add-target-into-build, $(LOCAL_TARGET))
 ###
 
 ifeq ($(BUILD_AMBARELLA_BSREADER_PACKAGE), y)
