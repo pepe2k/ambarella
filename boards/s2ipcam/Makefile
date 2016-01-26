@@ -17,9 +17,9 @@ all:
 
 AMB_TOPDIR := $(shell pwd)/../..
 
-include $(AMB_TOPDIR)/build/core/definition.mk
-include $(AMB_TOPDIR)/build/core/configure.mk
-include $(AMB_TOPDIR)/build/core/menuconfig.mk
+include $(AMB_TOPDIR)/build/core/definition.mk #for clean
+include $(AMB_TOPDIR)/build/core/configure.mk  #for configure, very important
+include $(AMB_TOPDIR)/build/core/menuconfig.mk #for "make menuconfig"
 
 # Find all of make.inc
 MAKE.INC := $(shell $(AMB_TOPDIR)/build/bin/findleaves.py --prune=.git \
@@ -27,11 +27,11 @@ MAKE.INC := $(shell $(AMB_TOPDIR)/build/bin/findleaves.py --prune=.git \
 		$(AMB_TOPDIR) make.inc)
 
 include $(MAKE.INC)
-include $(AMB_TOPDIR)/build/core/dependency.mk
+include $(AMB_TOPDIR)/build/core/dependency.mk #for dependency libs and so on.
 
 all: $(ALL_TARGETS)
-	@$(MAKE) $(AMBA_MAKE_PARA) build_fsimage
-	@$(MAKE) $(AMBA_MAKE_PARA) amboot
+	$(MAKE) $(AMBA_MAKE_PARA) build_fsimage #delete @
+	$(MAKE) $(AMBA_MAKE_PARA) amboot		#delete @
 	@echo "Build Done"
 
 .PHONY: clean distclean
